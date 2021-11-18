@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "code-loader"
+version = "0.1.0"
+description = ""
+authors = ["dorhar <doron.harnoy@tensorleap.ai>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/tensorleap/code-loader"
+homepage = "https://github.com/tensorleap/code-loader"
+include = [
+    "LICENSE",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.6,<4.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+grappa = "^1.0.1"
+pytest-cov = "^3.0.0"
+pytest-watch = "^4.2.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore:.*the imp module.*:DeprecationWarning"]
