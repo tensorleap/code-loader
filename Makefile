@@ -12,7 +12,7 @@ watch:
 
 .PHONY: lint
 lint:
-	$(POETRY_MODULE) pylint code_loader tests -f colorized -j 0
+	$(POETRY_MODULE) mypy --install-types --non-interactive .
 
 .PHONY: test_with_coverage
 test_with_coverage:
