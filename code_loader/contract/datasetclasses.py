@@ -20,7 +20,7 @@ class SubsetHandler:
     ratio: float
     function: Callable[[], List[SubsetResponse]]
     name: str
-    data_length: Optional[Dict[DataStateType, int]] = field(default_factory=dict)
+    data_length: Dict[DataStateType, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -39,7 +39,7 @@ class InputHandler(DatasetBaseHandler):
 @dataclass
 class GroundTruthHandler(DatasetBaseHandler):
     type: DatasetOutputType
-    labels: List[str]
+    labels: Optional[List[str]]
     masked_input: Optional[str]
     shape: Optional[List[int]]
 

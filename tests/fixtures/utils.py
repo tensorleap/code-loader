@@ -12,5 +12,5 @@ def use_fixture(fixture_func):
 
 
 @pytest.fixture
-def refresh_setup_container():
+def refresh_setup_container() -> None:
     dataset_binder.setup_container = DatasetIntegrationSetup()
