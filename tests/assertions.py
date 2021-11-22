@@ -9,4 +9,3 @@ def assert_dataset_binder_is_valid():
     len(setup_container.inputs) | should.be.higher.than(0)
     len(setup_container.ground_truths) | should.be.higher.than(0)
     len(setup_container.metadata) | should.be.higher.than(0)
-
