@@ -1,6 +1,6 @@
 from typing import Any, Callable, List, Optional, Dict
 
-import numpy as np
+import numpy as np  # type: ignore
 from dataclasses import dataclass, field
 
 from code_loader.contract.enums import DataStateType, DatasetInputType, DatasetOutputType, DatasetMetadataType
