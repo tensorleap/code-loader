@@ -1,5 +1,5 @@
 from code_loader import dataset_binder
-from grappa import should
+from grappa import should  # type: ignore
 
 
 def assert_dataset_binder_is_valid():
