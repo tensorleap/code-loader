@@ -43,6 +43,14 @@ tomli = {version = "*", optional = true, markers = "extra == \"toml\""}
 toml = ["tomli"]
 
 [[package]]
+name = "dataclasses"
+version = "0.8"
+description = "A backport of the dataclasses module for Python 3.6"
+category = "main"
+optional = false
+python-versions = ">=3.6, <3.7"
+
+[[package]]
 name = "docopt"
 version = "0.6.2"
 description = "Pythonic argument parser, that will make you smile"
@@ -248,8 +256,8 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 
 [metadata]
 lock-version = "1.1"
-python-versions = ">=3.6,<4.0"
-content-hash = "837a45c2d720b360eb442f501b053260a6d499f83089f22ea6eac6b085dc126d"
+python-versions = ">=3.6.1,<3.7"
+content-hash = "1d8b74d2d6fe50bf9bc3369dcf42a463ba5b6e35c01eee52a7dd814de2a34167"
 
 [metadata.files]
 atomicwrites = [
@@ -312,6 +320,10 @@ coverage = [
     {file = "coverage-6.1.2-cp39-cp39-win_amd64.whl", hash = "sha256:af45eea024c0e3a25462fade161afab4f0d9d9e0d5a5d53e86149f74f0a35ecc"},
     {file = "coverage-6.1.2-pp36.pp37.pp38-none-any.whl", hash = "sha256:eab14fdd410500dae50fd14ccc332e65543e7b39f6fc076fe90603a0e5d2f929"},
     {file = "coverage-6.1.2.tar.gz", hash = "sha256:d9a635114b88c0ab462e0355472d00a180a5fbfd8511e7f18e4ac32652e7d972"},
+]
+dataclasses = [
+    {file = "dataclasses-0.8-py3-none-any.whl", hash = "sha256:0201d89fa866f68c8ebd9d08ee6ff50c0b255f8ec63a71c16fda7af82bb887bf"},
+    {file = "dataclasses-0.8.tar.gz", hash = "sha256:8479067f342acf957dc82ec415d355ab5edb7e7646b90dc6e2fd1d96ad084c97"},
 ]
 docopt = [
     {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
