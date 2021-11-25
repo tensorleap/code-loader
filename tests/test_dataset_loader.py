@@ -1,12 +1,15 @@
-from tests.assertions import assert_dataset_binder_is_valid
+from typing import Dict
+
+from tests.assertions import assert_dataset_binder_is_valid, assert_subsets_is_valid, assert_encoder_is_valid, \
+    assert_sample_is_valid
 from tests.fixtures.dataset_loaders import no_cloud_dataset_loader
-from tests.fixtures.utils import use_fixture
+from tests.fixtures.utils import use_fixture, simple_sample_params
 from tests.fixtures.utils import refresh_setup_container
 
 
 @use_fixture(no_cloud_dataset_loader)
 @use_fixture(refresh_setup_container)
-def test_DatasetLoader_exec_script_no_cloud(no_cloud_dataset_loader, refresh_setup_container):
+def test_exec_script_no_cloud(no_cloud_dataset_loader, refresh_setup_container):
     # act
     no_cloud_dataset_loader.exec_script()
 
@@ -14,15 +17,65 @@ def test_DatasetLoader_exec_script_no_cloud(no_cloud_dataset_loader, refresh_set
     assert_dataset_binder_is_valid()
 
 
-def test_subset_function_dataset_loader_no_cloud():
+@use_fixture(no_cloud_dataset_loader)
+@use_fixture(refresh_setup_container)
+def test_subsets_no_cloud(no_cloud_dataset_loader, refresh_setup_container):
     # act
+    no_cloud_dataset_loader.exec_script()
+    subsets = no_cloud_dataset_loader._subsets()
 
     # assert
-    pass
+    assert_dataset_binder_is_valid()
+    assert_subsets_is_valid(subsets)
 
 
-def test_generate_sample_dataset_loader_no_cloud():
+@use_fixture(no_cloud_dataset_loader)
+@use_fixture(refresh_setup_container)
+@use_fixture(simple_sample_params)
+def test_get_inputs_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simple_sample_params):
     # act
+    no_cloud_dataset_loader.exec_script()
+    inputs = no_cloud_dataset_loader._get_inputs(**simple_sample_params)
 
     # assert
-    pass
+    assert_dataset_binder_is_valid()
+    assert_encoder_is_valid(inputs)
+
+
+@use_fixture(no_cloud_dataset_loader)
+@use_fixture(refresh_setup_container)
+@use_fixture(simple_sample_params)
+def test_get_gt_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simple_sample_params):
+    # act
+    no_cloud_dataset_loader.exec_script()
+    gt = no_cloud_dataset_loader._get_gt(**simple_sample_params)
+
+    # assert
+    assert_dataset_binder_is_valid()
+    assert_encoder_is_valid(gt)
+
+
+@use_fixture(no_cloud_dataset_loader)
+@use_fixture(refresh_setup_container)
+@use_fixture(simple_sample_params)
+def test_get_metadata_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simple_sample_params):
+    # act
+    no_cloud_dataset_loader.exec_script()
+    metadata = no_cloud_dataset_loader._get_metadata(**simple_sample_params)
+
+    # assert
+    assert_dataset_binder_is_valid()
+    assert_encoder_is_valid(metadata)
+
+
+@use_fixture(no_cloud_dataset_loader)
+@use_fixture(refresh_setup_container)
+@use_fixture(simple_sample_params)
+def test_get_sample_dataset_loader_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simple_sample_params):
+    # act
+    no_cloud_dataset_loader.exec_script()
+    sample = no_cloud_dataset_loader.get_sample(**simple_sample_params)
+
+    # assert
+    assert_dataset_binder_is_valid()
+    assert_sample_is_valid(sample)
