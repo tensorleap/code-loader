@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 
 class DatasetInputType(Enum):
@@ -26,3 +26,9 @@ class DataStateType(Enum):
     training = "training"
     validation = "validation"
     test = "test"
+
+
+class DataStateEnum(IntEnum):
+    training = 1
+    validation = 2
+    test = 3

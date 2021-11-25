@@ -3,7 +3,8 @@ from typing import Any, Callable, List, Optional, Dict
 import numpy as np  # type: ignore
 from dataclasses import dataclass, field
 
-from code_loader.contract.enums import DataStateType, DatasetInputType, DatasetOutputType, DatasetMetadataType
+from code_loader.contract.enums import DataStateType, DatasetInputType, DatasetOutputType, DatasetMetadataType, \
+    DataStateEnum
 
 
 @dataclass
@@ -27,7 +28,7 @@ class SubsetHandler:
 class DatasetBaseHandler:
     name: str
     function: SectionCallableInterface
-    subset: str
+    subset_name: str
 
 
 @dataclass
@@ -55,3 +56,12 @@ class DatasetIntegrationSetup:
     inputs: List[InputHandler] = field(default_factory=list)
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
     metadata: List[MetadataHandler] = field(default_factory=list)
+
+
+@dataclass
+class DatasetSample:
+    inputs: Dict[str, np.ndarray]
+    gt: Dict[str, np.ndarray]
+    metadata: Dict[str, np.ndarray]
+    index: int
+    state: DataStateEnum
