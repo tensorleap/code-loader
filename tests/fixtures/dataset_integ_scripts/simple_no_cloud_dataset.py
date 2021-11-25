@@ -1,4 +1,7 @@
 from typing import List
+
+import numpy as np
+
 from code_loader import dataset_binder
 from code_loader.contract.datasetclasses import SubsetResponse
 from code_loader.contract.enums import DatasetInputType, DatasetOutputType, DatasetMetadataType
@@ -25,18 +28,18 @@ def subset_test_subset_1_10() -> List[SubsetResponse]:
     a = [0] * 4
     b = [0] * 2
     c = [0]
-    return [SubsetResponse(length=get_length(a), data=a),
-            SubsetResponse(length=get_length(b), data=b),
-            SubsetResponse(length=get_length(c), data=c)]
+    return [SubsetResponse(length=get_length(a), data=np.array(a)),
+            SubsetResponse(length=get_length(b), data=np.array(b)),
+            SubsetResponse(length=get_length(c), data=np.array(c))]
 
 
 def subset_test_subset_11_20() -> List[SubsetResponse]:
     a = [1] * 8
     b = [1] * 2
     c = [1]
-    return [SubsetResponse(length=get_length(a), data=a),
-            SubsetResponse(length=get_length(b), data=b),
-            SubsetResponse(length=get_length(c), data=c)]
+    return [SubsetResponse(length=get_length(a), data=np.array(a)),
+            SubsetResponse(length=get_length(b), data=np.array(b)),
+            SubsetResponse(length=get_length(c), data=np.array(c))]
 
 
 def input_normal_input_subset_1_10(idx, samples):
