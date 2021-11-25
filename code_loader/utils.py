@@ -10,3 +10,12 @@ def to_numpy_return_wrapper(encoder_function: SectionCallableInterface) -> Secti
         return numpy_result
 
     return numpy_encoder_function
+
+def expand_dims_wrapper(encoder_function: SectionCallableInterface) -> SectionCallableInterface:
+    def expand_dims_function(idx: int, samples: SubsetResponse) -> np.ndarray:
+        result = encoder_function(idx, samples)
+        if result.shape == ():
+            result = np.expand_dims(result, axis=0)
+        return result
+
+    return expand_dims_function

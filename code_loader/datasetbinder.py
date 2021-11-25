@@ -3,7 +3,7 @@ from typing import Callable, List, Optional
 from code_loader.contract.datasetclasses import SubsetResponse, SectionCallableInterface, SubsetHandler, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup
 from code_loader.contract.enums import DatasetInputType, DatasetOutputType, DatasetMetadataType
-from code_loader.utils import to_numpy_return_wrapper
+from code_loader.utils import to_numpy_return_wrapper, expand_dims_wrapper
 
 
 class DatasetBinder:
@@ -17,12 +17,14 @@ class DatasetBinder:
     def set_input(self, function: SectionCallableInterface, subset: str,
                   input_type: DatasetInputType, name: str) -> None:
         function = to_numpy_return_wrapper(function)
+        function = expand_dims_wrapper(function)
         self.setup_container.inputs.append(InputHandler(name, function, subset, input_type, []))
 
     def set_ground_truth(self, function: SectionCallableInterface, subset: str,
                          ground_truth_type: DatasetOutputType, name: str, labels: Optional[List[str]],
                          masked_input: Optional[str]) -> None:
         function = to_numpy_return_wrapper(function)
+        function = expand_dims_wrapper(function)
         self.setup_container.ground_truths.append(GroundTruthHandler(name, function, subset,
                                                                      ground_truth_type, labels, masked_input, []))
 
