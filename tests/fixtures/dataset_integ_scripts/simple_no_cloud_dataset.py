@@ -1,6 +1,6 @@
 from typing import List
 
-import numpy as np
+import numpy as np  # type: ignore
 
 from code_loader import dataset_binder
 from code_loader.contract.datasetclasses import SubsetResponse
