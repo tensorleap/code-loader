@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-import numpy as np
+import numpy as np  # type: ignore
 
 from code_loader import dataset_binder
 from grappa import should  # type: ignore
