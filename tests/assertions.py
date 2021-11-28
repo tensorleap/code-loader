@@ -6,6 +6,7 @@ from code_loader import dataset_binder
 from grappa import should  # type: ignore
 
 from code_loader.contract.datasetclasses import SubsetResponse, DatasetSample
+from code_loader.datasetloader import DatasetLoader
 
 
 def assert_dataset_binder_is_valid():
@@ -35,3 +36,7 @@ def assert_sample_is_valid(sample: DatasetSample):
     assert_encoder_is_valid(sample.inputs)
     assert_encoder_is_valid(sample.gt)
     assert_encoder_is_valid(sample.metadata)
+
+
+def assert_secret_exists(dataset_loader: DatasetLoader):
+    dataset_loader.global_variables | should.have.key('SECRET').that.should.be.type(str)
