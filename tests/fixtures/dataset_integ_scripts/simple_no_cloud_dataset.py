@@ -6,10 +6,6 @@ from code_loader import dataset_binder
 from code_loader.contract.datasetclasses import SubsetResponse
 from code_loader.contract.enums import DatasetInputType, DatasetOutputType, DatasetMetadataType
 
-test_parameter1 = "test_value"
-
-test_parameter2 = 222
-
 
 def get_length(data):
     if data is None:
