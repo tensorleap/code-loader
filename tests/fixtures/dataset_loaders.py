@@ -13,3 +13,12 @@ def no_cloud_dataset_loader() -> DatasetLoader:
         script = f.read()
     dataset_loader = DatasetLoader(script)
     return dataset_loader
+
+
+@pytest.fixture
+def secret_dataset_loader() -> DatasetLoader:
+    script_path = os.path.join(dataset_integ_scripts_path, "simple_dataset_wt_secret.py")
+    with open(script_path, "r") as f:
+        script = f.read()
+    dataset_loader = DatasetLoader(script)
+    return dataset_loader
