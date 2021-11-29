@@ -1,3 +1,1 @@
-from code_loader.datasetbinder import DatasetBinder
-
-dataset_binder = DatasetBinder()
+from code_loader.dataset_binder import global_dataset_binder as dataset_binder
