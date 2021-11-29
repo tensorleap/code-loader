@@ -3,8 +3,8 @@ from typing import Dict, List
 
 import numpy as np   # type: ignore
 
-from code_loader import dataset_binder
-from code_loader.contract.datasetclasses import SubsetResponse, DatasetSample
+from code_loader.dataset_binder import global_dataset_binder
+from code_loader.contract.datasetclasses import SubsetResponse, DatasetSample, DatasetIntegrationSetup
 from code_loader.contract.enums import DataStateEnum
 
 
@@ -29,7 +29,7 @@ class DatasetLoader:
     @lru_cache()
     def _subsets(self) -> Dict[str, List[SubsetResponse]]:
         subsets: Dict[str, List[SubsetResponse]] = {}
-        for subset in dataset_binder.setup_container.subsets:
+        for subset in global_dataset_binder.setup_container.subsets:
             subset_result = subset.function()
             subsets[subset.name] = subset_result
         return subsets
@@ -37,7 +37,7 @@ class DatasetLoader:
     def _get_inputs(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
         result_agg = {}
         subsets = self._subsets()
-        for input_handler in dataset_binder.setup_container.inputs:
+        for input_handler in global_dataset_binder.setup_container.inputs:
             subset = subsets[input_handler.subset_name]
             subset_state = subset[state]
             input_result = input_handler.function(idx, subset_state)
@@ -48,7 +48,7 @@ class DatasetLoader:
     def _get_gt(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
         result_agg = {}
         subsets = self._subsets()
-        for gt_handler in dataset_binder.setup_container.ground_truths:
+        for gt_handler in global_dataset_binder.setup_container.ground_truths:
             subset = subsets[gt_handler.subset_name]
             subset_state = subset[state]
             gt_result = gt_handler.function(idx, subset_state)
@@ -59,7 +59,7 @@ class DatasetLoader:
     def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
         result_agg = {}
         subsets = self._subsets()
-        for metadata_handler in dataset_binder.setup_container.metadata:
+        for metadata_handler in global_dataset_binder.setup_container.metadata:
             subset = subsets[metadata_handler.subset_name]
             subset_state = subset[state]
             metadata_result = metadata_handler.function(idx, subset_state)
