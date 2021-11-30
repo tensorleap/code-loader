@@ -11,14 +11,18 @@ from code_loader.contract.enums import DataStateEnum
 class DatasetLoader:
 
     def __init__(self, dataset_script: str):
-        self.dataset_script = dataset_script
+        self.dataset_script: str = dataset_script
         self.index_dict: Dict[str, int] = {}
         self.global_variables = {'index_dict': self.index_dict}
+        self.executed_script: bool = False
 
     def exec_script(self):
-        exec(self.dataset_script, self.global_variables)
+        if not self.executed_script:
+            exec(self.dataset_script, self.global_variables)
+            self.executed_script = True
 
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
+        self.exec_script()
         sample = DatasetSample(inputs=self._get_inputs(state, idx),
                                gt=self._get_gt(state, idx),
                                metadata=self._get_metadata(state, idx),
