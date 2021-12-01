@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Dict, List
 
-import numpy as np   # type: ignore
+import numpy as np  # type: ignore
 
 from code_loader.dataset_binder import global_dataset_binder
 from code_loader.contract.datasetclasses import SubsetResponse, DatasetSample, DatasetIntegrationSetup
