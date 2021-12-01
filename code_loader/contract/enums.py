@@ -32,3 +32,8 @@ class DataStateEnum(IntEnum):
     training = 1
     validation = 2
     test = 3
+
+
+class TestingSectionEnum(Enum):
+    Warnings = "Warnings"
+    Errors = "Errors"
