@@ -11,8 +11,8 @@ class DatasetBinder:
     def __init__(self):
         self.setup_container = DatasetIntegrationSetup()
 
-    def set_subset(self, ratio: float, function: Callable[[], List[SubsetResponse]], name: str) -> None:
-        self.setup_container.subsets.append(SubsetHandler(ratio, function, name))
+    def set_subset(self, function: Callable[[], List[SubsetResponse]], name: str) -> None:
+        self.setup_container.subsets.append(SubsetHandler(function, name))
 
     def set_input(self, function: SectionCallableInterface, subset: str,
                   input_type: DatasetInputType, name: str) -> None:
