@@ -8,7 +8,6 @@ from code_loader.contract.enums import DatasetInputType, DatasetMetadataType, Da
 @dataclass
 class DatasetSubsetInstance:
     name: str
-    ratio: float
     training_length: int
     validation_length: int
     test_length: Optional[int]

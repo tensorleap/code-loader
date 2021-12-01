@@ -68,7 +68,7 @@ class DatasetLoader:
                     test_result.display[state] = str(subset_result)
                     subset_handler.data_length[state] = subset_result.length
 
-            except Exception as e: 
+            except Exception as e:
                 line_number = get_root_exception_line_number()
                 error_string = f"{repr(e)} line number: {line_number}"
                 test_result.display[TestingSectionEnum.Errors.name] = error_string
@@ -118,7 +118,7 @@ class DatasetLoader:
 
     def get_dataset_setup_response(self) -> DatasetSetup:
         setup = global_dataset_binder.setup_container
-        subsets = [DatasetSubsetInstance(name=subset.name, ratio=subset.ratio,
+        subsets = [DatasetSubsetInstance(name=subset.name,
                                          training_length=subset.data_length.get(DataStateType.training.value),
                                          validation_length=subset.data_length.get(DataStateType.training.value),
                                          test_length=subset.data_length.get(DataStateType.training.value))

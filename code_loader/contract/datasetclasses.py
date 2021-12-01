@@ -18,7 +18,6 @@ SectionCallableInterface = Callable[[int, SubsetResponse], np.ndarray]
 
 @dataclass
 class SubsetHandler:
-    ratio: float
     function: Callable[[], List[SubsetResponse]]
     name: str
     data_length: Dict[DataStateType, int] = field(default_factory=dict)
