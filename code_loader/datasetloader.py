@@ -12,7 +12,10 @@ from code_loader.contract.responsedataclasses import DatasetIntegParseResult, Da
 from code_loader.dataset_binder import global_dataset_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
 
-MAX_PUBSUB_MSG_SIZE = 500000
+
+# TODO: add handling of large return messages (usually return of large subsets)
+# MAX_PUBSUB_MSG_SIZE = 500000
+
 
 class DatasetLoader:
 
@@ -20,12 +23,10 @@ class DatasetLoader:
         self.dataset_script: str = dataset_script
         self.index_dict: Dict[str, int] = {}
         self.global_variables = {'index_dict': self.index_dict}
-        self.executed_script: bool = False
 
+    @lru_cache()
     def exec_script(self):
-        if not self.executed_script:
-            exec(self.dataset_script, self.global_variables)
-            self.executed_script = True
+        exec(self.dataset_script, self.global_variables)
 
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
         self.exec_script()
