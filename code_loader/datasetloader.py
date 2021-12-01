@@ -57,23 +57,21 @@ class DatasetLoader:
                                        general_error=general_error)
 
     def _check_subsets(self) -> List[DatasetTestResultPayload]:
-        results_list = List[DatasetTestResultPayload]
+        results_list: List[DatasetTestResultPayload] = []
         subset_handler_list: List[SubsetHandler] = global_dataset_binder.setup_container.subsets
         for subset_handler in subset_handler_list:
             test_result = DatasetTestResultPayload(subset_handler.name)
             try:
                 subset_result_list: List[SubsetResponse] = subset_handler.function()
                 for i, subset_result in enumerate(subset_result_list):
-                    state = DataStateEnum(i).name
-                    test_result.display[state] = str(subset_result)
+                    state = DataStateType(DataStateEnum(i).name)
+                    test_result.display[state.name] = str(subset_result)
                     subset_handler.data_length[state] = subset_result.length
-
             except Exception as e:
                 line_number = get_root_exception_line_number()
                 error_string = f"{repr(e)} line number: {line_number}"
                 test_result.display[TestingSectionEnum.Errors.name] = error_string
                 test_result.is_passed = False
-
             results_list.append(test_result)
         return results_list
 
