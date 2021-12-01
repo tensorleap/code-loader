@@ -64,9 +64,9 @@ class DatasetLoader:
             test_result = DatasetTestResultPayload(subset_handler.name)
             try:
                 subset_result_list: List[SubsetResponse] = subset_handler.function()
-                for i, subset_result in enumerate(subset_result_list):
+                for i, subset_result in enumerate(subset_result_list, start=1):
                     state = DataStateType(DataStateEnum(i).name)
-                    test_result.display[state.name] = str(subset_result)
+                    test_result.display[state.name] = str(subset_result.data)
                     subset_handler.data_length[state] = subset_result.length
             except Exception as e:
                 line_number = get_root_exception_line_number()
@@ -84,7 +84,7 @@ class DatasetLoader:
         for dataset_base_handler in dataset_base_handlers:
             test_result = DatasetTestResultPayload(dataset_base_handler.name)
             subset_response_list = subsets[dataset_base_handler.subset_name]
-            for i, subset_response in enumerate(subset_response_list):
+            for i, subset_response in enumerate(subset_response_list, start=1):
                 state = DataStateEnum(i).name
                 try:
                     raw_result = dataset_base_handler.function(idx, subset_response)
@@ -93,10 +93,10 @@ class DatasetLoader:
                     test_result.shape = result_shape
 
                     # setting shape in setup for all encoders
-                    if dataset_base_handler is InputHandler:
+                    if isinstance(dataset_base_handler, InputHandler):
                         input_handler = cast(InputHandler, dataset_base_handler)
                         input_handler.shape = result_shape
-                    if dataset_base_handler is GroundTruthHandler:
+                    if isinstance(dataset_base_handler, GroundTruthHandler):
                         gt_handler = cast(GroundTruthHandler, dataset_base_handler)
                         gt_handler.shape = result_shape
 
@@ -118,9 +118,9 @@ class DatasetLoader:
     def get_dataset_setup_response(self) -> DatasetSetup:
         setup = global_dataset_binder.setup_container
         subsets = [DatasetSubsetInstance(name=subset.name,
-                                         training_length=subset.data_length.get(DataStateType.training.value),
-                                         validation_length=subset.data_length.get(DataStateType.training.value),
-                                         test_length=subset.data_length.get(DataStateType.training.value))
+                                         training_length=subset.data_length.get(DataStateType.training),
+                                         validation_length=subset.data_length.get(DataStateType.training),
+                                         test_length=subset.data_length.get(DataStateType.training))
                    for subset in setup.subsets]
 
         inputs = [DatasetInputInstance(name=inp.name, subset_name=inp.subset_name, shape=inp.shape, type=inp.type)
