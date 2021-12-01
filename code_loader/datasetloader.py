@@ -123,14 +123,14 @@ class DatasetLoader:
                                          test_length=subset.data_length.get(DataStateType.training.value))
                    for subset in setup.subsets]
 
-        inputs = [DatasetInputInstance(name=inp.name, subset=inp.subset, shape=inp.shape, type=inp.type)
+        inputs = [DatasetInputInstance(name=inp.name, subset_name=inp.subset_name, shape=inp.shape, type=inp.type)
                   for inp in setup.inputs]
 
-        ground_truths = [DatasetOutputInstance(name=gt.name, subset=gt.subset, shape=gt.shape, type=gt.type,
+        ground_truths = [DatasetOutputInstance(name=gt.name, subset_name=gt.subset_name, shape=gt.shape, type=gt.type,
                                                masked_input=gt.masked_input, labels=gt.labels)
                          for gt in setup.ground_truths]
 
-        metadata = [DatasetMetadataInstance(name=metadata.name, subset=metadata.subset, type=metadata.type)
+        metadata = [DatasetMetadataInstance(name=metadata.name, subset_name=metadata.subset_name, type=metadata.type)
                     for metadata in setup.metadata]
 
         return DatasetSetup(subsets=subsets, inputs=inputs, outputs=ground_truths, metadata=metadata)

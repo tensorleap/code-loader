@@ -16,7 +16,7 @@ class DatasetSubsetInstance:
 @dataclass
 class DatasetBaseSectionInstance:
     name: str
-    subset: str
+    subset_name: str
 
 
 @dataclass
