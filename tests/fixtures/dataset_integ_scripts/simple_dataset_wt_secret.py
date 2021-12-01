@@ -33,30 +33,12 @@ def subset_test_subset_1_10() -> List[SubsetResponse]:
             SubsetResponse(length=get_length(c), data=np.array(c))]
 
 
-def subset_test_subset_11_20() -> List[SubsetResponse]:
-    a = [1] * 8
-    b = [1] * 2
-    c = [1]
-    return [SubsetResponse(length=get_length(a), data=np.array(a)),
-            SubsetResponse(length=get_length(b), data=np.array(b)),
-            SubsetResponse(length=get_length(c), data=np.array(c))]
-
-
 def input_normal_input_subset_1_10(idx, samples):
     samples = samples.data
     batch_x = samples[idx: idx + 1]
     batch_images = []
     for x in batch_x:
         batch_images.append(x)
-    return batch_images[0]
-
-
-def input_negative_input_subset_11_20(idx, samples):
-    samples = samples.data
-    batch_x = samples[idx: idx + 1]
-    batch_images = []
-    for x in batch_x:
-        batch_images.append(x * (-1))
     return batch_images[0]
 
 
@@ -89,15 +71,10 @@ def metadata_y(idx, samples):
 
 dataset_binder.set_subset(subset_test_subset_1_10, 'test_subset_1_10')
 
-dataset_binder.set_subset(subset_test_subset_11_20, 'test_subset_11_20')
-
 dataset_binder.set_input(input_normal_input_subset_1_10, 'test_subset_1_10', DatasetInputType.Numeric,
                          'normal_input_subset_1_10')
 
-dataset_binder.set_input(input_negative_input_subset_11_20, 'test_subset_11_20', DatasetInputType.Numeric,
-                         'negative_input_subset_11_20')
-
-dataset_binder.set_ground_truth(ground_truth_output_times_20, 'test_subset_11_20', DatasetOutputType.Numeric,
+dataset_binder.set_ground_truth(ground_truth_output_times_20, 'test_subset_1_10', DatasetOutputType.Numeric,
                                 'output_times_20',
                                 labels=None, masked_input=None)
 
