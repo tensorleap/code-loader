@@ -83,9 +83,9 @@ def metadata_y(idx, samples):
     return batch_metafata[0]
 
 
-dataset_binder.set_subset(0.8, subset_test_subset_1_10, 'test_subset_1_10')
+dataset_binder.set_subset(subset_test_subset_1_10, 'test_subset_1_10')
 
-dataset_binder.set_subset(0.2, subset_test_subset_11_20, 'test_subset_11_20')
+dataset_binder.set_subset(subset_test_subset_11_20, 'test_subset_11_20')
 
 dataset_binder.set_input(input_normal_input_subset_1_10, 'test_subset_1_10', DatasetInputType.Numeric,
                          'normal_input_subset_1_10')
