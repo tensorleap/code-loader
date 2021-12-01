@@ -78,12 +78,12 @@ class DatasetLoader:
 
     def _check_handlers(self) -> List[DatasetTestResultPayload]:
         subsets = self._subsets()
-        subset_response_list = random.choice(list(subsets.values()))
         result_payloads: List[DatasetTestResultPayload] = []
         idx = 0  # TODO: implement get length and randomize index
         dataset_base_handlers: List[DatasetBaseHandler] = self._get_all_dataset_base_handlers()
         for dataset_base_handler in dataset_base_handlers:
             test_result = DatasetTestResultPayload(dataset_base_handler.name)
+            subset_response_list = subsets[dataset_base_handler.subset_name]
             for i, subset_response in enumerate(subset_response_list):
                 state = DataStateEnum(i).name
                 try:
