@@ -1,4 +1,4 @@
-from tests.assertions import assert_dataset_binder_is_valid, assert_subsets_is_valid, assert_encoder_is_valid, \
+from tests.assertions.dataset_loader import assert_dataset_binder_is_valid, assert_subsets_is_valid, assert_encoder_is_valid, \
     assert_sample_is_valid, assert_secret_exists
 from tests.fixtures.dataset_loaders import no_cloud_dataset_loader, secret_dataset_loader
 from tests.fixtures.secrets.tensorleap_demo_secret import put_mock_secret_in_env
