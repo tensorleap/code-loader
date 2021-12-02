@@ -32,3 +32,23 @@ jobs:
       run: poetry install
     - run: make test_with_coverage
       name: test
+
+  build-n-publish:
+    name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04 ]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.6'
+    - run: pip install poetry
+    - name: build python pkg
+      run: poetry build
+    - name: Publish distribution 📦 to PyPI
+#      if: startsWith(github.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
