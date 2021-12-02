@@ -34,6 +34,7 @@ jobs:
       name: test
 
   build-n-publish:
+    needs: [test, lint]
     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
     runs-on: ${{ matrix.os }}
     strategy:
