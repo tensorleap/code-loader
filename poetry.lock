@@ -55,14 +55,14 @@ numpy = ">=1.15.0"
 
 [[package]]
 name = "boto3"
-version = "1.20.14"
+version = "1.20.18"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.6"
 
 [package.dependencies]
-botocore = ">=1.23.14,<1.24.0"
+botocore = ">=1.23.18,<1.24.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.5.0,<0.6.0"
 
@@ -71,7 +71,7 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.23.14"
+version = "1.23.18"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -465,7 +465,7 @@ numpy = {version = ">=1.12", markers = "python_version == \"3.6\""}
 
 [[package]]
 name = "huggingface-hub"
-version = "0.1.2"
+version = "0.2.0"
 description = "Client library to download and publish models on the huggingface.co hub"
 category = "main"
 optional = false
@@ -498,7 +498,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "imageio"
-version = "2.12.0"
+version = "2.13.1"
 description = "Library for reading and writing a wide range of image, video, scientific, and volumetric data formats."
 category = "main"
 optional = false
@@ -1676,12 +1676,12 @@ blis = [
     {file = "blis-0.7.5.tar.gz", hash = "sha256:833e01e9eaff4c01aa6e049bbc1e6acb9eca6ee513d7b35b5bf135d49705ad33"},
 ]
 boto3 = [
-    {file = "boto3-1.20.14-py3-none-any.whl", hash = "sha256:97bbb57d9e37ee24e013d022a2b39b21b131a7b1364d4a44a1e2a16c3a66979f"},
-    {file = "boto3-1.20.14.tar.gz", hash = "sha256:df6f0c7f57a4463c9827080690046eb9381c6216d3a2f539ba74ba5c7dc84ef5"},
+    {file = "boto3-1.20.18-py3-none-any.whl", hash = "sha256:06ec67884fe9a24a95562d83c5defe4fd3b71ee6065a63de67335b443c376532"},
+    {file = "boto3-1.20.18.tar.gz", hash = "sha256:e4d0af77eb53e69adf2c77296c6cb408d8b168088905446d718bcfdab633d274"},
 ]
 botocore = [
-    {file = "botocore-1.23.14-py3-none-any.whl", hash = "sha256:28d5b0efa2d6a22232551b0b2df88a2978cbe9b1faa7ed0821dd012550b0aed6"},
-    {file = "botocore-1.23.14.tar.gz", hash = "sha256:e8d52cbf2e73c6268cf2c207f47e3cfb3ede0983f93e8b59674b54628e7ef1f1"},
+    {file = "botocore-1.23.18-py3-none-any.whl", hash = "sha256:a46fcc6a65c0ef44ec3e04e329ad2dd94cbcbc4a1e2987b56ec914fe052b6e5c"},
+    {file = "botocore-1.23.18.tar.gz", hash = "sha256:1bf5134cfeca3188bdd96584efc1de71c24f27b8cb711a28a1a331d8d7fef2aa"},
 ]
 cached-property = [
     {file = "cached-property-1.5.2.tar.gz", hash = "sha256:9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130"},
@@ -2024,16 +2024,16 @@ h5py = [
     {file = "h5py-3.1.0.tar.gz", hash = "sha256:1e2516f190652beedcb8c7acfa1c6fa92d99b42331cbef5e5c7ec2d65b0fc3c2"},
 ]
 huggingface-hub = [
-    {file = "huggingface_hub-0.1.2-py3-none-any.whl", hash = "sha256:85f020d7b3ecac3dba18f8b40043ab9bbff8cf952fa82f3be19612a3e132f1c5"},
-    {file = "huggingface_hub-0.1.2.tar.gz", hash = "sha256:d45c0174b6d638fd1101a34d7ed624197b5168d95d7b8dd219f177571840f249"},
+    {file = "huggingface_hub-0.2.0-py3-none-any.whl", hash = "sha256:69ab10437d04a95d4c425b10db92af62048d8af86ffca12b414fc25d3341441d"},
+    {file = "huggingface_hub-0.2.0.tar.gz", hash = "sha256:ec0680b2d6358bef8ae674c04dcd9411ceb5c61b049e507eab1865383b859de6"},
 ]
 idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
     {file = "idna-3.3.tar.gz", hash = "sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d"},
 ]
 imageio = [
-    {file = "imageio-2.12.0-py3-none-any.whl", hash = "sha256:21752efef07d38d920d2adfbf5acac1ad12efa4859c48de6237a87567cda9854"},
-    {file = "imageio-2.12.0.tar.gz", hash = "sha256:c416dd68328ace8536ff333cbb8927954036be56e201fed416e53e8f95e08a6c"},
+    {file = "imageio-2.13.1-py3-none-any.whl", hash = "sha256:2b45f8275bf3f513f80512da540d60268417021d217cac7c384783be0acb42fe"},
+    {file = "imageio-2.13.1.tar.gz", hash = "sha256:d3672d6a676f284c13a89d632b07b441f234caf0748e59271a18464a84172040"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-4.8.2-py3-none-any.whl", hash = "sha256:53ccfd5c134223e497627b9815d5030edf77d2ed573922f7a0b8f8bb81a1c100"},
