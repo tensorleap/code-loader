@@ -34,7 +34,7 @@ jobs:
       name: test
 
   build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+    name: Build and publish Python 🐍 distributions 📦 to PyPI 
     needs: [test, lint]
     if: ${{ github.ref_name == 'master' }}
     runs-on: ${{ matrix.os }}
@@ -47,6 +47,14 @@ jobs:
       with:
         python-version: '3.6'
     - run: pip install poetry
+    - name: Bump patch version
+      run: poetry version patch
+    - uses: EndBug/add-and-commit@v7
+      with:
+        committer_name: GitHub Actions
+        committer_email: 41898282+github-actions[bot]@users.noreply.github.com
+        message: 'bump version'
+        push: true
     - run: poetry build
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@master
