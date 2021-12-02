@@ -6,8 +6,7 @@ from code_loader.contract.enums import DatasetInputType, DatasetMetadataType, Da
 
 
 @dataclass
-class DatasetSubsetInstance:
-    name: str
+class DatasetPreprocess:
     training_length: int
     validation_length: int
     test_length: Optional[int]
@@ -40,10 +39,10 @@ class DatasetOutputInstance(DatasetBaseSectionInstance):
 
 @dataclass
 class DatasetSetup:
+    preprocess: DatasetPreprocess
     inputs: List[DatasetInputInstance]
     metadata: List[DatasetMetadataInstance]
     outputs: List[DatasetOutputInstance]
-    subsets: List[DatasetSubsetInstance]
 
 
 @dataclass

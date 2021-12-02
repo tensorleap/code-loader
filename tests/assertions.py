@@ -1,28 +1,21 @@
-from typing import Dict, List
+from typing import Dict
 
-import numpy as np  # type: ignore
+import numpy as np
 
 from code_loader import dataset_binder
 from grappa import should  # type: ignore
 
-from code_loader.contract.datasetclasses import SubsetResponse, DatasetSample
+from code_loader.contract.datasetclasses import DatasetSample, PreprocessHandler
 from code_loader.datasetloader import DatasetLoader
 
 
 def assert_dataset_binder_is_valid():
     setup_container = dataset_binder.setup_container
 
-    len(setup_container.subsets) | should.be.higher.than(0)
+    setup_container.preprocess | should.be.type(PreprocessHandler)
     len(setup_container.inputs) | should.be.higher.than(0)
     len(setup_container.ground_truths) | should.be.higher.than(0)
     len(setup_container.metadata) | should.be.higher.than(0)
-
-
-def assert_subsets_is_valid(subsets: Dict[str, List[SubsetResponse]]):
-    for subset_name, list_subset_response in subsets.items():
-        subset_name | should.be.type(str)
-        for subset_response in list_subset_response:
-            subset_response | should.be.type(SubsetResponse)
 
 
 def assert_encoder_is_valid(encoder_result: Dict[str, np.ndarray]):

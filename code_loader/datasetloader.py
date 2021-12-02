@@ -1,20 +1,20 @@
-import random
 from functools import lru_cache
 from typing import Dict, List, cast
 
 import numpy as np  # type: ignore
 
-from code_loader.contract.datasetclasses import SubsetResponse, DatasetSample, DatasetBaseHandler, InputHandler, \
-    GroundTruthHandler, SubsetHandler
+from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
+    GroundTruthHandler, PreprocessResponse
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
-    DatasetSubsetInstance, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance
+    DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance
 from code_loader.dataset_binder import global_dataset_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
 
 
 # TODO: add handling of large return messages (usually return of large subsets)
 # MAX_PUBSUB_MSG_SIZE = 500000
+
 
 
 class DatasetLoader:
@@ -43,7 +43,7 @@ class DatasetLoader:
         general_error = None
         try:
             self.exec_script()
-            subset_test_payloads = self._check_subsets()
+            subset_test_payloads = self._check_preprocess()
             test_payloads.extend(subset_test_payloads)
             subset_test_payloads = self._check_handlers()
             test_payloads.extend(subset_test_payloads)
@@ -57,37 +57,37 @@ class DatasetLoader:
         return DatasetIntegParseResult(is_valid=is_valid, payloads=test_payloads, setup=setup_response,
                                        general_error=general_error)
 
-    def _check_subsets(self) -> List[DatasetTestResultPayload]:
+    @staticmethod
+    def _check_preprocess() -> List[DatasetTestResultPayload]:
         results_list: List[DatasetTestResultPayload] = []
-        subset_handler_list: List[SubsetHandler] = global_dataset_binder.setup_container.subsets
-        for subset_handler in subset_handler_list:
-            test_result = DatasetTestResultPayload(subset_handler.name)
-            try:
-                subset_result_list: List[SubsetResponse] = subset_handler.function()
-                for i, subset_result in enumerate(subset_result_list):
-                    state = DataStateType(DataStateEnum(i).name)
-                    test_result.display[state.name] = str(subset_result)
-                    subset_handler.data_length[state] = subset_result.length
-            except Exception as e:
-                line_number = get_root_exception_line_number()
-                error_string = f"{repr(e)} line number: {line_number}"
-                test_result.display[TestingSectionEnum.Errors.name] = error_string
-                test_result.is_passed = False
+        preprocess_handler = global_dataset_binder.setup_container.preprocess
+        preprocess_name = 'preprocess'
+        test_result = DatasetTestResultPayload(preprocess_name)
+        try:
+            preprocess_result_list = preprocess_handler.function()
+            for i, preprocess_result in enumerate(preprocess_result_list):
+                state = DataStateType(DataStateEnum(i).name)
+                test_result.display[state.name] = preprocess_name
+                preprocess_handler.data_length[state] = preprocess_result.length
+        except Exception as e:
+            line_number = get_root_exception_line_number()
+            error_string = f"{repr(e)} line number: {line_number}"
+            test_result.display[TestingSectionEnum.Errors.name] = error_string
+            test_result.is_passed = False
             results_list.append(test_result)
         return results_list
 
     def _check_handlers(self) -> List[DatasetTestResultPayload]:
-        subsets = self._subsets()
-        subset_response_list = random.choice(list(subsets.values()))
+        preprocess_result = self._preprocess_result()
         result_payloads: List[DatasetTestResultPayload] = []
-        idx = 0  # TODO: implement get length and randomize index
+        idx = 0
         dataset_base_handlers: List[DatasetBaseHandler] = self._get_all_dataset_base_handlers()
         for dataset_base_handler in dataset_base_handlers:
             test_result = DatasetTestResultPayload(dataset_base_handler.name)
-            for i, subset_response in enumerate(subset_response_list):
+            for i, preprocess_response in enumerate(preprocess_result):
                 state = DataStateEnum(i).name
                 try:
-                    raw_result = dataset_base_handler.function(idx, subset_response)
+                    raw_result = dataset_base_handler.function(idx, preprocess_response)
                     test_result.display[state] = str(raw_result)
                     result_shape = get_shape(raw_result)
                     test_result.shape = result_shape
@@ -111,17 +111,19 @@ class DatasetLoader:
 
         return result_payloads
 
-    def _get_all_dataset_base_handlers(self) -> List[DatasetBaseHandler]:
-        return global_dataset_binder.setup_container.inputs + global_dataset_binder.setup_container.ground_truths + \
+    @staticmethod
+    def _get_all_dataset_base_handlers() -> List[DatasetBaseHandler]:
+        return global_dataset_binder.setup_container.inputs + \
+               global_dataset_binder.setup_container.ground_truths + \
                global_dataset_binder.setup_container.metadata
 
-    def get_dataset_setup_response(self) -> DatasetSetup:
+    @staticmethod
+    def get_dataset_setup_response() -> DatasetSetup:
         setup = global_dataset_binder.setup_container
-        subsets = [DatasetSubsetInstance(name=subset.name,
-                                         training_length=subset.data_length.get(DataStateType.training.value),
-                                         validation_length=subset.data_length.get(DataStateType.training.value),
-                                         test_length=subset.data_length.get(DataStateType.training.value))
-                   for subset in setup.subsets]
+        dataset_preprocess = DatasetPreprocess(
+            training_length=setup.preprocess.data_length.get(DataStateType.training.value),
+            validation_length=setup.preprocess.data_length.get(DataStateType.training.value),
+            test_length=setup.preprocess.data_length.get(DataStateType.training.value))
 
         inputs = [DatasetInputInstance(name=inp.name, subset=inp.subset, shape=inp.shape, type=inp.type)
                   for inp in setup.inputs]
@@ -133,46 +135,32 @@ class DatasetLoader:
         metadata = [DatasetMetadataInstance(name=metadata.name, subset=metadata.subset, type=metadata.type)
                     for metadata in setup.metadata]
 
-        return DatasetSetup(subsets=subsets, inputs=inputs, outputs=ground_truths, metadata=metadata)
+        return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata)
 
     @lru_cache()
-    def _subsets(self) -> Dict[str, List[SubsetResponse]]:
-        subsets: Dict[str, List[SubsetResponse]] = {}
-        for subset in global_dataset_binder.setup_container.subsets:
-            # TODO: add caching of subset result
-            subset_result = subset.function()
-            subsets[subset.name] = subset_result
-        return subsets
+    def _preprocess_result(self) -> List[PreprocessResponse]:
+        preprocess = global_dataset_binder.setup_container.preprocess
+        # TODO: add caching of subset result
+        preprocess_result = preprocess.function()
+
+        return preprocess_result
+
+    def _get_dataset_handlers(
+            self, handlers: List[DatasetBaseHandler], state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
+        result_agg = {}
+        preprocess_result = self._preprocess_result()
+        for handler in handlers:
+            preprocess_state = preprocess_result[state]
+            handler_result = handler.function(idx, preprocess_state)
+            handler_name = handler.name
+            result_agg[handler_name] = handler_result
+        return result_agg
 
     def _get_inputs(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
-        result_agg = {}
-        subsets = self._subsets()
-        for input_handler in global_dataset_binder.setup_container.inputs:
-            subset = subsets[input_handler.subset_name]
-            subset_state = subset[state]
-            input_result = input_handler.function(idx, subset_state)
-            input_name = input_handler.name
-            result_agg[input_name] = input_result
-        return result_agg
+        return self._get_dataset_handlers(global_dataset_binder.setup_container.inputs, state, idx)
 
     def _get_gt(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
-        result_agg = {}
-        subsets = self._subsets()
-        for gt_handler in global_dataset_binder.setup_container.ground_truths:
-            subset = subsets[gt_handler.subset_name]
-            subset_state = subset[state]
-            gt_result = gt_handler.function(idx, subset_state)
-            gt_name = gt_handler.name
-            result_agg[gt_name] = gt_result
-        return result_agg
+        return self._get_dataset_handlers(global_dataset_binder.setup_container.ground_truths, state, idx)
 
     def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
-        result_agg = {}
-        subsets = self._subsets()
-        for metadata_handler in global_dataset_binder.setup_container.metadata:
-            subset = subsets[metadata_handler.subset_name]
-            subset_state = subset[state]
-            metadata_result = metadata_handler.function(idx, subset_state)
-            metadata_name = metadata_handler.name
-            result_agg[metadata_name] = metadata_result
-        return result_agg
+        return self._get_dataset_handlers(global_dataset_binder.setup_container.metadata, state, idx)

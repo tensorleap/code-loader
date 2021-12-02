@@ -5,35 +5,40 @@ from dataclasses import dataclass, field
 
 from code_loader.contract.enums import DataStateType, DatasetInputType, DatasetOutputType, DatasetMetadataType, \
     DataStateEnum
+from code_loader.decoders.decoder_base import DecoderBase
 
 
 @dataclass
-class SubsetResponse:
+class PreprocessResponse:
     length: int
     data: Any
 
 
-SectionCallableInterface = Callable[[int, SubsetResponse], np.ndarray]
+SectionCallableInterface = Callable[[int, PreprocessResponse], np.ndarray]
 
 
 @dataclass
-class SubsetHandler:
-    function: Callable[[], List[SubsetResponse]]
-    name: str
+class PreprocessHandler:
+    function: Callable[[], List[PreprocessResponse]]
     data_length: Dict[DataStateType, int] = field(default_factory=dict)
+
+
+@dataclass
+class DecoderHandler:
+    decoder: DecoderBase
 
 
 @dataclass
 class DatasetBaseHandler:
     name: str
     function: SectionCallableInterface
-    subset_name: str
 
 
 @dataclass
 class InputHandler(DatasetBaseHandler):
     type: DatasetInputType
     shape: Optional[List[int]]
+    decoder_name: str
 
 
 @dataclass
@@ -42,6 +47,7 @@ class GroundTruthHandler(DatasetBaseHandler):
     labels: Optional[List[str]]
     masked_input: Optional[str]
     shape: Optional[List[int]]
+    decoder_name: str
 
 
 @dataclass
@@ -51,7 +57,8 @@ class MetadataHandler(DatasetBaseHandler):
 
 @dataclass
 class DatasetIntegrationSetup:
-    subsets: List[SubsetHandler] = field(default_factory=list)
+    preprocess: PreprocessHandler = None
+    decoders: List[DecoderHandler] = field(default_factory=list)
     inputs: List[InputHandler] = field(default_factory=list)
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
     metadata: List[MetadataHandler] = field(default_factory=list)
