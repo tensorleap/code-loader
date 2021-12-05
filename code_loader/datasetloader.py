@@ -1,6 +1,6 @@
 import random
 from functools import lru_cache
-from typing import Dict, List, cast
+from typing import Dict, List
 
 import numpy as np  # type: ignore
 
@@ -25,7 +25,7 @@ class DatasetLoader:
         self.global_variables = {'index_dict': self.index_dict}
 
     @lru_cache()
-    def exec_script(self):
+    def exec_script(self) -> None:
         exec(self.dataset_script, self.global_variables)
 
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
@@ -93,12 +93,8 @@ class DatasetLoader:
                     test_result.shape = result_shape
 
                     # setting shape in setup for all encoders
-                    if isinstance(dataset_base_handler, InputHandler):
-                        input_handler = cast(InputHandler, dataset_base_handler)
-                        input_handler.shape = result_shape
-                    if isinstance(dataset_base_handler, GroundTruthHandler):
-                        gt_handler = cast(GroundTruthHandler, dataset_base_handler)
-                        gt_handler.shape = result_shape
+                    if isinstance(dataset_base_handler, (InputHandler, GroundTruthHandler)):
+                        dataset_base_handler.shape = result_shape
 
                 except Exception as e:
                     line_number = get_root_exception_line_number()
@@ -112,23 +108,34 @@ class DatasetLoader:
         return result_payloads
 
     def _get_all_dataset_base_handlers(self) -> List[DatasetBaseHandler]:
-        return global_dataset_binder.setup_container.inputs + global_dataset_binder.setup_container.ground_truths + \
-               global_dataset_binder.setup_container.metadata
+        all_dataset_base_handlers: List[DatasetBaseHandler] = []
+        all_dataset_base_handlers.extend(global_dataset_binder.setup_container.inputs)
+        all_dataset_base_handlers.extend(global_dataset_binder.setup_container.ground_truths)
+        all_dataset_base_handlers.extend(global_dataset_binder.setup_container.metadata)
+        return all_dataset_base_handlers
 
     def get_dataset_setup_response(self) -> DatasetSetup:
         setup = global_dataset_binder.setup_container
         subsets = [DatasetSubsetInstance(name=subset.name,
-                                         training_length=subset.data_length.get(DataStateType.training),
-                                         validation_length=subset.data_length.get(DataStateType.training),
+                                         training_length=subset.data_length[DataStateType.training],
+                                         validation_length=subset.data_length[DataStateType.training],
                                          test_length=subset.data_length.get(DataStateType.training))
                    for subset in setup.subsets]
 
-        inputs = [DatasetInputInstance(name=inp.name, subset_name=inp.subset_name, shape=inp.shape, type=inp.type)
-                  for inp in setup.inputs]
+        inputs = []
+        for inp in setup.inputs:
+            if inp.shape is None:
+                raise Exception(f"cant calculate shape for input, input name:{inp.name}, input type:{inp.type}")
+            inputs.append(DatasetInputInstance(name=inp.name, subset_name=inp.subset_name, shape=inp.shape,
+                                               type=inp.type))
 
-        ground_truths = [DatasetOutputInstance(name=gt.name, subset_name=gt.subset_name, shape=gt.shape, type=gt.type,
-                                               masked_input=gt.masked_input, labels=gt.labels)
-                         for gt in setup.ground_truths]
+        ground_truths = []
+        for gt in setup.ground_truths:
+            if gt.shape is None:
+                raise Exception(f"cant calculate shape for ground truth, gt name:{gt.name}, gt type:{gt.type}")
+            ground_truths.append(
+                DatasetOutputInstance(name=gt.name, subset_name=gt.subset_name, shape=gt.shape, type=gt.type,
+                                      masked_input=gt.masked_input, labels=gt.labels))
 
         metadata = [DatasetMetadataInstance(name=metadata.name, subset_name=metadata.subset_name, type=metadata.type)
                     for metadata in setup.metadata]
