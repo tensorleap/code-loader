@@ -8,7 +8,7 @@ from code_loader.utils import to_numpy_return_wrapper
 
 class DatasetBinder:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.setup_container = DatasetIntegrationSetup()
 
     def set_subset(self, function: Callable[[], List[SubsetResponse]], name: str) -> None:
