@@ -14,6 +14,14 @@ watch:
 lint:
 	$(POETRY_MODULE) mypy --install-types --non-interactive .
 
+.PHONY: lint_strict_code
+lint_strict_code:
+	$(POETRY_MODULE) mypy --install-types --non-interactive --strict code_loader
+
+.PHONY: lint_tests
+lint_tests:
+	$(POETRY_MODULE) mypy --install-types --non-interactive tests
+
 .PHONY: test_with_coverage
 test_with_coverage:
 	$(PYTEST) --cov=code_loader --cov-branch --no-cov-on-fail --cov-report term-missing --cov-report html -v tests/

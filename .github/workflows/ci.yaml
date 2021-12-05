@@ -14,8 +14,10 @@ jobs:
     - run: pip install poetry
     - name: install dependencies
       run: poetry install
-    - name: Lint
-      run: make lint
+    - name: Lint strict code files - run mypy static types anlysis in strict mode
+      run: make lint_strict_code
+    - name: Lint tests files - run mypy static types anlysis
+      run: make lint_tests
 
   test:
     runs-on: ${{ matrix.os }}
