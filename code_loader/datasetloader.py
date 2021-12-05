@@ -64,9 +64,9 @@ class DatasetLoader:
             test_result = DatasetTestResultPayload(subset_handler.name)
             try:
                 subset_result_list: List[SubsetResponse] = subset_handler.function()
-                for i, subset_result in enumerate(subset_result_list, start=1):
-                    state = DataStateType(DataStateEnum(i).name)
-                    test_result.display[state.name] = str(subset_result.data)
+                for state, subset_result in zip(list(DataStateType), subset_result_list):
+                    state_name = state.name
+                    test_result.display[state_name] = str(subset_result.data)
                     subset_handler.data_length[state] = subset_result.length
             except Exception as e:
                 line_number = get_root_exception_line_number()
@@ -84,11 +84,11 @@ class DatasetLoader:
         for dataset_base_handler in dataset_base_handlers:
             test_result = DatasetTestResultPayload(dataset_base_handler.name)
             subset_response_list = subsets[dataset_base_handler.subset_name]
-            for i, subset_response in enumerate(subset_response_list, start=1):
-                state = DataStateEnum(i).name
+            for state, subset_response in zip(list(DataStateEnum), subset_response_list):
+                state_name = state.name
                 try:
                     raw_result = dataset_base_handler.function(idx, subset_response)
-                    test_result.display[state] = str(raw_result)
+                    test_result.display[state_name] = str(raw_result)
                     result_shape = get_shape(raw_result)
                     test_result.shape = result_shape
 
@@ -98,7 +98,7 @@ class DatasetLoader:
 
                 except Exception as e:
                     line_number = get_root_exception_line_number()
-                    test_result.display[state] = f"{repr(e)} line number: {line_number}"
+                    test_result.display[state_name] = f"{repr(e)} line number: {line_number}"
                     test_result.is_passed = False
 
             # TODO: check types
