@@ -36,3 +36,10 @@ def assert_sample_is_valid(sample: DatasetSample):
     assert_encoder_is_valid(sample.metadata)
 
 
+def assert_word_to_index_in_cache_container(expected_key: str, expected_value: Any) -> None:
+    dataset_binder.cache_container | should.have.key("word_to_index")
+    dataset_binder.cache_container["word_to_index"][expected_key] | should.be.equal(expected_value)
+
+
+def assert_input_has_value(actual_input: Any, expected_input: Any) -> None:
+    actual_input | should.be.equal(expected_input)
