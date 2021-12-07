@@ -1,6 +1,6 @@
 import random
 from functools import lru_cache
-from typing import Dict, List
+from typing import Dict, List, Any
 
 import numpy as np  # type: ignore
 
@@ -21,12 +21,11 @@ class DatasetLoader:
 
     def __init__(self, dataset_script: str):
         self.dataset_script: str = dataset_script
-        self.index_dict: Dict[str, int] = {}
-        self.global_variables = {'index_dict': self.index_dict}
 
     @lru_cache()
     def exec_script(self) -> None:
-        exec(self.dataset_script, self.global_variables)
+        global_variables: Dict[Any, Any] = {}
+        exec(self.dataset_script, global_variables)
 
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
         self.exec_script()
