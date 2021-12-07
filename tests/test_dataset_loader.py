@@ -80,13 +80,8 @@ def test_get_sample_dataset_loader_no_cloud(no_cloud_dataset_loader, refresh_set
     assert_sample_is_valid(sample)
 
 
-@use_fixture(secret_dataset_loader)
 @use_fixture(refresh_setup_container)
-@use_fixture(put_mock_secret_in_env)
-def test_exec_script_secret_is_loaded(secret_dataset_loader, refresh_setup_container, put_mock_secret_in_env):
     # act
-    secret_dataset_loader.exec_script()
 
     # assert
     assert_dataset_binder_is_valid()
-    assert_secret_exists(secret_dataset_loader)
