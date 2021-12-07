@@ -1,4 +1,4 @@
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Dict, Any
 
 from code_loader.contract.datasetclasses import SubsetResponse, SectionCallableInterface, SubsetHandler, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup
@@ -10,6 +10,7 @@ class DatasetBinder:
 
     def __init__(self) -> None:
         self.setup_container = DatasetIntegrationSetup()
+        self.cache_container: Dict[str, Any] = {"word_to_index": {}}
 
     def set_subset(self, function: Callable[[], List[SubsetResponse]], name: str) -> None:
         self.setup_container.subsets.append(SubsetHandler(function, name))
