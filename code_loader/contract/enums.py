@@ -29,9 +29,9 @@ class DataStateType(Enum):
 
 
 class DataStateEnum(IntEnum):
-    training = 1
-    validation = 2
-    test = 3
+    training = 0
+    validation = 1
+    test = 2
 
 
 # todo: handle test not run due to error in pre process and Add to TestingSectionEnum Enum didn't run
