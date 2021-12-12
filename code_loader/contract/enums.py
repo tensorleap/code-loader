@@ -1,6 +1,13 @@
 from enum import Enum, IntEnum
 
 
+class LeapDataType(Enum):
+    Image = 'Image'
+    Text = 'Text'
+    Graph = 'Graph'
+    Numeric = 'Numeric'
+
+
 class DatasetInputType(Enum):
     Image = "Image"
     Text = "Text"
