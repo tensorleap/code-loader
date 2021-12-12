@@ -1,6 +1,5 @@
-from tests.assertions.dataset_loader import assert_dataset_binder_is_valid, assert_subsets_is_valid, \
-    assert_encoder_is_valid, assert_sample_is_valid, assert_word_to_index_in_cache_container, assert_input_has_value, \
-    assert_metadata_encoder_is_valid
+from tests.assertions.dataset_loader import assert_dataset_binder_is_valid, \
+    assert_encoder_is_valid, assert_sample_is_valid, assert_word_to_index_in_cache_container, assert_input_has_value
 from tests.fixtures.dataset_integ_scripts.scripts_metadata import word_idx_dataset_params
 from tests.fixtures.dataset_loaders import no_cloud_dataset_loader, word_idx_dataset_loader
 from tests.fixtures.utils import refresh_setup_container
@@ -15,18 +14,6 @@ def test_exec_script_no_cloud(no_cloud_dataset_loader, refresh_setup_container):
 
     # assert
     assert_dataset_binder_is_valid()
-
-
-@use_fixture(no_cloud_dataset_loader)
-@use_fixture(refresh_setup_container)
-def test_subsets_no_cloud(no_cloud_dataset_loader, refresh_setup_container):
-    # act
-    no_cloud_dataset_loader.exec_script()
-    subsets = no_cloud_dataset_loader._subsets()
-
-    # assert
-    assert_dataset_binder_is_valid()
-    assert_subsets_is_valid(subsets)
 
 
 @use_fixture(no_cloud_dataset_loader)
@@ -86,7 +73,7 @@ def test_get_sample_dataset_loader_no_cloud(no_cloud_dataset_loader, refresh_set
 def test_word_to_index(word_idx_dataset_loader, refresh_setup_container, word_idx_dataset_params):
     # act
     word_idx_dataset_loader.exec_script()
-    word_idx_dataset_loader._subsets()
+    word_idx_dataset_loader._preprocess_result()
 
     # assert
     assert_dataset_binder_is_valid()

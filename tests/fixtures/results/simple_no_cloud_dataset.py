@@ -2,27 +2,25 @@ import pytest
 
 from code_loader.contract.enums import DatasetInputType, DatasetMetadataType, DatasetOutputType
 from code_loader.contract.responsedataclasses import DatasetSetup, DatasetInputInstance, DatasetMetadataInstance, \
-    DatasetOutputInstance, DatasetSubsetInstance, DatasetIntegParseResult, DatasetTestResultPayload
+    DatasetOutputInstance, DatasetIntegParseResult, DatasetTestResultPayload, DatasetPreprocess
 
 
 @pytest.fixture
 def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
     expected_setup = DatasetSetup(
         inputs=[
-            DatasetInputInstance(name='normal_input_subset_1_10', subset_name='test_subset_1_10', shape=[1],
+            DatasetInputInstance(name='normal_input_subset_1_10', shape=[1],
                                  type=DatasetInputType.Numeric)],
         metadata=[
-            DatasetMetadataInstance(name='x', subset_name='test_subset_1_10', type=DatasetMetadataType.int),
-            DatasetMetadataInstance(name='y', subset_name='test_subset_1_10', type=DatasetMetadataType.string)],
+            DatasetMetadataInstance(name='x', type=DatasetMetadataType.int),
+            DatasetMetadataInstance(name='y', type=DatasetMetadataType.string)],
         outputs=[
-            DatasetOutputInstance(name='output_times_20', subset_name='test_subset_1_10', shape=[1],
+            DatasetOutputInstance(name='output_times_20', shape=[1],
                                   type=DatasetOutputType.Numeric, masked_input=None, labels=None)],
-        subsets=[
-            DatasetSubsetInstance(name='test_subset_1_10', training_length=4, validation_length=2,
-                                  test_length=1)])
+        preprocess=DatasetPreprocess(training_length=4, validation_length=2, test_length=1))
 
     expected_payloads = [
-        DatasetTestResultPayload(name='test_subset_1_10', display={
+        DatasetTestResultPayload(name='preprocess', display={
             'training': '[0 0 0 0]',
             'validation': '[0 0]',
             'test': '[0]'}, is_passed=True, shape=None),
