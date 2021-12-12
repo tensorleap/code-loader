@@ -1,10 +1,10 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Union
 
 import numpy as np  # type: ignore
 from grappa import should  # type: ignore
 
 from code_loader import dataset_binder
-from code_loader.contract.datasetclasses import SubsetResponse, DatasetSample
+from code_loader.contract.datasetclasses import SubsetResponse, DatasetSample, SectionEnum
 
 
 def assert_dataset_binder_is_valid() -> None:
@@ -29,11 +29,17 @@ def assert_encoder_is_valid(encoder_result: Dict[str, np.ndarray]) -> None:
         type(encoder_data) | should.be.type(type(np.ndarray))
 
 
+def assert_sample_identity(sample_identity: Dict[str, Union[str, int]]):
+    sample_identity["index"] | should.be.type(int)
+    sample_identity["subset"] | should.be.type(str)
+    sample_identity["state"] | should.be.type(str)
+
+
 def assert_sample_is_valid(sample: DatasetSample):
-    sample | should.be.type(DatasetSample)
-    assert_encoder_is_valid(sample.inputs)
-    assert_encoder_is_valid(sample.gt)
-    assert_encoder_is_valid(sample.metadata)
+    assert_encoder_is_valid(sample[SectionEnum.inputs.name])
+    assert_encoder_is_valid(sample[SectionEnum.ground_truths.name])
+    assert_encoder_is_valid(sample[SectionEnum.metadata.name])
+    assert_sample_identity(sample[SectionEnum.sample_identity.name])
 
 
 def assert_word_to_index_in_cache_container(expected_key: str, expected_value: Any) -> None:

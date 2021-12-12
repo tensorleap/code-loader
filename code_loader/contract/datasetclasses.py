@@ -1,10 +1,10 @@
-from typing import Any, Callable, List, Optional, Dict
+from enum import Enum
+from typing import Any, Callable, List, Optional, Dict, Union
 
 import numpy as np  # type: ignore
 from dataclasses import dataclass, field
 
-from code_loader.contract.enums import DataStateType, DatasetInputType, DatasetOutputType, DatasetMetadataType, \
-    DataStateEnum
+from code_loader.contract.enums import DataStateType, DatasetInputType, DatasetOutputType, DatasetMetadataType
 
 
 @dataclass
@@ -57,10 +57,12 @@ class DatasetIntegrationSetup:
     metadata: List[MetadataHandler] = field(default_factory=list)
 
 
-@dataclass
-class DatasetSample:
-    inputs: Dict[str, np.ndarray]
-    gt: Dict[str, np.ndarray]
-    metadata: Dict[str, np.ndarray]
-    index: int
-    state: DataStateEnum
+class SectionEnum(Enum):
+    inputs = "inputs"
+    ground_truths = "ground_truths"
+    metadata = "metadata"
+    sample_identity = "sample_identity"
+    subsets = "subsets"
+
+
+DatasetSample = Dict[str, Dict[str, Union[np.ndarray, int, str]]]

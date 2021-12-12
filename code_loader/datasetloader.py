@@ -1,11 +1,10 @@
-import random
 from functools import lru_cache
 from typing import Dict, List, Any
 
 import numpy as np  # type: ignore
 
 from code_loader.contract.datasetclasses import SubsetResponse, DatasetSample, DatasetBaseHandler, InputHandler, \
-    GroundTruthHandler, SubsetHandler
+    GroundTruthHandler, SubsetHandler, SectionEnum
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetSubsetInstance, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance
@@ -29,11 +28,18 @@ class DatasetLoader:
 
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
         self.exec_script()
-        sample = DatasetSample(inputs=self._get_inputs(state, idx),
-                               gt=self._get_gt(state, idx),
-                               metadata=self._get_metadata(state, idx),
-                               index=idx,
-                               state=state)
+        # TODO remove this when we move to one preprocess instead of many subsets
+        subset_name = global_dataset_binder.setup_container.subsets[0].name
+        sample = {
+            SectionEnum.inputs.value: self._get_inputs(state, idx),
+            SectionEnum.ground_truths.value: self._get_gt(state, idx),
+            SectionEnum.metadata.value: self._get_metadata(state, idx),
+            SectionEnum.sample_identity.name: {
+                "index": idx,
+                "state": state.name,
+                "subset": subset_name
+            },
+        }
         return sample
 
     def check_dataset(self) -> DatasetIntegParseResult:
