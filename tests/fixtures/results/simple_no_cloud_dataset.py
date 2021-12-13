@@ -18,8 +18,8 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
             DatasetOutputInstance(name='output_times_20', subset_name='test_subset_1_10', shape=[1],
                                   type=DatasetOutputType.Numeric, masked_input=None, labels=None)],
         subsets=[
-            DatasetSubsetInstance(name='test_subset_1_10', training_length=4, validation_length=4,
-                                  test_length=4)])
+            DatasetSubsetInstance(name='test_subset_1_10', training_length=4, validation_length=2,
+                                  test_length=1)])
 
     expected_payloads = [
         DatasetTestResultPayload(name='test_subset_1_10', display={

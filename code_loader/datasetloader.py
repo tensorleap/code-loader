@@ -117,8 +117,8 @@ class DatasetLoader:
         setup = global_dataset_binder.setup_container
         subsets = [DatasetSubsetInstance(name=subset.name,
                                          training_length=subset.data_length[DataStateType.training],
-                                         validation_length=subset.data_length[DataStateType.training],
-                                         test_length=subset.data_length.get(DataStateType.training))
+                                         validation_length=subset.data_length[DataStateType.validation],
+                                         test_length=subset.data_length.get(DataStateType.test))
                    for subset in setup.subsets]
 
         inputs = []
