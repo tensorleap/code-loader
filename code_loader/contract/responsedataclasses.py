@@ -10,7 +10,7 @@ class DatasetSubsetInstance:
     name: str
     training_length: int
     validation_length: int
-    test_length: Optional[int]
+    test_length: Optional[int] = None
 
 
 @dataclass
@@ -58,5 +58,5 @@ class DatasetTestResultPayload:
 class DatasetIntegParseResult:
     payloads: List[DatasetTestResultPayload]
     is_valid: bool
-    setup: Optional[DatasetSetup]
-    general_error: Optional[str]
+    setup: Optional[DatasetSetup] = None
+    general_error: Optional[str] = None
