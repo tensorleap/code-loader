@@ -42,12 +42,12 @@ class DatasetBinder:
 
     def set_ground_truth(self, function: SectionCallableInterface, gt_name: str,
                          ground_truth_type: DatasetOutputType, decoder_name: Union[DefaultDecoder, str],
-                         labels: Optional[List[str]], masked_input: Optional[str]) -> None:
+                         masked_input: Optional[str]) -> None:
         function = to_numpy_return_wrapper(function)
         if isinstance(decoder_name, DefaultDecoder):
             decoder_name = decoder_name.value
         self.setup_container.ground_truths.append(
-            GroundTruthHandler(gt_name, function, ground_truth_type, labels, masked_input, [], decoder_name))
+            GroundTruthHandler(gt_name, function, ground_truth_type, masked_input, [], decoder_name))
 
     def set_metadata(self, function: SectionCallableInterface,
                      metadata_type: DatasetMetadataType, name: str) -> None:
