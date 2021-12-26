@@ -9,7 +9,7 @@ from code_loader.contract.enums import DatasetInputType, DatasetMetadataType, Da
 class DatasetPreprocess:
     training_length: int
     validation_length: int
-    test_length: Optional[int]
+    test_length: Optional[int] = None
 
 
 @dataclass
