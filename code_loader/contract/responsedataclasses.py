@@ -21,6 +21,7 @@ class DatasetBaseSectionInstance:
 class DatasetInputInstance(DatasetBaseSectionInstance):
     shape: List[int]
     type: DatasetInputType
+    decoder_name: str
 
 
 @dataclass
@@ -32,8 +33,8 @@ class DatasetMetadataInstance(DatasetBaseSectionInstance):
 class DatasetOutputInstance(DatasetBaseSectionInstance):
     shape: List[int]
     type: DatasetOutputType
+    decoder_name: str
     masked_input: Optional[str] = None
-    labels: Optional[List[str]] = None
 
 
 @dataclass
