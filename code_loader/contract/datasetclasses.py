@@ -51,17 +51,16 @@ class DatasetBaseHandler:
 @dataclass
 class InputHandler(DatasetBaseHandler):
     type: DatasetInputType
-    shape: Optional[List[int]]
     decoder_name: str
+    shape: Optional[List[int]] = None
 
 
 @dataclass
 class GroundTruthHandler(DatasetBaseHandler):
     type: DatasetOutputType
-    labels: Optional[List[str]]
-    masked_input: Optional[str]
-    shape: Optional[List[int]]
     decoder_name: str
+    masked_input: Optional[str] = None
+    shape: Optional[List[int]] = None
 
 
 @dataclass
