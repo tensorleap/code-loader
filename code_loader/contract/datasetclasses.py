@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 from dataclasses import dataclass, field
 
-from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeric, LeapGraph
+from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar
 from code_loader.contract.enums import DataStateType, DatasetInputType, DatasetOutputType, DatasetMetadataType, \
     DataStateEnum
 
@@ -28,8 +28,11 @@ DecoderCallableInterface = Union[
     Callable[[np.array], LeapImage],
     Callable[[np.array], LeapNumeric],
     Callable[[np.array], LeapText],
-    Callable[[np.array], LeapGraph]
+    Callable[[np.array], LeapGraph],
+    Callable[[np.array], LeapHorizontalBar],
 ]
+
+DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText, LeapGraph, LeapHorizontalBar]
 
 
 @dataclass
