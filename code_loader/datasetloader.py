@@ -4,7 +4,7 @@ from typing import Dict, List, Iterable, Any
 import numpy as np  # type: ignore
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
-    GroundTruthHandler, PreprocessResponse
+    GroundTruthHandler, PreprocessResponse, DecoderHandler, DecoderCallableReturnType
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance
@@ -24,6 +24,14 @@ class DatasetLoader:
     def exec_script(self) -> None:
         global_variables: Dict[Any, Any] = {}
         exec(self.dataset_script, global_variables)
+
+    @lru_cache()
+    def _decoder_by_name(self) -> Dict[str, DecoderHandler]:
+        setup = global_dataset_binder.setup_container
+        return {
+            decoder_handler.name: decoder_handler
+            for decoder_handler in setup.decoders
+        }
 
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
         self.exec_script()
@@ -110,6 +118,16 @@ class DatasetLoader:
         all_dataset_base_handlers.extend(global_dataset_binder.setup_container.ground_truths)
         all_dataset_base_handlers.extend(global_dataset_binder.setup_container.metadata)
         return all_dataset_base_handlers
+
+    def run_decoder(self, decoder_name: str, input_tensor: np.array
+                    ) -> DecoderCallableReturnType:
+        return self._decoder_by_name()[decoder_name].function(input_tensor)
+
+    def run_heatmap_decoder(self, decoder_name: str, input_heatmap: np.array) -> np.array:
+        heatmap_function = self._decoder_by_name()[decoder_name].heatmap_function
+        if heatmap_function is None:
+            return input_heatmap
+        return heatmap_function(input_heatmap)
 
     @staticmethod
     def get_dataset_setup_response() -> DatasetSetup:
