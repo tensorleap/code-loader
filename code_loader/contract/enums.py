@@ -6,6 +6,7 @@ class LeapDataType(Enum):
     Text = 'Text'
     Graph = 'Graph'
     Numeric = 'Numeric'
+    HorizontalBar = 'HorizontalBar'
 
 
 class DatasetInputType(Enum):

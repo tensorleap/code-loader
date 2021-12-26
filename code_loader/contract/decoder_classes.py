@@ -21,10 +21,19 @@ class LeapNumeric:
 @dataclass
 class LeapGraph:
     data: np.array
-    type: LeapDataType = LeapDataType.Numeric
+    type: LeapDataType = LeapDataType.Graph
 
 
 @dataclass
 class LeapText:
     data: List[str]
     type: LeapDataType = LeapDataType.Text
+
+
+@dataclass
+class LeapHorizontalBar:
+    body: List[float]
+    labels: List[str]
+    type: LeapDataType = LeapDataType.HorizontalBar
+
+
