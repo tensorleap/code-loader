@@ -34,7 +34,6 @@ class DatasetOutputInstance(DatasetBaseSectionInstance):
     shape: List[int]
     type: DatasetOutputType
     decoder_name: str
-    masked_input: Optional[str] = None
 
 
 @dataclass
