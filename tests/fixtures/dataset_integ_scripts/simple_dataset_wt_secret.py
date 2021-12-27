@@ -76,7 +76,7 @@ dataset_binder.set_input(input_normal_input_subset_1_10, 'normal_input_subset_1_
                          DatasetInputType.Numeric, DefaultDecoder.Numeric)
 
 dataset_binder.set_ground_truth(ground_truth_output_times_20, 'output_times_20',
-                                DatasetOutputType.Numeric, DefaultDecoder.Numeric, labels=None, masked_input=None)
+                                DatasetOutputType.Numeric, DefaultDecoder.Numeric)
 
 dataset_binder.set_metadata(metadata_x, DatasetMetadataType.int, 'x')
 
