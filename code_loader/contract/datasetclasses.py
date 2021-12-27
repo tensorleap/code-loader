@@ -3,7 +3,8 @@ from typing import Any, Callable, List, Optional, Dict, Union
 import numpy as np  # type: ignore
 from dataclasses import dataclass, field
 
-from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar
+from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar, \
+    LeapMask
 from code_loader.contract.enums import DataStateType, DatasetInputType, DatasetOutputType, DatasetMetadataType, \
     DataStateEnum
 
@@ -29,9 +30,10 @@ DecoderCallableInterface = Union[
     Callable[[np.array], LeapText],
     Callable[[np.array], LeapGraph],
     Callable[[np.array], LeapHorizontalBar],
+    Callable[[np.array], LeapMask],
 ]
 
-DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText, LeapGraph, LeapHorizontalBar]
+DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText, LeapGraph, LeapHorizontalBar, LeapMask]
 
 
 @dataclass
@@ -58,7 +60,6 @@ class InputHandler(DatasetBaseHandler):
 class GroundTruthHandler(DatasetBaseHandler):
     type: DatasetOutputType
     decoder_name: str
-    masked_input: Optional[str] = None
     shape: Optional[List[int]] = None
 
 

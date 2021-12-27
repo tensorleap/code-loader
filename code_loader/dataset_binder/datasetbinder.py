@@ -7,7 +7,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     PreprocessHandler, DecoderCallableInterface
 from code_loader.contract.enums import DatasetInputType, DatasetOutputType, DatasetMetadataType
 from code_loader.decoders.default_decoders import DefaultDecoder, default_numeric_decoder, default_graph_decoder, \
-    default_image_decoder, default_horizontal_bar_decoder, default_word_decoder
+    default_image_decoder, default_horizontal_bar_decoder, default_word_decoder, default_mask_decoder
 from code_loader.utils import to_numpy_return_wrapper
 
 
@@ -24,6 +24,7 @@ class DatasetBinder:
         self.set_decoder(DefaultDecoder.Numeric.value, default_numeric_decoder)
         self.set_decoder(DefaultDecoder.HorizontalBar.value, default_horizontal_bar_decoder)
         self.set_decoder(DefaultDecoder.Text.value, default_word_decoder)
+        self.set_decoder(DefaultDecoder.Mask.value, default_mask_decoder)
 
     def set_decoder(self, name: str,
                     decoder: DecoderCallableInterface,
@@ -38,16 +39,15 @@ class DatasetBinder:
         function = to_numpy_return_wrapper(function)
         if isinstance(decoder_name, DefaultDecoder):
             decoder_name = decoder_name.value
-        self.setup_container.inputs.append(InputHandler(input_name, function, input_type, [], decoder_name))
+        self.setup_container.inputs.append(InputHandler(input_name, function, input_type, decoder_name))
 
     def set_ground_truth(self, function: SectionCallableInterface, gt_name: str,
-                         ground_truth_type: DatasetOutputType, decoder_name: Union[DefaultDecoder, str],
-                         masked_input: Optional[str]) -> None:
+                         ground_truth_type: DatasetOutputType, decoder_name: Union[DefaultDecoder, str]) -> None:
         function = to_numpy_return_wrapper(function)
         if isinstance(decoder_name, DefaultDecoder):
             decoder_name = decoder_name.value
         self.setup_container.ground_truths.append(
-            GroundTruthHandler(gt_name, function, ground_truth_type, masked_input, [], decoder_name))
+            GroundTruthHandler(gt_name, function, ground_truth_type, decoder_name))
 
     def set_metadata(self, function: SectionCallableInterface,
                      metadata_type: DatasetMetadataType, name: str) -> None:

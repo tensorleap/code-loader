@@ -37,3 +37,10 @@ class LeapHorizontalBar:
     type: LeapDataType = LeapDataType.HorizontalBar
 
 
+@dataclass
+class LeapMask:
+    mask: np.array
+    labels: List[str]
+    type: LeapDataType = LeapDataType.Mask
+
+

@@ -149,8 +149,7 @@ class DatasetLoader:
             if gt.shape is None:
                 raise Exception(f"cant calculate shape for ground truth, gt name:{gt.name}, gt type:{gt.type}")
             ground_truths.append(
-                DatasetOutputInstance(name=gt.name, shape=gt.shape, type=gt.type,
-                                      masked_input=gt.masked_input, decoder_name=gt.decoder_name))
+                DatasetOutputInstance(name=gt.name, shape=gt.shape, type=gt.type, decoder_name=gt.decoder_name))
 
         metadata = [DatasetMetadataInstance(name=metadata.name, type=metadata.type)
                     for metadata in setup.metadata]
