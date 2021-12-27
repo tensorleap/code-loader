@@ -16,6 +16,7 @@
 ### Added
 
 * HorizontalBar decoder with default decoder
+* Mask decoder with default decoder
 * default decoder for TextDecoder
 
 ### Changed
