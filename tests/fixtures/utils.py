@@ -17,6 +17,7 @@ def use_fixture(fixture_func):
 @pytest.fixture
 def refresh_setup_container() -> None:
     dataset_binder.setup_container = DatasetIntegrationSetup()
+    dataset_binder.cache_container = {"word_to_index": {}}
     dataset_binder._extend_with_default_decoders()
 
 
