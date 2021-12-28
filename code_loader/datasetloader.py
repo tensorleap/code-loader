@@ -7,7 +7,8 @@ from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandle
     GroundTruthHandler, PreprocessResponse, DecoderHandler, DecoderCallableReturnType
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
-    DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance
+    DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
+    DecoderInstance
 from code_loader.dataset_binder import global_dataset_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
 
@@ -154,7 +155,11 @@ class DatasetLoader:
         metadata = [DatasetMetadataInstance(name=metadata.name, type=metadata.type)
                     for metadata in setup.metadata]
 
-        return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata)
+        decoders = [DecoderInstance(name=decoder_handler.name, return_type=decoder_handler.return_type)
+                    for decoder_handler in setup.decoders]
+
+        return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
+                            decoders=decoders)
 
     @lru_cache()
     def _preprocess_result(self) -> List[PreprocessResponse]:
