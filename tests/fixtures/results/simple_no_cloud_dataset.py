@@ -1,8 +1,10 @@
 import pytest
 
+from code_loader.contract.decoder_classes import LeapNumeric, LeapImage, LeapGraph, LeapHorizontalBar, LeapText, \
+    LeapMask
 from code_loader.contract.enums import DatasetInputType, DatasetMetadataType, DatasetOutputType
 from code_loader.contract.responsedataclasses import DatasetSetup, DatasetInputInstance, DatasetMetadataInstance, \
-    DatasetOutputInstance, DatasetIntegParseResult, DatasetTestResultPayload, DatasetPreprocess
+    DatasetOutputInstance, DatasetIntegParseResult, DatasetTestResultPayload, DatasetPreprocess, DecoderInstance
 
 
 @pytest.fixture
@@ -17,7 +19,16 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
         outputs=[
             DatasetOutputInstance(name='output_times_20', shape=[1],
                                   type=DatasetOutputType.Numeric, decoder_name='Numeric')],
-        preprocess=DatasetPreprocess(training_length=4, validation_length=2, test_length=1))
+        preprocess=DatasetPreprocess(training_length=4, validation_length=2, test_length=1),
+        decoders=[
+            DecoderInstance(name='Image', return_type=LeapImage),
+            DecoderInstance(name='Graph', return_type=LeapGraph),
+            DecoderInstance(name='Numeric', return_type=LeapNumeric),
+            DecoderInstance(name='HorizontalBar', return_type=LeapHorizontalBar),
+            DecoderInstance(name='Text', return_type=LeapText),
+            DecoderInstance(name='Mask', return_type=LeapMask)
+        ]
+    )
 
     expected_payloads = [
         DatasetTestResultPayload(name='preprocess', display={
