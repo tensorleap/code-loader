@@ -4,7 +4,9 @@ import numpy as np  # type: ignore
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, DecoderHandler, PreprocessResponse, \
-    PreprocessHandler, DecoderCallableInterface
+    PreprocessHandler, DecoderCallableInterface, DecoderCallableReturnType, DecoderReturnType
+from code_loader.contract.decoder_classes import LeapImage, LeapGraph, LeapNumeric, LeapHorizontalBar, LeapText, \
+    LeapMask
 from code_loader.contract.enums import DatasetInputType, DatasetOutputType, DatasetMetadataType
 from code_loader.decoders.default_decoders import DefaultDecoder, default_numeric_decoder, default_graph_decoder, \
     default_image_decoder, default_horizontal_bar_decoder, default_word_decoder, default_mask_decoder
@@ -19,17 +21,18 @@ class DatasetBinder:
         self._extend_with_default_decoders()
 
     def _extend_with_default_decoders(self) -> None:
-        self.set_decoder(DefaultDecoder.Image.value, default_image_decoder)
-        self.set_decoder(DefaultDecoder.Graph.value, default_graph_decoder)
-        self.set_decoder(DefaultDecoder.Numeric.value, default_numeric_decoder)
-        self.set_decoder(DefaultDecoder.HorizontalBar.value, default_horizontal_bar_decoder)
-        self.set_decoder(DefaultDecoder.Text.value, default_word_decoder)
-        self.set_decoder(DefaultDecoder.Mask.value, default_mask_decoder)
+        self.set_decoder(DefaultDecoder.Image.value, default_image_decoder, LeapImage)
+        self.set_decoder(DefaultDecoder.Graph.value, default_graph_decoder, LeapGraph)
+        self.set_decoder(DefaultDecoder.Numeric.value, default_numeric_decoder, LeapNumeric)
+        self.set_decoder(DefaultDecoder.HorizontalBar.value, default_horizontal_bar_decoder, LeapHorizontalBar)
+        self.set_decoder(DefaultDecoder.Text.value, default_word_decoder, LeapText)
+        self.set_decoder(DefaultDecoder.Mask.value, default_mask_decoder, LeapMask)
 
     def set_decoder(self, name: str,
                     decoder: DecoderCallableInterface,
+                    return_type: DecoderReturnType,
                     heatmap_decoder: Optional[Callable[[np.array], np.array]] = None) -> None:
-        self.setup_container.decoders.append(DecoderHandler(name, decoder, heatmap_decoder))
+        self.setup_container.decoders.append(DecoderHandler(name, decoder, return_type, heatmap_decoder))
 
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
         self.setup_container.preprocess = PreprocessHandler(function)

@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Optional, Dict, Union
+from typing import Any, Callable, List, Optional, Dict, Union, Type
 
 import numpy as np  # type: ignore
 from dataclasses import dataclass, field
@@ -35,11 +35,15 @@ DecoderCallableInterface = Union[
 
 DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText, LeapGraph, LeapHorizontalBar, LeapMask]
 
+DecoderReturnType = Union[Type[LeapImage], Type[LeapNumeric], Type[LeapText], Type[LeapGraph], Type[LeapHorizontalBar],
+                          Type[LeapMask]]
+
 
 @dataclass
 class DecoderHandler:
     name: str
     function: DecoderCallableInterface
+    return_type: DecoderReturnType
     heatmap_function: Optional[Callable[[np.array], np.array]] = None
 
 
