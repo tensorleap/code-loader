@@ -40,7 +40,7 @@ class DatasetOutputInstance(DatasetBaseSectionInstance):
 @dataclass
 class DecoderInstance:
     name: str
-    return_type: DecoderReturnType
+    type: DecoderReturnType
 
 
 @dataclass
