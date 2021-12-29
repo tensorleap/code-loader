@@ -21,12 +21,12 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
                                   type=DatasetOutputType.Numeric, decoder_name='Numeric')],
         preprocess=DatasetPreprocess(training_length=4, validation_length=2, test_length=1),
         decoders=[
-            DecoderInstance(name='Image', return_type=LeapImage),
-            DecoderInstance(name='Graph', return_type=LeapGraph),
-            DecoderInstance(name='Numeric', return_type=LeapNumeric),
-            DecoderInstance(name='HorizontalBar', return_type=LeapHorizontalBar),
-            DecoderInstance(name='Text', return_type=LeapText),
-            DecoderInstance(name='Mask', return_type=LeapMask)
+            DecoderInstance(name='Image', type=LeapImage),
+            DecoderInstance(name='Graph', type=LeapGraph),
+            DecoderInstance(name='Numeric', type=LeapNumeric),
+            DecoderInstance(name='HorizontalBar', type=LeapHorizontalBar),
+            DecoderInstance(name='Text', type=LeapText),
+            DecoderInstance(name='Mask', type=LeapMask)
         ]
     )
 

@@ -43,7 +43,7 @@ DecoderReturnType = Union[Type[LeapImage], Type[LeapNumeric], Type[LeapText], Ty
 class DecoderHandler:
     name: str
     function: DecoderCallableInterface
-    return_type: DecoderReturnType
+    type: DecoderReturnType
     heatmap_function: Optional[Callable[[np.array], np.array]] = None
 
 

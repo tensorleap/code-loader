@@ -4,7 +4,7 @@ import numpy as np  # type: ignore
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, DecoderHandler, PreprocessResponse, \
-    PreprocessHandler, DecoderCallableInterface, DecoderCallableReturnType, DecoderReturnType
+    PreprocessHandler, DecoderCallableInterface, DecoderReturnType
 from code_loader.contract.decoder_classes import LeapImage, LeapGraph, LeapNumeric, LeapHorizontalBar, LeapText, \
     LeapMask
 from code_loader.contract.enums import DatasetInputType, DatasetOutputType, DatasetMetadataType
@@ -30,9 +30,9 @@ class DatasetBinder:
 
     def set_decoder(self, name: str,
                     decoder: DecoderCallableInterface,
-                    return_type: DecoderReturnType,
+                    type: DecoderReturnType,
                     heatmap_decoder: Optional[Callable[[np.array], np.array]] = None) -> None:
-        self.setup_container.decoders.append(DecoderHandler(name, decoder, return_type, heatmap_decoder))
+        self.setup_container.decoders.append(DecoderHandler(name, decoder, type, heatmap_decoder))
 
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
         self.setup_container.preprocess = PreprocessHandler(function)
