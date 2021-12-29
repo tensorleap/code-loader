@@ -72,11 +72,9 @@ def metadata_y(idx, samples):
 
 dataset_binder.set_preprocess(prepare_data)
 
-dataset_binder.set_input(input_normal_input_subset_1_10, 'normal_input_subset_1_10',
-                         DatasetInputType.Numeric, DefaultDecoder.Numeric)
+dataset_binder.set_input(input_normal_input_subset_1_10, 'normal_input_subset_1_10', DefaultDecoder.Numeric)
 
-dataset_binder.set_ground_truth(ground_truth_output_times_20, 'output_times_20',
-                                DatasetOutputType.Numeric, DefaultDecoder.Numeric)
+dataset_binder.set_ground_truth(ground_truth_output_times_20, 'output_times_20', DefaultDecoder.Numeric)
 
 dataset_binder.set_metadata(metadata_x, DatasetMetadataType.int, 'x')
 

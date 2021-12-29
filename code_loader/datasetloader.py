@@ -143,15 +143,15 @@ class DatasetLoader:
         inputs = []
         for inp in setup.inputs:
             if inp.shape is None:
-                raise Exception(f"cant calculate shape for input, input name:{inp.name}, input type:{inp.type}")
-            inputs.append(DatasetInputInstance(name=inp.name, shape=inp.shape, type=inp.type, decoder_name=inp.decoder_name))
+                raise Exception(f"cant calculate shape for input, input name:{inp.name}")
+            inputs.append(DatasetInputInstance(name=inp.name, shape=inp.shape, decoder_name=inp.decoder_name))
 
         ground_truths = []
         for gt in setup.ground_truths:
             if gt.shape is None:
-                raise Exception(f"cant calculate shape for ground truth, gt name:{gt.name}, gt type:{gt.type}")
+                raise Exception(f"cant calculate shape for ground truth, gt name:{gt.name}")
             ground_truths.append(
-                DatasetOutputInstance(name=gt.name, shape=gt.shape, type=gt.type, decoder_name=gt.decoder_name))
+                DatasetOutputInstance(name=gt.name, shape=gt.shape, decoder_name=gt.decoder_name))
 
         metadata = [DatasetMetadataInstance(name=metadata.name, type=metadata.type)
                     for metadata in setup.metadata]
