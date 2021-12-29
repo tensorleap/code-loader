@@ -156,7 +156,7 @@ class DatasetLoader:
         metadata = [DatasetMetadataInstance(name=metadata.name, type=metadata.type)
                     for metadata in setup.metadata]
 
-        decoders = [DecoderInstance(name=decoder_handler.name, return_type=decoder_handler.return_type)
+        decoders = [DecoderInstance(name=decoder_handler.name, type=decoder_handler.type)
                     for decoder_handler in setup.decoders]
 
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
