@@ -12,13 +12,13 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
     expected_setup = DatasetSetup(
         inputs=[
             DatasetInputInstance(name='normal_input_subset_1_10', shape=[1],
-                                 type=DatasetInputType.Numeric, decoder_name='Numeric')],
+                                 decoder_name='Numeric')],
         metadata=[
             DatasetMetadataInstance(name='x', type=DatasetMetadataType.int),
             DatasetMetadataInstance(name='y', type=DatasetMetadataType.string)],
         outputs=[
             DatasetOutputInstance(name='output_times_20', shape=[1],
-                                  type=DatasetOutputType.Numeric, decoder_name='Numeric')],
+                                  decoder_name='Numeric')],
         preprocess=DatasetPreprocess(training_length=4, validation_length=2, test_length=1),
         decoders=[
             DecoderInstance(name='Image', type=LeapImage),
