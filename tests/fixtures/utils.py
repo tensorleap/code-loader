@@ -5,6 +5,7 @@ import pytest
 from code_loader import dataset_binder
 from code_loader.contract.datasetclasses import DatasetIntegrationSetup
 from code_loader.contract.enums import DataStateEnum
+from code_loader.dataset_binder import DatasetBinder
 
 
 def use_fixture(fixture_func):
@@ -16,9 +17,9 @@ def use_fixture(fixture_func):
 
 @pytest.fixture
 def refresh_setup_container() -> None:
-    dataset_binder.setup_container = DatasetIntegrationSetup()
-    dataset_binder.cache_container = {"word_to_index": {}}
-    dataset_binder._extend_with_default_decoders()
+    new_dataset_binder = DatasetBinder()
+    dataset_binder.setup_container = new_dataset_binder.setup_container
+    dataset_binder.cache_container = new_dataset_binder.cache_container
 
 
 @pytest.fixture
