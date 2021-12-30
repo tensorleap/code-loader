@@ -1,8 +1,6 @@
 import pytest
 
-from code_loader.contract.decoder_classes import LeapNumeric, LeapImage, LeapGraph, LeapHorizontalBar, LeapText, \
-    LeapMask
-from code_loader.contract.enums import DatasetInputType, DatasetMetadataType, DatasetOutputType, LeapDataType
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.contract.responsedataclasses import DatasetSetup, DatasetInputInstance, DatasetMetadataInstance, \
     DatasetOutputInstance, DatasetIntegParseResult, DatasetTestResultPayload, DatasetPreprocess, DecoderInstance
 
