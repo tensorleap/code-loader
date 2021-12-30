@@ -4,7 +4,7 @@ import numpy as np  # type: ignore
 
 from code_loader import dataset_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
-from code_loader.contract.enums import DatasetMetadataType, DatasetOutputType, DatasetInputType
+from code_loader.contract.enums import DatasetMetadataType
 from code_loader.decoders.default_decoders import DefaultDecoder
 
 
