@@ -5,9 +5,7 @@ import numpy as np  # type: ignore
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, DecoderHandler, PreprocessResponse, \
     PreprocessHandler, DecoderCallableInterface
-from code_loader.contract.decoder_classes import LeapImage, LeapGraph, LeapNumeric, LeapHorizontalBar, LeapText, \
-    LeapMask
-from code_loader.contract.enums import DatasetInputType, DatasetOutputType, DatasetMetadataType, LeapDataType
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.decoders.default_decoders import DefaultDecoder, default_numeric_decoder, default_graph_decoder, \
     default_image_decoder, default_horizontal_bar_decoder, default_word_decoder, default_mask_decoder
 from code_loader.utils import to_numpy_return_wrapper
