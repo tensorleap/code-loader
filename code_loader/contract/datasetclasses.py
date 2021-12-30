@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar, \
     LeapMask
 from code_loader.contract.enums import DataStateType, DatasetInputType, DatasetOutputType, DatasetMetadataType, \
-    DataStateEnum
+    DataStateEnum, LeapDataType
 
 
 @dataclass
@@ -35,15 +35,12 @@ DecoderCallableInterface = Union[
 
 DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText, LeapGraph, LeapHorizontalBar, LeapMask]
 
-DecoderReturnType = Union[Type[LeapImage], Type[LeapNumeric], Type[LeapText], Type[LeapGraph], Type[LeapHorizontalBar],
-                          Type[LeapMask]]
-
 
 @dataclass
 class DecoderHandler:
     name: str
     function: DecoderCallableInterface
-    type: DecoderReturnType
+    type: LeapDataType
     heatmap_function: Optional[Callable[[np.array], np.array]] = None
 
 
