@@ -52,13 +52,17 @@ class DatasetBaseHandler:
 
 @dataclass
 class InputHandler(DatasetBaseHandler):
-    decoder_name: str
     shape: Optional[List[int]] = None
 
 
 @dataclass
-class GroundTruthHandler(DatasetBaseHandler):
+class ConnectionInstance:
     decoder_name: str
+    encoder_names: List[str]
+
+
+@dataclass
+class GroundTruthHandler(DatasetBaseHandler):
     shape: Optional[List[int]] = None
 
 
@@ -74,6 +78,7 @@ class DatasetIntegrationSetup:
     inputs: List[InputHandler] = field(default_factory=list)
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
     metadata: List[MetadataHandler] = field(default_factory=list)
+    connections: List[ConnectionInstance] = field(default_factory=list)
 
 
 @dataclass

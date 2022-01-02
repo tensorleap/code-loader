@@ -143,14 +143,14 @@ class DatasetLoader:
         for inp in setup.inputs:
             if inp.shape is None:
                 raise Exception(f"cant calculate shape for input, input name:{inp.name}")
-            inputs.append(DatasetInputInstance(name=inp.name, shape=inp.shape, decoder_name=inp.decoder_name))
+            inputs.append(DatasetInputInstance(name=inp.name, shape=inp.shape))
 
         ground_truths = []
         for gt in setup.ground_truths:
             if gt.shape is None:
                 raise Exception(f"cant calculate shape for ground truth, gt name:{gt.name}")
             ground_truths.append(
-                DatasetOutputInstance(name=gt.name, shape=gt.shape, decoder_name=gt.decoder_name))
+                DatasetOutputInstance(name=gt.name, shape=gt.shape))
 
         metadata = [DatasetMetadataInstance(name=metadata.name, type=metadata.type)
                     for metadata in setup.metadata]
@@ -159,7 +159,7 @@ class DatasetLoader:
                     for decoder_handler in setup.decoders]
 
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
-                            decoders=decoders)
+                            decoders=decoders, connections=setup.connections)
 
     @lru_cache()
     def _preprocess_result(self) -> List[PreprocessResponse]:

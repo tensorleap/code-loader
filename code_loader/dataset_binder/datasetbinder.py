@@ -4,7 +4,7 @@ import numpy as np  # type: ignore
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, DecoderHandler, PreprocessResponse, \
-    PreprocessHandler, DecoderCallableInterface
+    PreprocessHandler, DecoderCallableInterface, ConnectionInstance
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.decoders.default_decoders import DefaultDecoder, default_numeric_decoder, default_graph_decoder, \
     default_image_decoder, default_horizontal_bar_decoder, default_word_decoder, default_mask_decoder
@@ -16,6 +16,8 @@ class DatasetBinder:
     def __init__(self) -> None:
         self.setup_container = DatasetIntegrationSetup()
         self.cache_container: Dict[str, Any] = {"word_to_index": {}}
+        self._decoder_names: List[str] = list()
+        self._encoder_names: List[str] = list()
         self._extend_with_default_decoders()
 
     def _extend_with_default_decoders(self) -> None:
@@ -31,24 +33,31 @@ class DatasetBinder:
                     type: LeapDataType,
                     heatmap_decoder: Optional[Callable[[np.array], np.array]] = None) -> None:
         self.setup_container.decoders.append(DecoderHandler(name, decoder, type, heatmap_decoder))
+        self._decoder_names.append(name)
+
+    def set_connection(self, decoder_name: Union[DefaultDecoder, str], encoder_names: List[str]):
+        if isinstance(decoder_name, DefaultDecoder):
+            decoder_name = decoder_name.value
+        assert decoder_name in self._decoder_names
+        for encoder_name in encoder_names:
+            assert encoder_name in self._encoder_names
+        
+        self.setup_container.connections.append(ConnectionInstance(decoder_name, encoder_names))
 
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
         self.setup_container.preprocess = PreprocessHandler(function)
 
-    def set_input(self, function: SectionCallableInterface, input_name: str,
-                  decoder_name: Union[DefaultDecoder, str]) -> None:
+    def set_input(self, function: SectionCallableInterface, input_name: str) -> None:
         function = to_numpy_return_wrapper(function)
-        if isinstance(decoder_name, DefaultDecoder):
-            decoder_name = decoder_name.value
-        self.setup_container.inputs.append(InputHandler(input_name, function, decoder_name))
+        self.setup_container.inputs.append(InputHandler(input_name, function))
 
-    def set_ground_truth(self, function: SectionCallableInterface, gt_name: str,
-                         decoder_name: Union[DefaultDecoder, str]) -> None:
+        self._encoder_names.append(input_name)
+
+    def set_ground_truth(self, function: SectionCallableInterface, gt_name: str) -> None:
         function = to_numpy_return_wrapper(function)
-        if isinstance(decoder_name, DefaultDecoder):
-            decoder_name = decoder_name.value
-        self.setup_container.ground_truths.append(
-            GroundTruthHandler(gt_name, function, decoder_name))
+        self.setup_container.ground_truths.append(GroundTruthHandler(gt_name, function))
+
+        self._encoder_names.append(gt_name)
 
     def set_metadata(self, function: SectionCallableInterface,
                      metadata_type: DatasetMetadataType, name: str) -> None:
