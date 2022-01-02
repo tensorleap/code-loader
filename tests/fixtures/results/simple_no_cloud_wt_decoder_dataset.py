@@ -1,5 +1,6 @@
 import pytest
 
+from code_loader.contract.datasetclasses import ConnectionInstance
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.contract.responsedataclasses import DatasetSetup, DatasetInputInstance, DatasetMetadataInstance, \
     DatasetOutputInstance, DatasetIntegParseResult, DatasetTestResultPayload, DatasetPreprocess, DecoderInstance
@@ -9,14 +10,13 @@ from code_loader.contract.responsedataclasses import DatasetSetup, DatasetInputI
 def no_cloud_wt_decoder_dataset_loader_expected_result() -> DatasetIntegParseResult:
     expected_setup = DatasetSetup(
         inputs=[
-            DatasetInputInstance(name='normal_input_subset_1_10', shape=[1],
-                                 decoder_name='stub_decoder')],
+            DatasetInputInstance(name='normal_input_subset_1_10', shape=[1])],
         metadata=[
             DatasetMetadataInstance(name='x', type=DatasetMetadataType.int),
             DatasetMetadataInstance(name='y', type=DatasetMetadataType.string)],
         outputs=[
-            DatasetOutputInstance(name='output_times_20', shape=[1],
-                                  decoder_name='Numeric')],
+            DatasetOutputInstance(name='output_times_20', shape=[1])
+        ],
         preprocess=DatasetPreprocess(training_length=4, validation_length=2, test_length=1),
         decoders=[
             DecoderInstance(name='Image', type=LeapDataType.Image),
@@ -26,6 +26,10 @@ def no_cloud_wt_decoder_dataset_loader_expected_result() -> DatasetIntegParseRes
             DecoderInstance(name='Text', type=LeapDataType.Text),
             DecoderInstance(name='Mask', type=LeapDataType.Mask),
             DecoderInstance(name='stub_decoder', type=LeapDataType.Numeric)
+        ],
+        connections=[
+            ConnectionInstance('stub_decoder', ['normal_input_subset_1_10']),
+            ConnectionInstance('Numeric', ['output_times_20'])
         ]
     )
 

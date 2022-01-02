@@ -67,19 +67,23 @@ def metadata_y(idx, samples):
     return batch_metadata[0]
 
 
+def stub_decoder_func(data: np.array) -> LeapNumeric:
+    return LeapNumeric(data)
+
+
+dataset_binder.set_decoder('stub_decoder', stub_decoder_func, LeapDataType.Numeric)
+
 dataset_binder.set_preprocess(prepare_data)
 
-dataset_binder.set_input(input_normal_input_subset_1_10, 'normal_input_subset_1_10', "stub_decoder")
+dataset_binder.set_input(input_normal_input_subset_1_10, 'normal_input_subset_1_10')
+dataset_binder.set_connection('stub_decoder', ['normal_input_subset_1_10'])
 
-dataset_binder.set_ground_truth(ground_truth_output_times_20, 'output_times_20', DefaultDecoder.Numeric)
+dataset_binder.set_ground_truth(ground_truth_output_times_20, 'output_times_20')
+dataset_binder.set_connection(DefaultDecoder.Numeric, ['output_times_20'])
 
 dataset_binder.set_metadata(metadata_x, DatasetMetadataType.int, 'x')
 
 dataset_binder.set_metadata(metadata_y, DatasetMetadataType.string, 'y')
 
 
-def stub_decoder_func(data: np.array) -> LeapNumeric:
-    return LeapNumeric(data)
 
-
-dataset_binder.set_decoder("stub_decoder", stub_decoder_func, LeapDataType.Numeric)
