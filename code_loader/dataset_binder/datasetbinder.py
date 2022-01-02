@@ -35,7 +35,7 @@ class DatasetBinder:
         self.setup_container.decoders.append(DecoderHandler(name, decoder, type, heatmap_decoder))
         self._decoder_names.append(name)
 
-    def set_connection(self, decoder_name: Union[DefaultDecoder, str], encoder_names: List[str]):
+    def set_connection(self, decoder_name: Union[DefaultDecoder, str], encoder_names: List[str]) -> None:
         if isinstance(decoder_name, DefaultDecoder):
             decoder_name = decoder_name.value
         assert decoder_name in self._decoder_names

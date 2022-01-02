@@ -25,6 +25,11 @@
 
 * Renamed subset to preprocess
 
-### Removed
+## 0.2.5
 
-* 
+### Added
+
+### Changed
+
+* connect decoder to encoders through connection instance
+
