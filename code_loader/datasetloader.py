@@ -120,15 +120,16 @@ class DatasetLoader:
         all_dataset_base_handlers.extend(global_dataset_binder.setup_container.metadata)
         return all_dataset_base_handlers
 
-    def run_decoder(self, decoder_name: str, input_tensor: np.array
+    def run_decoder(self, decoder_name: str, input_tensors: List[np.array],
                     ) -> DecoderCallableReturnType:
-        return self._decoder_by_name()[decoder_name].function(input_tensor)
+        return self._decoder_by_name()[decoder_name].function(*input_tensors)
 
-    def run_heatmap_decoder(self, decoder_name: str, input_heatmap: np.array) -> np.array:
+    def run_heatmap_decoder(self, decoder_name: str, input_heatmaps: List[np.array]) -> np.array:
         heatmap_function = self._decoder_by_name()[decoder_name].heatmap_function
         if heatmap_function is None:
-            return input_heatmap
-        return heatmap_function(input_heatmap)
+            assert len(input_heatmaps) == 1
+            return input_heatmaps[0]
+        return heatmap_function(*input_heatmaps)
 
     @staticmethod
     def get_dataset_setup_response() -> DatasetSetup:

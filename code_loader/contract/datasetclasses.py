@@ -1,4 +1,5 @@
 from typing import Any, Callable, List, Optional, Dict, Union
+from typing_extensions import Protocol
 
 import numpy as np  # type: ignore
 from dataclasses import dataclass, field
@@ -25,12 +26,12 @@ class PreprocessHandler:
 
 
 DecoderCallableInterface = Union[
-    Callable[[np.array], LeapImage],
-    Callable[[np.array], LeapNumeric],
-    Callable[[np.array], LeapText],
-    Callable[[np.array], LeapGraph],
-    Callable[[np.array], LeapHorizontalBar],
-    Callable[[np.array], LeapMask],
+    Callable[..., LeapImage],
+    Callable[..., LeapNumeric],
+    Callable[..., LeapText],
+    Callable[..., LeapGraph],
+    Callable[..., LeapHorizontalBar],
+    Callable[..., LeapMask],
 ]
 
 DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText, LeapGraph, LeapHorizontalBar, LeapMask]
@@ -41,7 +42,7 @@ class DecoderHandler:
     name: str
     function: DecoderCallableInterface
     type: LeapDataType
-    heatmap_function: Optional[Callable[[np.array], np.array]] = None
+    heatmap_function: Optional[Callable[..., np.array]] = None
 
 
 @dataclass
