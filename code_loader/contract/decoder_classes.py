@@ -38,9 +38,18 @@ class LeapHorizontalBar:
 
 
 @dataclass
-class LeapMask:
+class LeapImageMask:
     mask: np.array
+    image: np.array
     labels: List[str]
-    type: LeapDataType = LeapDataType.Mask
+    type: LeapDataType = LeapDataType.ImageMask
+
+
+@dataclass
+class LeapTextMask:
+    mask: np.array
+    text_array: np.array
+    labels: List[str]
+    type: LeapDataType = LeapDataType.TextMask
 
 

@@ -7,7 +7,8 @@ class LeapDataType(Enum):
     Graph = 'Graph'
     Numeric = 'Numeric'
     HorizontalBar = 'HorizontalBar'
-    Mask = 'Mask'
+    ImageMask = 'ImageMask'
+    TextMask = 'TextMask'
 
 
 class DatasetMetadataType(Enum):

@@ -5,7 +5,7 @@ import numpy as np  # type: ignore
 from dataclasses import dataclass, field
 
 from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar, \
-    LeapMask
+    LeapTextMask, LeapImageMask
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
     DataStateEnum, LeapDataType
 
@@ -31,10 +31,12 @@ DecoderCallableInterface = Union[
     Callable[..., LeapText],
     Callable[..., LeapGraph],
     Callable[..., LeapHorizontalBar],
-    Callable[..., LeapMask],
+    Callable[..., LeapImageMask],
+    Callable[..., LeapTextMask],
 ]
 
-DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText, LeapGraph, LeapHorizontalBar, LeapMask]
+DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText,
+                                  LeapGraph, LeapHorizontalBar, LeapImageMask, LeapTextMask]
 
 
 @dataclass

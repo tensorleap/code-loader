@@ -7,7 +7,8 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     PreprocessHandler, DecoderCallableInterface, ConnectionInstance
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.decoders.default_decoders import DefaultDecoder, default_numeric_decoder, default_graph_decoder, \
-    default_image_decoder, default_horizontal_bar_decoder, default_word_decoder, default_mask_decoder
+    default_image_decoder, default_horizontal_bar_decoder, default_word_decoder, \
+    default_image_mask_decoder, default_text_mask_decoder
 from code_loader.utils import to_numpy_return_wrapper
 
 
@@ -26,7 +27,8 @@ class DatasetBinder:
         self.set_decoder(DefaultDecoder.Numeric.value, default_numeric_decoder, LeapDataType.Numeric)
         self.set_decoder(DefaultDecoder.HorizontalBar.value, default_horizontal_bar_decoder, LeapDataType.HorizontalBar)
         self.set_decoder(DefaultDecoder.Text.value, default_word_decoder, LeapDataType.Text)
-        self.set_decoder(DefaultDecoder.Mask.value, default_mask_decoder, LeapDataType.Mask)
+        self.set_decoder(DefaultDecoder.ImageMask.value, default_image_mask_decoder, LeapDataType.ImageMask)
+        self.set_decoder(DefaultDecoder.TextMask.value, default_text_mask_decoder, LeapDataType.TextMask)
 
     def set_decoder(self, name: str,
                     decoder: DecoderCallableInterface,

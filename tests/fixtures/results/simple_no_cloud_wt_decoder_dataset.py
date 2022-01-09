@@ -24,7 +24,8 @@ def no_cloud_wt_decoder_dataset_loader_expected_result() -> DatasetIntegParseRes
             DecoderInstance(name='Numeric', type=LeapDataType.Numeric),
             DecoderInstance(name='HorizontalBar', type=LeapDataType.HorizontalBar),
             DecoderInstance(name='Text', type=LeapDataType.Text),
-            DecoderInstance(name='Mask', type=LeapDataType.Mask),
+            DecoderInstance(name='ImageMask', type=LeapDataType.ImageMask),
+            DecoderInstance(name='TextMask', type=LeapDataType.TextMask),
             DecoderInstance(name='stub_decoder', type=LeapDataType.Numeric)
         ],
         connections=[

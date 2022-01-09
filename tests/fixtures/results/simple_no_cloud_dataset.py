@@ -25,7 +25,8 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
             DecoderInstance(name='Numeric', type=LeapDataType.Numeric),
             DecoderInstance(name='HorizontalBar', type=LeapDataType.HorizontalBar),
             DecoderInstance(name='Text', type=LeapDataType.Text),
-            DecoderInstance(name='Mask', type=LeapDataType.Mask)
+            DecoderInstance(name='ImageMask', type=LeapDataType.ImageMask),
+            DecoderInstance(name='TextMask', type=LeapDataType.TextMask)
         ],
         connections=[
             ConnectionInstance('Numeric', ['normal_input_subset_1_10']),
