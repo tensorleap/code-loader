@@ -2,6 +2,7 @@ from typing import List, Optional, Dict
 
 from dataclasses import dataclass, field
 
+from code_loader.contract.datasetclasses import ConnectionInstance
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 
 
@@ -20,7 +21,6 @@ class DatasetBaseSectionInstance:
 @dataclass
 class DatasetInputInstance(DatasetBaseSectionInstance):
     shape: List[int]
-    decoder_name: str
 
 
 @dataclass
@@ -31,7 +31,6 @@ class DatasetMetadataInstance(DatasetBaseSectionInstance):
 @dataclass
 class DatasetOutputInstance(DatasetBaseSectionInstance):
     shape: List[int]
-    decoder_name: str
 
 
 @dataclass
@@ -47,6 +46,7 @@ class DatasetSetup:
     metadata: List[DatasetMetadataInstance]
     outputs: List[DatasetOutputInstance]
     decoders: List[DecoderInstance]
+    connections: List[ConnectionInstance]
 
 
 @dataclass
