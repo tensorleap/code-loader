@@ -121,15 +121,16 @@ class DatasetLoader:
         all_dataset_base_handlers.extend(global_dataset_binder.setup_container.metadata)
         return all_dataset_base_handlers
 
-    def run_decoder(self, decoder_name: str, input_tensor: np.array
+    def run_decoder(self, decoder_name: str, input_tensors: List[np.array],
                     ) -> DecoderCallableReturnType:
-        return self._decoder_by_name()[decoder_name].function(input_tensor)
+        return self._decoder_by_name()[decoder_name].function(*input_tensors)
 
-    def run_heatmap_decoder(self, decoder_name: str, input_heatmap: np.array) -> np.array:
+    def run_heatmap_decoder(self, decoder_name: str, input_heatmaps: List[np.array]) -> np.array:
         heatmap_function = self._decoder_by_name()[decoder_name].heatmap_function
         if heatmap_function is None:
-            return input_heatmap
-        return heatmap_function(input_heatmap)
+            assert len(input_heatmaps) == 1
+            return input_heatmaps[0]
+        return heatmap_function(*input_heatmaps)
 
     @staticmethod
     def get_dataset_setup_response() -> DatasetSetup:
@@ -144,14 +145,14 @@ class DatasetLoader:
         for inp in setup.inputs:
             if inp.shape is None:
                 raise Exception(f"cant calculate shape for input, input name:{inp.name}")
-            inputs.append(DatasetInputInstance(name=inp.name, shape=inp.shape, decoder_name=inp.decoder_name))
+            inputs.append(DatasetInputInstance(name=inp.name, shape=inp.shape))
 
         ground_truths = []
         for gt in setup.ground_truths:
             if gt.shape is None:
                 raise Exception(f"cant calculate shape for ground truth, gt name:{gt.name}")
             ground_truths.append(
-                DatasetOutputInstance(name=gt.name, shape=gt.shape, decoder_name=gt.decoder_name))
+                DatasetOutputInstance(name=gt.name, shape=gt.shape))
 
         metadata = [DatasetMetadataInstance(name=metadata.name, type=metadata.type)
                     for metadata in setup.metadata]
@@ -160,7 +161,7 @@ class DatasetLoader:
                     for decoder_handler in setup.decoders]
 
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
-                            decoders=decoders)
+                            decoders=decoders, connections=setup.connections)
 
     @lru_cache()
     def _preprocess_result(self) -> List[PreprocessResponse]:
