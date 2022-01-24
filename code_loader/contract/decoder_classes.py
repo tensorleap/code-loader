@@ -13,6 +13,13 @@ class LeapImage:
 
 
 @dataclass
+class LeapImageWithBBox:
+    data: np.array
+    bbox: np.array
+    type: LeapDataType = LeapDataType.ImageWithBBox
+
+
+@dataclass
 class LeapNumeric:
     data: np.array
     type: LeapDataType = LeapDataType.Numeric
@@ -51,5 +58,3 @@ class LeapTextMask:
     text_array: np.array
     labels: List[str]
     type: LeapDataType = LeapDataType.TextMask
-
-
