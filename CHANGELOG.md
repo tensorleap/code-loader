@@ -33,3 +33,9 @@
 
 * connect decoder to encoders through connection instance
 
+## 0.2.6
+
+### Added
+* Add Decoder class of Image with BBoxes
+### Changed
+
