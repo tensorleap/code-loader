@@ -28,7 +28,8 @@ class DatasetLoader:
         exec(self.dataset_script, global_variables)
 
     @lru_cache()
-    def _decoder_by_name(self) -> Dict[str, DecoderHandler]:
+    def decoder_by_name(self) -> Dict[str, DecoderHandler]:
+        self.exec_script()
         setup = global_dataset_binder.setup_container
         return {
             decoder_handler.name: decoder_handler
@@ -123,10 +124,10 @@ class DatasetLoader:
 
     def run_decoder(self, decoder_name: str, input_tensors: List[np.array],
                     ) -> DecoderCallableReturnType:
-        return self._decoder_by_name()[decoder_name].function(*input_tensors)
+        return self.decoder_by_name()[decoder_name].function(*input_tensors)
 
     def run_heatmap_decoder(self, decoder_name: str, input_heatmaps: List[np.array]) -> np.array:
-        heatmap_function = self._decoder_by_name()[decoder_name].heatmap_function
+        heatmap_function = self.decoder_by_name()[decoder_name].heatmap_function
         if heatmap_function is None:
             assert len(input_heatmaps) == 1
             return input_heatmaps[0]
