@@ -28,6 +28,7 @@ class DatasetLoader:
 
     @lru_cache()
     def _decoder_by_name(self) -> Dict[str, DecoderHandler]:
+        self.exec_script()
         setup = global_dataset_binder.setup_container
         return {
             decoder_handler.name: decoder_handler
