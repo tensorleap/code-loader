@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Optional, Dict
+from typing import Any, Callable, List, Optional, Dict, Union
 
 import numpy as np  # type: ignore
 from dataclasses import dataclass, field
@@ -14,6 +14,12 @@ class SubsetResponse:
 
 
 SectionCallableInterface = Callable[[int, SubsetResponse], np.ndarray]
+MetadataSectionCallableInterface = Union[
+    Callable[[int, SubsetResponse], int],
+    Callable[[int, SubsetResponse], str],
+    Callable[[int, SubsetResponse], bool],
+    Callable[[int, SubsetResponse], float]
+]
 
 
 @dataclass
