@@ -1,7 +1,7 @@
 from typing import Callable, List, Optional, Dict, Any
 
 from code_loader.contract.datasetclasses import SubsetResponse, SectionCallableInterface, SubsetHandler, InputHandler, \
-    GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup
+    GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, MetadataSectionCallableInterface
 from code_loader.contract.enums import DatasetInputType, DatasetOutputType, DatasetMetadataType
 from code_loader.utils import to_numpy_return_wrapper
 
@@ -27,7 +27,7 @@ class DatasetBinder:
         self.setup_container.ground_truths.append(GroundTruthHandler(name, function, subset,
                                                                      ground_truth_type, labels, masked_input, []))
 
-    def set_metadata(self, function: SectionCallableInterface, subset: str,
+    def set_metadata(self, function: MetadataSectionCallableInterface, subset: str,
                      metadata_type: DatasetMetadataType, name: str) -> None:
         function = to_numpy_return_wrapper(function)
         self.setup_container.metadata.append(MetadataHandler(name, function, subset, metadata_type))
