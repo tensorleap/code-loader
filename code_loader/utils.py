@@ -1,15 +1,16 @@
 import sys
-from typing import List
+from typing import List, Union
 from types import TracebackType
-import numpy as np  # type: ignore
+import numpy as np
+import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, SubsetResponse
 
 
 def to_numpy_return_wrapper(encoder_function: SectionCallableInterface) -> SectionCallableInterface:
-    def numpy_encoder_function(idx: int, samples: SubsetResponse) -> np.ndarray:
+    def numpy_encoder_function(idx: int, samples: SubsetResponse) -> npt.NDArray[np.float32]:
         result = encoder_function(idx, samples)
-        numpy_result = np.array(result)
+        numpy_result: npt.NDArray[np.float32] = np.array(result)
         return numpy_result
 
     return numpy_encoder_function
@@ -31,7 +32,9 @@ def get_root_exception_line_number() -> int:
     return root_exception_line_number
 
 
-def get_shape(result: np.ndarray) -> List[int]:
+def get_shape(result: Union[npt.NDArray[np.float32], str, float, int, bool]) -> List[int]:
+    if not isinstance(result, np.ndarray):
+        return [1]
     np_shape = result.shape
     # fix single result shape viewing
     if np_shape == ():

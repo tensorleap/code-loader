@@ -1,6 +1,7 @@
 from typing import Any, Callable, List, Optional, Dict, Union
 
-import numpy as np  # type: ignore
+import numpy as np
+import numpy.typing as npt
 from dataclasses import dataclass, field
 
 from code_loader.contract.enums import DataStateType, DatasetInputType, DatasetOutputType, DatasetMetadataType, \
@@ -32,7 +33,7 @@ class SubsetHandler:
 @dataclass
 class DatasetBaseHandler:
     name: str
-    function: SectionCallableInterface
+    function: Union[SectionCallableInterface]
     subset_name: str
 
 
@@ -51,7 +52,10 @@ class GroundTruthHandler(DatasetBaseHandler):
 
 
 @dataclass
-class MetadataHandler(DatasetBaseHandler):
+class MetadataHandler:
+    name: str
+    function: Union[MetadataSectionCallableInterface]
+    subset_name: str
     type: DatasetMetadataType
 
 
@@ -65,8 +69,8 @@ class DatasetIntegrationSetup:
 
 @dataclass
 class DatasetSample:
-    inputs: Dict[str, np.ndarray]
-    gt: Dict[str, np.ndarray]
-    metadata: Dict[str, np.ndarray]
+    inputs: Dict[str, npt.NDArray[np.float32]]
+    gt: Dict[str, npt.NDArray[np.float32]]
+    metadata: Dict[str, Union[str, int, bool, float]]
     index: int
     state: DataStateEnum
