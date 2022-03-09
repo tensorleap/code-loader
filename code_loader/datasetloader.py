@@ -1,11 +1,11 @@
-import random
 from functools import lru_cache
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Union
 
-import numpy as np  # type: ignore
+import numpy as np
+import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import SubsetResponse, DatasetSample, DatasetBaseHandler, InputHandler, \
-    GroundTruthHandler, SubsetHandler
+    GroundTruthHandler, SubsetHandler, MetadataHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetSubsetInstance, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance
@@ -79,7 +79,7 @@ class DatasetLoader:
         subsets = self._subsets()
         result_payloads: List[DatasetTestResultPayload] = []
         idx = 0  # TODO: implement get length and randomize index
-        dataset_base_handlers: List[DatasetBaseHandler] = self._get_all_dataset_base_handlers()
+        dataset_base_handlers: List[Union[DatasetBaseHandler, MetadataHandler]] = self._get_all_dataset_base_handlers()
         for dataset_base_handler in dataset_base_handlers:
             test_result = DatasetTestResultPayload(dataset_base_handler.name)
             subset_response_list = subsets[dataset_base_handler.subset_name]
@@ -106,8 +106,8 @@ class DatasetLoader:
 
         return result_payloads
 
-    def _get_all_dataset_base_handlers(self) -> List[DatasetBaseHandler]:
-        all_dataset_base_handlers: List[DatasetBaseHandler] = []
+    def _get_all_dataset_base_handlers(self) -> List[Union[DatasetBaseHandler, MetadataHandler]]:
+        all_dataset_base_handlers: List[Union[DatasetBaseHandler, MetadataHandler]] = []
         all_dataset_base_handlers.extend(global_dataset_binder.setup_container.inputs)
         all_dataset_base_handlers.extend(global_dataset_binder.setup_container.ground_truths)
         all_dataset_base_handlers.extend(global_dataset_binder.setup_container.metadata)
@@ -150,7 +150,7 @@ class DatasetLoader:
             subsets[subset.name] = subset_result
         return subsets
 
-    def _get_inputs(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
+    def _get_inputs(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         result_agg = {}
         subsets = self._subsets()
         for input_handler in global_dataset_binder.setup_container.inputs:
@@ -161,7 +161,7 @@ class DatasetLoader:
             result_agg[input_name] = input_result
         return result_agg
 
-    def _get_gt(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
+    def _get_gt(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         result_agg = {}
         subsets = self._subsets()
         for gt_handler in global_dataset_binder.setup_container.ground_truths:
@@ -172,7 +172,7 @@ class DatasetLoader:
             result_agg[gt_name] = gt_result
         return result_agg
 
-    def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
+    def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, Union[str, int, bool, float]]:
         result_agg = {}
         subsets = self._subsets()
         for metadata_handler in global_dataset_binder.setup_container.metadata:

@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Union
 
 import numpy as np  # type: ignore
 from grappa import should  # type: ignore
@@ -28,12 +28,17 @@ def assert_encoder_is_valid(encoder_result: Dict[str, np.ndarray]) -> None:
         encoder_name | should.be.type(str)
         type(encoder_data) | should.be.type(type(np.ndarray))
 
+def assert_metadata_encoder_is_valid(encoder_result: Dict[str, Union[str, int, bool, float]]) -> None:
+    for encoder_name, encoder_data in encoder_result.items():
+        encoder_name | should.be.type(str)
+        type(encoder_data) | should.be.type(type(np.ndarray))
+
 
 def assert_sample_is_valid(sample: DatasetSample):
     sample | should.be.type(DatasetSample)
     assert_encoder_is_valid(sample.inputs)
     assert_encoder_is_valid(sample.gt)
-    assert_encoder_is_valid(sample.metadata)
+    assert_metadata_encoder_is_valid(sample.metadata)
 
 
 def assert_word_to_index_in_cache_container(expected_key: str, expected_value: Any) -> None:

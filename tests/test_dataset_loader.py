@@ -64,7 +64,7 @@ def test_get_metadata_no_cloud(no_cloud_dataset_loader, refresh_setup_container,
 
     # assert
     assert_dataset_binder_is_valid()
-    assert_encoder_is_valid(metadata)
+    assert_metadata_encoder_is_valid(metadata)
 
 
 @use_fixture(no_cloud_dataset_loader)
