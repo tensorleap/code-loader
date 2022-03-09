@@ -29,5 +29,4 @@ class DatasetBinder:
 
     def set_metadata(self, function: MetadataSectionCallableInterface, subset: str,
                      metadata_type: DatasetMetadataType, name: str) -> None:
-        function = to_numpy_return_wrapper(function)
         self.setup_container.metadata.append(MetadataHandler(name, function, subset, metadata_type))
