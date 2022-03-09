@@ -34,7 +34,7 @@ def get_root_exception_line_number() -> int:
 def get_shape(result: np.ndarray) -> List[int]:
     np_shape = result.shape
     # fix single result shape viewing
-    if np_shape is ():
+    if np_shape == ():
         np_shape = (1,)
     shape = list(np_shape)
     return shape
