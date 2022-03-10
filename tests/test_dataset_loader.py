@@ -1,5 +1,6 @@
 from tests.assertions.dataset_loader import assert_dataset_binder_is_valid, assert_subsets_is_valid, \
-    assert_encoder_is_valid, assert_sample_is_valid, assert_word_to_index_in_cache_container, assert_input_has_value
+    assert_encoder_is_valid, assert_sample_is_valid, assert_word_to_index_in_cache_container, assert_input_has_value, \
+    assert_metadata_encoder_is_valid
 from tests.fixtures.dataset_integ_scripts.scripts_metadata import word_idx_dataset_params
 from tests.fixtures.dataset_loaders import no_cloud_dataset_loader, word_idx_dataset_loader
 from tests.fixtures.utils import refresh_setup_container
