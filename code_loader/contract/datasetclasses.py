@@ -33,7 +33,7 @@ class SubsetHandler:
 @dataclass
 class DatasetBaseHandler:
     name: str
-    function: Union[SectionCallableInterface]
+    function: SectionCallableInterface
     subset_name: str
 
 
@@ -54,7 +54,7 @@ class GroundTruthHandler(DatasetBaseHandler):
 @dataclass
 class MetadataHandler:
     name: str
-    function: Union[MetadataSectionCallableInterface]
+    function: MetadataSectionCallableInterface
     subset_name: str
     type: DatasetMetadataType
 
