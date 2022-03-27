@@ -15,7 +15,6 @@ def assert_dataset_binder_is_valid() -> None:
     len(setup_container.inputs) | should.be.higher.than(0)
     len(setup_container.ground_truths) | should.be.higher.than(0)
     len(setup_container.metadata) | should.be.higher.than(0)
-    len(setup_container.connections) | should.be.higher.than(0)
 
 
 def assert_encoder_is_valid(encoder_result: Dict[str, np.ndarray]) -> None:
