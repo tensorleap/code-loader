@@ -46,7 +46,6 @@ class DatasetSetup:
     metadata: List[DatasetMetadataInstance]
     outputs: List[DatasetOutputInstance]
     decoders: List[DecoderInstance]
-    connections: List[ConnectionInstance]
 
 
 @dataclass
