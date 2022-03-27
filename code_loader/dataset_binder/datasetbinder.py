@@ -37,15 +37,6 @@ class DatasetBinder:
         self.setup_container.decoders.append(DecoderHandler(name, decoder, type, heatmap_decoder))
         self._decoder_names.append(name)
 
-    def set_connection(self, decoder_name: Union[DefaultDecoder, str], encoder_names: List[str]) -> None:
-        if isinstance(decoder_name, DefaultDecoder):
-            decoder_name = decoder_name.value
-        assert decoder_name in self._decoder_names
-        for encoder_name in encoder_names:
-            assert encoder_name in self._encoder_names
-        
-        self.setup_container.connections.append(ConnectionInstance(decoder_name, encoder_names))
-
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
         self.setup_container.preprocess = PreprocessHandler(function)
 
