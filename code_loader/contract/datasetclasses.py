@@ -81,7 +81,6 @@ class DatasetIntegrationSetup:
     inputs: List[InputHandler] = field(default_factory=list)
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
     metadata: List[MetadataHandler] = field(default_factory=list)
-    connections: List[ConnectionInstance] = field(default_factory=list)
 
 
 @dataclass
