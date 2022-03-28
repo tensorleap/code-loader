@@ -59,12 +59,6 @@ class InputHandler(DatasetBaseHandler):
 
 
 @dataclass
-class ConnectionInstance:
-    decoder_name: str
-    encoder_names: List[str]
-
-
-@dataclass
 class GroundTruthHandler(DatasetBaseHandler):
     shape: Optional[List[int]] = None
 
