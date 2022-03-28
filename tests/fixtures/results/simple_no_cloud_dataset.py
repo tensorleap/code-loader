@@ -1,6 +1,5 @@
 import pytest
 
-from code_loader.contract.datasetclasses import ConnectionInstance
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.contract.responsedataclasses import DatasetSetup, DatasetInputInstance, DatasetMetadataInstance, \
     DatasetOutputInstance, DatasetIntegParseResult, DatasetTestResultPayload, DatasetPreprocess, DecoderInstance
@@ -27,7 +26,8 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
             DecoderInstance(name='Text', type=LeapDataType.Text),
             DecoderInstance(name='ImageMask', type=LeapDataType.ImageMask),
             DecoderInstance(name='TextMask', type=LeapDataType.TextMask)
-        ]
+        ],
+        heatmap_blocks=[]
     )
 
     expected_payloads = [

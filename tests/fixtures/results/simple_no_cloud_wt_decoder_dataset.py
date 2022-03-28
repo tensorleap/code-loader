@@ -26,7 +26,8 @@ def no_cloud_wt_decoder_dataset_loader_expected_result() -> DatasetIntegParseRes
             DecoderInstance(name='ImageMask', type=LeapDataType.ImageMask),
             DecoderInstance(name='TextMask', type=LeapDataType.TextMask),
             DecoderInstance(name='stub_decoder', type=LeapDataType.Numeric)
-        ]
+        ],
+        heatmap_blocks=[]
     )
 
     expected_payloads = [

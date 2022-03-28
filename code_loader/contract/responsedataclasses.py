@@ -39,12 +39,19 @@ class DecoderInstance:
 
 
 @dataclass
+class HeatmapBlockInstance:
+    name: str
+    labels: List[str]
+
+
+@dataclass
 class DatasetSetup:
     preprocess: DatasetPreprocess
     inputs: List[DatasetInputInstance]
     metadata: List[DatasetMetadataInstance]
     outputs: List[DatasetOutputInstance]
     decoders: List[DecoderInstance]
+    heatmap_blocks: List[HeatmapBlockInstance]
 
 
 @dataclass
