@@ -1,5 +1,4 @@
 from typing import Any, Callable, List, Optional, Dict, Union
-from typing_extensions import Protocol
 
 import numpy as np  # type: ignore
 from dataclasses import dataclass, field
@@ -8,6 +7,7 @@ from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeri
     LeapTextMask, LeapImageMask
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
     DataStateEnum, LeapDataType
+from code_loader.contract.responsedataclasses import HeatmapBlockInstance
 
 
 @dataclass
@@ -59,12 +59,6 @@ class InputHandler(DatasetBaseHandler):
 
 
 @dataclass
-class ConnectionInstance:
-    decoder_name: str
-    encoder_names: List[str]
-
-
-@dataclass
 class GroundTruthHandler(DatasetBaseHandler):
     shape: Optional[List[int]] = None
 
@@ -81,6 +75,7 @@ class DatasetIntegrationSetup:
     inputs: List[InputHandler] = field(default_factory=list)
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
     metadata: List[MetadataHandler] = field(default_factory=list)
+    heatmap_blocks: List[HeatmapBlockInstance] = field(default_factory=list)
 
 
 @dataclass
