@@ -1,7 +1,8 @@
 from functools import lru_cache
 from typing import Dict, List, Iterable, Any
 
-import numpy as np  # type: ignore
+import numpy as np
+import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
     GroundTruthHandler, PreprocessResponse, DecoderHandler, DecoderCallableReturnType
@@ -121,11 +122,11 @@ class DatasetLoader:
         all_dataset_base_handlers.extend(global_dataset_binder.setup_container.metadata)
         return all_dataset_base_handlers
 
-    def run_decoder(self, decoder_name: str, input_tensors: List[np.array],
+    def run_decoder(self, decoder_name: str, input_tensors: List[npt.NDArray[np.float32]],
                     ) -> DecoderCallableReturnType:
         return self.decoder_by_name()[decoder_name].function(*input_tensors)
 
-    def run_heatmap_decoder(self, decoder_name: str, input_heatmaps: List[np.array]) -> np.array:
+    def run_heatmap_decoder(self, decoder_name: str, input_heatmaps: List[npt.NDArray[np.float32]]) -> npt.NDArray[np.float32]:
         heatmap_function = self.decoder_by_name()[decoder_name].heatmap_function
         if heatmap_function is None:
             assert len(input_heatmaps) == 1
@@ -173,7 +174,7 @@ class DatasetLoader:
         return preprocess_result
 
     def _get_dataset_handlers(
-            self, handlers: Iterable[DatasetBaseHandler], state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
+            self, handlers: Iterable[DatasetBaseHandler], state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         result_agg = {}
         preprocess_result = self._preprocess_result()
         preprocess_state = preprocess_result[state]
@@ -183,11 +184,11 @@ class DatasetLoader:
             result_agg[handler_name] = handler_result
         return result_agg
 
-    def _get_inputs(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
+    def _get_inputs(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         return self._get_dataset_handlers(global_dataset_binder.setup_container.inputs, state, idx)
 
-    def _get_gt(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
+    def _get_gt(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         return self._get_dataset_handlers(global_dataset_binder.setup_container.ground_truths, state, idx)
 
-    def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, np.ndarray]:
+    def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         return self._get_dataset_handlers(global_dataset_binder.setup_container.metadata, state, idx)

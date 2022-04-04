@@ -1,6 +1,7 @@
 from typing import Callable, List, Optional, Dict, Any
 
-import numpy as np  # type: ignore
+import numpy as np
+import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, DecoderHandler, PreprocessResponse, \
@@ -34,7 +35,7 @@ class DatasetBinder:
     def set_decoder(self, name: str,
                     decoder: DecoderCallableInterface,
                     type: LeapDataType,
-                    heatmap_decoder: Optional[Callable[[np.array], np.array]] = None) -> None:
+                    heatmap_decoder: Optional[Callable[[npt.NDArray[np.float32]], npt.NDArray[np.float32]]] = None) -> None:
         self.setup_container.decoders.append(DecoderHandler(name, decoder, type, heatmap_decoder))
         self._decoder_names.append(name)
 

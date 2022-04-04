@@ -1,6 +1,7 @@
 from typing import Any, Callable, List, Optional, Dict, Union
 
-import numpy as np  # type: ignore
+import numpy as np
+import numpy.typing as npt
 from dataclasses import dataclass, field
 
 from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar, \
@@ -16,7 +17,7 @@ class PreprocessResponse:
     data: Any
 
 
-SectionCallableInterface = Callable[[int, PreprocessResponse], np.ndarray]
+SectionCallableInterface = Callable[[int, PreprocessResponse], npt.NDArray[np.float32]]
 
 
 @dataclass
@@ -44,7 +45,7 @@ class DecoderHandler:
     name: str
     function: DecoderCallableInterface
     type: LeapDataType
-    heatmap_function: Optional[Callable[..., np.array]] = None
+    heatmap_function: Optional[Callable[..., npt.NDArray[np.float32]]] = None
 
 
 @dataclass
@@ -80,8 +81,8 @@ class DatasetIntegrationSetup:
 
 @dataclass
 class DatasetSample:
-    inputs: Dict[str, np.ndarray]
-    gt: Dict[str, np.ndarray]
-    metadata: Dict[str, np.ndarray]
+    inputs: Dict[str, npt.NDArray[np.float32]]
+    gt: Dict[str, npt.NDArray[np.float32]]
+    metadata: Dict[str, npt.NDArray[np.float32]]
     index: int
     state: DataStateEnum

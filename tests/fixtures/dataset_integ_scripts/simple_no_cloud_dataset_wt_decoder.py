@@ -1,6 +1,7 @@
 from typing import List
 
-import numpy as np  # type: ignore
+import numpy as np
+import numpy.typing as npt
 
 from code_loader import dataset_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
@@ -66,7 +67,7 @@ def metadata_y(idx, samples):
     return batch_metadata[0]
 
 
-def stub_decoder_func(data: np.array) -> LeapNumeric:
+def stub_decoder_func(data: npt.NDArray) -> LeapNumeric:
     return LeapNumeric(data)
 
 
