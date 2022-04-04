@@ -8,7 +8,7 @@ from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeri
     LeapTextMask, LeapImageMask
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
     DataStateEnum, LeapDataType
-from code_loader.contract.responsedataclasses import HeatmapBlockInstance
+from code_loader.contract.responsedataclasses import PredictionTypeInstance
 
 
 @dataclass
@@ -79,7 +79,7 @@ class DatasetIntegrationSetup:
     inputs: List[InputHandler] = field(default_factory=list)
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
     metadata: List[MetadataHandler] = field(default_factory=list)
-    heatmap_blocks: List[HeatmapBlockInstance] = field(default_factory=list)
+    prediction_types: List[PredictionTypeInstance] = field(default_factory=list)
 
 
 @dataclass
