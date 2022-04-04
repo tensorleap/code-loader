@@ -1,6 +1,7 @@
 from typing import List
 
-import numpy as np  # type: ignore
+import numpy as np
+import numpy.typing as npt
 from dataclasses import dataclass
 
 from code_loader.contract.enums import LeapDataType
@@ -8,26 +9,26 @@ from code_loader.contract.enums import LeapDataType
 
 @dataclass
 class LeapImage:
-    data: np.array
+    data: npt.NDArray[np.float32]
     type: LeapDataType = LeapDataType.Image
 
 
 @dataclass
 class LeapImageWithBBox:
-    data: np.array
-    bbox: np.array
+    data: npt.NDArray[np.float32]
+    bbox: npt.NDArray[np.float32]
     type: LeapDataType = LeapDataType.ImageWithBBox
 
 
 @dataclass
 class LeapNumeric:
-    data: np.array
+    data: npt.NDArray[np.float32]
     type: LeapDataType = LeapDataType.Numeric
 
 
 @dataclass
 class LeapGraph:
-    data: np.array
+    data: npt.NDArray[np.float32]
     type: LeapDataType = LeapDataType.Graph
 
 
@@ -39,22 +40,22 @@ class LeapText:
 
 @dataclass
 class LeapHorizontalBar:
-    body: List[float]
+    body: npt.NDArray[np.float32]
     labels: List[str]
     type: LeapDataType = LeapDataType.HorizontalBar
 
 
 @dataclass
 class LeapImageMask:
-    mask: np.array
-    image: np.array
+    mask: npt.NDArray[np.float32]
+    image: npt.NDArray[np.float32]
     labels: List[str]
     type: LeapDataType = LeapDataType.ImageMask
 
 
 @dataclass
 class LeapTextMask:
-    mask: np.array
-    text_array: np.array
+    mask: npt.NDArray[np.float32]
+    text_array: npt.NDArray[np.float32]
     labels: List[str]
     type: LeapDataType = LeapDataType.TextMask

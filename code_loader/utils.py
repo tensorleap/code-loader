@@ -8,7 +8,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, Prepro
 
 
 def to_numpy_return_wrapper(encoder_function: SectionCallableInterface) -> SectionCallableInterface:
-    def numpy_encoder_function(idx: int, samples: PreprocessResponse) -> np.ndarray:
+    def numpy_encoder_function(idx: int, samples: PreprocessResponse) -> npt.NDArray[np.float32]:
         result = encoder_function(idx, samples)
         numpy_result: npt.NDArray[np.float32] = np.array(result)
         return numpy_result
@@ -32,9 +32,7 @@ def get_root_exception_line_number() -> int:
     return root_exception_line_number
 
 
-def get_shape(result: Union[npt.NDArray[np.float32], str, float, int, bool]) -> List[int]:
-    if not isinstance(result, np.ndarray):
-        return [1]
+def get_shape(result: npt.NDArray[np.float32]) -> List[int]:
     np_shape = result.shape
     # fix single result shape viewing
     if np_shape == ():
@@ -43,7 +41,7 @@ def get_shape(result: Union[npt.NDArray[np.float32], str, float, int, bool]) -> 
     return shape
 
 
-def rescale_min_max(image: np.ndarray) -> np.ndarray:
+def rescale_min_max(image: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
     image = image.astype('float32')
     image -= image.min()
     image /= (image.max() - image.min() + 1e-5)
