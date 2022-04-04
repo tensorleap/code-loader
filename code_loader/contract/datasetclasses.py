@@ -17,7 +17,7 @@ class PreprocessResponse:
     data: Any
 
 
-SectionCallableInterface = Callable[[int, PreprocessResponse], np.ndarray]
+SectionCallableInterface = Callable[[int, PreprocessResponse], npt.NDArray[np.float32]]
 
 
 @dataclass
@@ -45,7 +45,7 @@ class DecoderHandler:
     name: str
     function: DecoderCallableInterface
     type: LeapDataType
-    heatmap_function: Optional[Callable[..., np.array]] = None
+    heatmap_function: Optional[Callable[..., npt.NDArray[np.float32]]] = None
 
 
 @dataclass
@@ -86,6 +86,6 @@ class DatasetIntegrationSetup:
 class DatasetSample:
     inputs: Dict[str, npt.NDArray[np.float32]]
     gt: Dict[str, npt.NDArray[np.float32]]
-    metadata: Dict[str, Union[str, int, bool, float]]
+    metadata: Dict[str, npt.NDArray[np.float32]]
     index: int
     state: DataStateEnum
