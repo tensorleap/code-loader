@@ -2,7 +2,7 @@ from typing import List, Optional, Dict
 
 from dataclasses import dataclass, field
 
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
 
 
 @dataclass
@@ -39,9 +39,10 @@ class DecoderInstance:
 
 
 @dataclass
-class HeatmapBlockInstance:
+class PredictionTypeInstance:
     name: str
     labels: List[str]
+    metrics: List[Metric]
 
 
 @dataclass
@@ -51,7 +52,7 @@ class DatasetSetup:
     metadata: List[DatasetMetadataInstance]
     outputs: List[DatasetOutputInstance]
     decoders: List[DecoderInstance]
-    heatmap_blocks: List[HeatmapBlockInstance]
+    prediction_types: List[PredictionTypeInstance]
 
 
 @dataclass

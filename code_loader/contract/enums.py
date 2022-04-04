@@ -1,6 +1,17 @@
 from enum import Enum, IntEnum
 
 
+class Metric(Enum):
+    MeanSquaredError = 'MeanSquaredError'
+    MeanSquaredLogarithmicError = 'MeanSquaredLogarithmicError'
+    MeanAbsoluteError = 'MeanAbsoluteError'
+    MeanAbsolutePercentageError = 'MeanAbsolutePercentageError'
+    CategoricalAccuracy = 'CategoricalAccuracy'
+    MaskCategoricalAccuracy = 'MaskCategoricalAccuracy'
+    BinaryAccuracy = 'BinaryAccuracy'
+    MeanIOU = 'MeanIOU'
+
+
 class LeapDataType(Enum):
     Image = 'Image'
     Text = 'Text'

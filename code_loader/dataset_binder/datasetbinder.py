@@ -5,8 +5,8 @@ import numpy as np  # type: ignore
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, DecoderHandler, PreprocessResponse, \
     PreprocessHandler, DecoderCallableInterface
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType
-from code_loader.contract.responsedataclasses import HeatmapBlockInstance
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
+from code_loader.contract.responsedataclasses import PredictionTypeInstance
 from code_loader.decoders.default_decoders import DefaultDecoder, default_numeric_decoder, default_graph_decoder, \
     default_image_decoder, default_horizontal_bar_decoder, default_word_decoder, \
     default_image_mask_decoder, default_text_mask_decoder
@@ -47,8 +47,8 @@ class DatasetBinder:
 
         self._encoder_names.append(input_name)
 
-    def set_heatmap_block(self, name: str, labels: List[str]) -> None:
-        self.setup_container.heatmap_blocks.append(HeatmapBlockInstance(name, labels))
+    def create_prediction_type(self, name: str, labels: List[str], metrics: List[Metric]) -> None:
+        self.setup_container.prediction_types.append(PredictionTypeInstance(name, labels, metrics))
 
     def set_ground_truth(self, function: SectionCallableInterface, gt_name: str) -> None:
         function = to_numpy_return_wrapper(function)
