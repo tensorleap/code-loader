@@ -5,8 +5,7 @@ import numpy as np  # type: ignore
 from code_loader import dataset_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
 from code_loader.contract.decoder_classes import LeapNumeric
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType
-from code_loader.decoders.default_decoders import DefaultDecoder
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
 
 
 def get_length(data):
@@ -83,6 +82,6 @@ dataset_binder.set_metadata(metadata_x, DatasetMetadataType.int, 'x')
 
 dataset_binder.set_metadata(metadata_y, DatasetMetadataType.string, 'y')
 
-dataset_binder.set_heatmap_block('heatmap_block1', ['yes', 'no'])
+dataset_binder.create_prediction_type('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError])
 
 
