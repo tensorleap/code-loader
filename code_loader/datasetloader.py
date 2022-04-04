@@ -161,7 +161,7 @@ class DatasetLoader:
                     for decoder_handler in setup.decoders]
 
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
-                            decoders=decoders, heatmap_blocks=setup.heatmap_blocks)
+                            decoders=decoders, prediction_types=setup.prediction_types)
 
     @lru_cache()
     def _preprocess_result(self) -> List[PreprocessResponse]:
