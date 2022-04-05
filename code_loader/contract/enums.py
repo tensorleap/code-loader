@@ -6,8 +6,7 @@ class Metric(Enum):
     MeanSquaredLogarithmicError = 'MeanSquaredLogarithmicError'
     MeanAbsoluteError = 'MeanAbsoluteError'
     MeanAbsolutePercentageError = 'MeanAbsolutePercentageError'
-    CategoricalAccuracy = 'CategoricalAccuracy'
-    MaskCategoricalAccuracy = 'MaskCategoricalAccuracy'
+    Accuracy = 'Accuracy'
     BinaryAccuracy = 'BinaryAccuracy'
     MeanIOU = 'MeanIOU'
 
