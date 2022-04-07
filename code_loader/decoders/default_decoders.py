@@ -33,7 +33,7 @@ def default_numeric_decoder(data: npt.NDArray[np.float32]) -> LeapNumeric:
 
 
 def default_horizontal_bar_decoder(data: npt.NDArray[np.float32]) -> LeapHorizontalBar:
-    labels = [str(index) for index in range(len(data))]
+    labels = [str(index) for index in range(data.shape[-1])]
     return LeapHorizontalBar(data, labels)
 
 
