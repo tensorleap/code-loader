@@ -1,6 +1,6 @@
 from typing import Any, Callable, List, Optional, Dict, Union
 
-import tensorflow as tf
+import tensorflow as tf  # type: ignore
 import numpy as np
 import numpy.typing as npt
 from dataclasses import dataclass, field
