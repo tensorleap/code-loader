@@ -1,11 +1,10 @@
 from typing import Callable, List, Optional, Dict, Any
-
 import numpy as np
 import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, DecoderHandler, PreprocessResponse, \
-    PreprocessHandler, DecoderCallableInterface
+    PreprocessHandler, DecoderCallableInterface, CustomLossHandler, CustomLossCallableInterface
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
 from code_loader.contract.responsedataclasses import PredictionTypeInstance
 from code_loader.decoders.default_decoders import DefaultDecoder, default_numeric_decoder, default_graph_decoder, \
@@ -47,6 +46,9 @@ class DatasetBinder:
         self.setup_container.inputs.append(InputHandler(input_name, function))
 
         self._encoder_names.append(input_name)
+
+    def add_custom_loss(self, name: str, function: CustomLossCallableInterface) -> None:
+        self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function))
 
     def create_prediction_type(self, name: str, labels: List[str], metrics: List[Metric]) -> None:
         self.setup_container.prediction_types.append(PredictionTypeInstance(name, labels, metrics))
