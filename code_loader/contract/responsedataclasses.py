@@ -53,6 +53,7 @@ class DatasetSetup:
     outputs: List[DatasetOutputInstance]
     decoders: List[DecoderInstance]
     prediction_types: List[PredictionTypeInstance]
+    custom_loss_names: List[str]
 
 
 @dataclass

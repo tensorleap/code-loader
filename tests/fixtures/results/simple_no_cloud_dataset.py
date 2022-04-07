@@ -27,7 +27,8 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
             DecoderInstance(name='ImageMask', type=LeapDataType.ImageMask),
             DecoderInstance(name='TextMask', type=LeapDataType.TextMask)
         ],
-        prediction_types=[]
+        prediction_types=[],
+        custom_loss_names=[]
     )
 
     expected_payloads = [

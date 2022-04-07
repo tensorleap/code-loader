@@ -1,5 +1,6 @@
 from typing import Any, Callable, List, Optional, Dict, Union
 
+import tensorflow as tf  # type: ignore
 import numpy as np
 import numpy.typing as npt
 from dataclasses import dataclass, field
@@ -40,6 +41,15 @@ DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText,
                                   LeapGraph, LeapHorizontalBar, LeapImageMask, LeapTextMask]
 
 
+CustomLossCallableInterface = Callable[[tf.Tensor, tf.Tensor], tf.Tensor]
+
+
+@dataclass
+class CustomLossHandler:
+    name: str
+    function: CustomLossCallableInterface
+
+
 @dataclass
 class DecoderHandler:
     name: str
@@ -77,6 +87,7 @@ class DatasetIntegrationSetup:
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
     metadata: List[MetadataHandler] = field(default_factory=list)
     prediction_types: List[PredictionTypeInstance] = field(default_factory=list)
+    custom_loss_handlers: List[CustomLossHandler] = field(default_factory=list)
 
 
 @dataclass
