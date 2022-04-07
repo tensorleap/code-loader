@@ -5,7 +5,7 @@ import numpy as np
 import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
-    GroundTruthHandler, PreprocessResponse, DecoderHandler, DecoderCallableReturnType
+    GroundTruthHandler, PreprocessResponse, DecoderHandler, DecoderCallableReturnType, CustomLossHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
@@ -34,6 +34,15 @@ class DatasetLoader:
         return {
             decoder_handler.name: decoder_handler
             for decoder_handler in setup.decoders
+        }
+
+    @lru_cache()
+    def custom_loss_by_name(self) -> Dict[str, CustomLossHandler]:
+        self.exec_script()
+        setup = global_dataset_binder.setup_container
+        return {
+            custom_loss_handler.name: custom_loss_handler
+            for custom_loss_handler in setup.custom_loss_handlers
         }
 
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
@@ -161,8 +170,11 @@ class DatasetLoader:
         decoders = [DecoderInstance(name=decoder_handler.name, type=decoder_handler.type)
                     for decoder_handler in setup.decoders]
 
+        custom_loss_names = [custom_loss.name for custom_loss in setup.custom_loss_handlers]
+
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
-                            decoders=decoders, prediction_types=setup.prediction_types)
+                            decoders=decoders, prediction_types=setup.prediction_types,
+                            custom_loss_names=custom_loss_names)
 
     @lru_cache()
     def _preprocess_result(self) -> List[PreprocessResponse]:
