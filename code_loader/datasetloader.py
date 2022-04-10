@@ -131,16 +131,17 @@ class DatasetLoader:
         all_dataset_base_handlers.extend(global_dataset_binder.setup_container.metadata)
         return all_dataset_base_handlers
 
-    def run_decoder(self, decoder_name: str, input_tensors: List[npt.NDArray[np.float32]],
+    def run_decoder(self, decoder_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]],
                     ) -> DecoderCallableReturnType:
-        return self.decoder_by_name()[decoder_name].function(*input_tensors)
+        return self.decoder_by_name()[decoder_name].function(**input_tensors_by_arg_name)
 
-    def run_heatmap_decoder(self, decoder_name: str, input_heatmaps: List[npt.NDArray[np.float32]]) -> npt.NDArray[np.float32]:
+    def run_heatmap_decoder(self, decoder_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]
+                            ) -> npt.NDArray[np.float32]:
         heatmap_function = self.decoder_by_name()[decoder_name].heatmap_function
         if heatmap_function is None:
-            assert len(input_heatmaps) == 1
-            return input_heatmaps[0]
-        return heatmap_function(*input_heatmaps)
+            assert len(input_tensors_by_arg_name) == 1
+            return list(input_tensors_by_arg_name.values())[0]
+        return heatmap_function(**input_tensors_by_arg_name)
 
     @staticmethod
     def get_dataset_setup_response() -> DatasetSetup:
@@ -167,7 +168,7 @@ class DatasetLoader:
         metadata = [DatasetMetadataInstance(name=metadata.name, type=metadata.type)
                     for metadata in setup.metadata]
 
-        decoders = [DecoderInstance(name=decoder_handler.name, type=decoder_handler.type)
+        decoders = [DecoderInstance(decoder_handler.name, decoder_handler.type, decoder_handler.arg_names)
                     for decoder_handler in setup.decoders]
 
         custom_loss_names = [custom_loss.name for custom_loss in setup.custom_loss_handlers]

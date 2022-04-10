@@ -1,6 +1,7 @@
 from typing import Callable, List, Optional, Dict, Any
 import numpy as np
 import numpy.typing as npt
+import inspect
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, DecoderHandler, PreprocessResponse, \
@@ -33,9 +34,14 @@ class DatasetBinder:
 
     def set_decoder(self, name: str,
                     decoder: DecoderCallableInterface,
-                    type: LeapDataType,
+                    _type: LeapDataType,
                     heatmap_decoder: Optional[Callable[[npt.NDArray[np.float32]], npt.NDArray[np.float32]]] = None) -> None:
-        self.setup_container.decoders.append(DecoderHandler(name, decoder, type, heatmap_decoder))
+        arg_names = inspect.getfullargspec(decoder)[0]
+        if heatmap_decoder:
+            if arg_names != inspect.getfullargspec(heatmap_decoder)[0]:
+                raise Exception(f'The argument names of the heatmap decoder callback must match the decoder callback '
+                                f'{str(arg_names)}')
+        self.setup_container.decoders.append(DecoderHandler(name, decoder, _type, arg_names, heatmap_decoder))
         self._decoder_names.append(name)
 
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
