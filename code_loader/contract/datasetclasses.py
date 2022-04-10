@@ -55,6 +55,7 @@ class DecoderHandler:
     name: str
     function: DecoderCallableInterface
     type: LeapDataType
+    arg_names: List[str]
     heatmap_function: Optional[Callable[..., npt.NDArray[np.float32]]] = None
 
 
