@@ -9,7 +9,7 @@ from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandle
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
-    DecoderInstance
+    DecoderInstance, PredictionTypeInstance
 from code_loader.dataset_binder import global_dataset_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
 
@@ -173,8 +173,17 @@ class DatasetLoader:
 
         custom_loss_names = [custom_loss.name for custom_loss in setup.custom_loss_handlers]
 
+        prediction_types = []
+        for prediction_type in setup.prediction_types:
+            custom_metrics_names = None
+            if prediction_type.custom_metrics:
+                custom_metrics_names = [custom_metric.__name__ for custom_metric in prediction_type.custom_metrics]
+            pred_type_inst = PredictionTypeInstance(prediction_type.name, prediction_type.labels,
+                                                    prediction_type.metrics, custom_metrics_names)
+            prediction_types.append(pred_type_inst)
+
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
-                            decoders=decoders, prediction_types=setup.prediction_types,
+                            decoders=decoders, prediction_types=prediction_types,
                             custom_loss_names=custom_loss_names)
 
     @lru_cache()
@@ -187,7 +196,8 @@ class DatasetLoader:
         return preprocess_result
 
     def _get_dataset_handlers(
-            self, handlers: Iterable[DatasetBaseHandler], state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
+            self, handlers: Iterable[DatasetBaseHandler], state: DataStateEnum, idx: int) -> Dict[
+        str, npt.NDArray[np.float32]]:
         result_agg = {}
         preprocess_result = self._preprocess_result()
         preprocess_state = preprocess_result[state]

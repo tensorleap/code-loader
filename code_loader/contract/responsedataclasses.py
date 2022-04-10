@@ -44,6 +44,7 @@ class PredictionTypeInstance:
     name: str
     labels: List[str]
     metrics: List[Metric]
+    custom_metrics: Optional[List[str]] = None
 
 
 @dataclass
