@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
-    DataStateEnum, LeapDataType
+    DataStateEnum, LeapDataType, Metric
 from code_loader.contract.responsedataclasses import PredictionTypeInstance
 
 
@@ -40,14 +40,13 @@ DecoderCallableInterface = Union[
 DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText,
                                   LeapGraph, LeapHorizontalBar, LeapImageMask, LeapTextMask]
 
-
-CustomLossCallableInterface = Callable[[tf.Tensor, tf.Tensor], tf.Tensor]
+CustomCallableInterface = Callable[[tf.Tensor, tf.Tensor], tf.Tensor]
 
 
 @dataclass
 class CustomLossHandler:
     name: str
-    function: CustomLossCallableInterface
+    function: CustomCallableInterface
 
 
 @dataclass
@@ -81,13 +80,21 @@ class MetadataHandler(DatasetBaseHandler):
 
 
 @dataclass
+class PredictionTypeHandler:
+    name: str
+    labels: List[str]
+    metrics: List[Metric]
+    custom_metrics: Optional[List[CustomCallableInterface]] = None
+
+
+@dataclass
 class DatasetIntegrationSetup:
     preprocess: Optional[PreprocessHandler] = None
     decoders: List[DecoderHandler] = field(default_factory=list)
     inputs: List[InputHandler] = field(default_factory=list)
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
     metadata: List[MetadataHandler] = field(default_factory=list)
-    prediction_types: List[PredictionTypeInstance] = field(default_factory=list)
+    prediction_types: List[PredictionTypeHandler] = field(default_factory=list)
     custom_loss_handlers: List[CustomLossHandler] = field(default_factory=list)
 
 
