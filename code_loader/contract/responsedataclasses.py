@@ -36,6 +36,7 @@ class DatasetOutputInstance(DatasetBaseSectionInstance):
 class DecoderInstance:
     name: str
     type: LeapDataType
+    arg_names: List[str]
 
 
 @dataclass
