@@ -19,13 +19,13 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
         ],
         preprocess=DatasetPreprocess(training_length=4, validation_length=2, test_length=1),
         decoders=[
-            DecoderInstance(name='Image', type=LeapDataType.Image),
-            DecoderInstance(name='Graph', type=LeapDataType.Graph),
-            DecoderInstance(name='Numeric', type=LeapDataType.Numeric),
-            DecoderInstance(name='HorizontalBar', type=LeapDataType.HorizontalBar),
-            DecoderInstance(name='Text', type=LeapDataType.Text),
-            DecoderInstance(name='ImageMask', type=LeapDataType.ImageMask),
-            DecoderInstance(name='TextMask', type=LeapDataType.TextMask)
+            DecoderInstance(name='Image', type=LeapDataType.Image, arg_names=['data']),
+            DecoderInstance(name='Graph', type=LeapDataType.Graph, arg_names=['data']),
+            DecoderInstance(name='Numeric', type=LeapDataType.Numeric, arg_names=['data']),
+            DecoderInstance(name='HorizontalBar', type=LeapDataType.HorizontalBar, arg_names=['data']),
+            DecoderInstance(name='Text', type=LeapDataType.Text, arg_names=['data']),
+            DecoderInstance(name='ImageMask', type=LeapDataType.ImageMask, arg_names=['mask', 'image']),
+            DecoderInstance(name='TextMask', type=LeapDataType.TextMask, arg_names=['mask', 'text_data'])
         ],
         prediction_types=[],
         custom_loss_names=[]
