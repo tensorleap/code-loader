@@ -3,7 +3,6 @@ from typing import Union, Dict
 import pytest
 
 from code_loader import dataset_binder
-from code_loader.contract.datasetclasses import DatasetIntegrationSetup
 from code_loader.contract.enums import DataStateEnum
 from code_loader.dataset_binder import DatasetBinder
 

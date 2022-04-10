@@ -28,7 +28,8 @@ def no_cloud_wt_decoder_dataset_loader_expected_result() -> DatasetIntegParseRes
             DecoderInstance(name='TextMask', type=LeapDataType.TextMask, arg_names=['mask', 'text_data']),
             DecoderInstance(name='stub_decoder', type=LeapDataType.Numeric, arg_names=['data'])
         ],
-        prediction_types=[PredictionTypeInstance('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError])],
+        prediction_types=[
+            PredictionTypeInstance('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError], ["customMetric"])],
         custom_loss_names=[]
     )
 

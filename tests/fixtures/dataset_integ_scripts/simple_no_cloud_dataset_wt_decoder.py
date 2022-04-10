@@ -83,6 +83,9 @@ dataset_binder.set_metadata(metadata_x, DatasetMetadataType.int, 'x')
 
 dataset_binder.set_metadata(metadata_y, DatasetMetadataType.string, 'y')
 
-dataset_binder.create_prediction_type('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError])
+
+def customMetric(pred, gt):
+    return pred - gt
 
 
+dataset_binder.create_prediction_type('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError], [customMetric])
