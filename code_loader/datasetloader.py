@@ -5,7 +5,8 @@ import numpy as np
 import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
-    GroundTruthHandler, PreprocessResponse, DecoderHandler, DecoderCallableReturnType, CustomLossHandler
+    GroundTruthHandler, PreprocessResponse, DecoderHandler, DecoderCallableReturnType, CustomLossHandler, \
+    PredictionTypeHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
@@ -43,6 +44,15 @@ class DatasetLoader:
         return {
             custom_loss_handler.name: custom_loss_handler
             for custom_loss_handler in setup.custom_loss_handlers
+        }
+
+    @lru_cache()
+    def prediction_type_by_name(self) -> Dict[str, PredictionTypeHandler]:
+        self.exec_script()
+        setup = global_dataset_binder.setup_container
+        return {
+            prediction_type.name: prediction_type
+            for prediction_type in setup.prediction_types
         }
 
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
