@@ -88,4 +88,4 @@ def custom_metric(pred, gt):
     return pred - gt
 
 
-dataset_binder.create_prediction_type('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError], [custom_metric])
+dataset_binder.add_prediction_type('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError], [custom_metric])
