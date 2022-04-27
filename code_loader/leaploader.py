@@ -11,7 +11,7 @@ from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataSt
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
     DecoderInstance, PredictionTypeInstance
-from code_loader.dataset_binder import global_dataset_binder
+from code_loader.leap_binder import global_leap_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
 
 
@@ -19,7 +19,7 @@ from code_loader.utils import get_root_exception_line_number, get_shape
 # MAX_PUBSUB_MSG_SIZE = 500000
 
 
-class DatasetLoader:
+class LeapLoader:
     def __init__(self, dataset_script: str):
         self.dataset_script: str = dataset_script
 
@@ -31,7 +31,7 @@ class DatasetLoader:
     @lru_cache()
     def decoder_by_name(self) -> Dict[str, DecoderHandler]:
         self.exec_script()
-        setup = global_dataset_binder.setup_container
+        setup = global_leap_binder.setup_container
         return {
             decoder_handler.name: decoder_handler
             for decoder_handler in setup.decoders
@@ -40,7 +40,7 @@ class DatasetLoader:
     @lru_cache()
     def custom_loss_by_name(self) -> Dict[str, CustomLossHandler]:
         self.exec_script()
-        setup = global_dataset_binder.setup_container
+        setup = global_leap_binder.setup_container
         return {
             custom_loss_handler.name: custom_loss_handler
             for custom_loss_handler in setup.custom_loss_handlers
@@ -49,7 +49,7 @@ class DatasetLoader:
     @lru_cache()
     def prediction_type_by_name(self) -> Dict[str, PredictionTypeHandler]:
         self.exec_script()
-        setup = global_dataset_binder.setup_container
+        setup = global_leap_binder.setup_container
         return {
             prediction_type.name: prediction_type
             for prediction_type in setup.prediction_types
@@ -86,7 +86,7 @@ class DatasetLoader:
 
     @staticmethod
     def _check_preprocess() -> DatasetTestResultPayload:
-        preprocess_handler = global_dataset_binder.setup_container.preprocess
+        preprocess_handler = global_leap_binder.setup_container.preprocess
         test_result = DatasetTestResultPayload('preprocess')
         try:
             if preprocess_handler is None:
@@ -136,9 +136,9 @@ class DatasetLoader:
     @staticmethod
     def _get_all_dataset_base_handlers() -> List[DatasetBaseHandler]:
         all_dataset_base_handlers: List[DatasetBaseHandler] = []
-        all_dataset_base_handlers.extend(global_dataset_binder.setup_container.inputs)
-        all_dataset_base_handlers.extend(global_dataset_binder.setup_container.ground_truths)
-        all_dataset_base_handlers.extend(global_dataset_binder.setup_container.metadata)
+        all_dataset_base_handlers.extend(global_leap_binder.setup_container.inputs)
+        all_dataset_base_handlers.extend(global_leap_binder.setup_container.ground_truths)
+        all_dataset_base_handlers.extend(global_leap_binder.setup_container.metadata)
         return all_dataset_base_handlers
 
     def run_decoder(self, decoder_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]],
@@ -155,7 +155,7 @@ class DatasetLoader:
 
     @staticmethod
     def get_dataset_setup_response() -> DatasetSetup:
-        setup = global_dataset_binder.setup_container
+        setup = global_leap_binder.setup_container
         assert setup.preprocess is not None
         dataset_preprocess = DatasetPreprocess(
             training_length=setup.preprocess.data_length[DataStateType.training],
@@ -198,7 +198,7 @@ class DatasetLoader:
 
     @lru_cache()
     def _preprocess_result(self) -> List[PreprocessResponse]:
-        preprocess = global_dataset_binder.setup_container.preprocess
+        preprocess = global_leap_binder.setup_container.preprocess
         # TODO: add caching of subset result
         assert preprocess is not None
         preprocess_result = preprocess.function()
@@ -218,10 +218,10 @@ class DatasetLoader:
         return result_agg
 
     def _get_inputs(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
-        return self._get_dataset_handlers(global_dataset_binder.setup_container.inputs, state, idx)
+        return self._get_dataset_handlers(global_leap_binder.setup_container.inputs, state, idx)
 
     def _get_gt(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
-        return self._get_dataset_handlers(global_dataset_binder.setup_container.ground_truths, state, idx)
+        return self._get_dataset_handlers(global_leap_binder.setup_container.ground_truths, state, idx)
 
     def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
-        return self._get_dataset_handlers(global_dataset_binder.setup_container.metadata, state, idx)
+        return self._get_dataset_handlers(global_leap_binder.setup_container.metadata, state, idx)

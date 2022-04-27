@@ -2,9 +2,9 @@ from typing import Union, Dict
 
 import pytest
 
-from code_loader import dataset_binder
+from code_loader import leap_binder
 from code_loader.contract.enums import DataStateEnum
-from code_loader.dataset_binder import DatasetBinder
+from code_loader.leap_binder import LeapBinder
 
 
 def use_fixture(fixture_func):
@@ -16,9 +16,9 @@ def use_fixture(fixture_func):
 
 @pytest.fixture
 def refresh_setup_container() -> None:
-    new_dataset_binder = DatasetBinder()
-    dataset_binder.setup_container = new_dataset_binder.setup_container
-    dataset_binder.cache_container = new_dataset_binder.cache_container
+    new_leap_binder = LeapBinder()
+    leap_binder.setup_container = new_leap_binder.setup_container
+    leap_binder.cache_container = new_leap_binder.cache_container
 
 
 @pytest.fixture

@@ -1,2 +1,2 @@
-from code_loader.datasetloader import DatasetLoader
-from code_loader.dataset_binder import global_dataset_binder as dataset_binder
+from code_loader.leaploader import LeapLoader
+from code_loader.leap_binder import global_leap_binder as leap_binder

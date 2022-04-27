@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np  # type: ignore
 
-from code_loader import dataset_binder
+from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
 from code_loader.contract.enums import DatasetMetadataType
 from code_loader.decoders.default_decoders import DefaultDecoder
@@ -28,7 +28,7 @@ def subset_test_subset_1_10() -> List[PreprocessResponse]:
     a = [0] * 4
     b = [0] * 2
     c = [0]
-    dataset_binder.cache_container["word_to_index"][input_name] = word_to_index_value
+    leap_binder.cache_container["word_to_index"][input_name] = word_to_index_value
     return [PreprocessResponse(length=get_length(a), data=np.array(a)),
             PreprocessResponse(length=get_length(b), data=np.array(b)),
             PreprocessResponse(length=get_length(c), data=np.array(c))]
@@ -40,7 +40,7 @@ def input_normal_input_subset_1_10(idx, samples):
     batch_images = []
     for x in batch_x:
         batch_images.append(x)
-    return dataset_binder.cache_container["word_to_index"][input_name]
+    return leap_binder.cache_container["word_to_index"][input_name]
 
 
 def ground_truth_output_times_20(idx, samples):
@@ -70,12 +70,12 @@ def metadata_y(idx, samples):
     return batch_metadata[0]
 
 
-dataset_binder.set_preprocess(subset_test_subset_1_10)
+leap_binder.set_preprocess(subset_test_subset_1_10)
 
-dataset_binder.set_input(input_normal_input_subset_1_10, input_name)
+leap_binder.set_input(input_normal_input_subset_1_10, input_name)
 
-dataset_binder.set_ground_truth(ground_truth_output_times_20, 'output_times_20')
+leap_binder.set_ground_truth(ground_truth_output_times_20, 'output_times_20')
 
-dataset_binder.set_metadata(metadata_x, DatasetMetadataType.int, 'x')
+leap_binder.set_metadata(metadata_x, DatasetMetadataType.int, 'x')
 
-dataset_binder.set_metadata(metadata_y, DatasetMetadataType.string, 'y')
+leap_binder.set_metadata(metadata_y, DatasetMetadataType.string, 'y')
