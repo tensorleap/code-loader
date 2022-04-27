@@ -33,15 +33,15 @@ class DatasetBinder:
         self.set_decoder(DefaultDecoder.TextMask.value, default_text_mask_decoder, LeapDataType.TextMask)
 
     def set_decoder(self, name: str,
-                    decoder: DecoderCallableInterface,
-                    _type: LeapDataType,
+                    function: DecoderCallableInterface,
+                    decoder_type: LeapDataType,
                     heatmap_decoder: Optional[Callable[[npt.NDArray[np.float32]], npt.NDArray[np.float32]]] = None) -> None:
-        arg_names = inspect.getfullargspec(decoder)[0]
+        arg_names = inspect.getfullargspec(function)[0]
         if heatmap_decoder:
             if arg_names != inspect.getfullargspec(heatmap_decoder)[0]:
                 raise Exception(f'The argument names of the heatmap decoder callback must match the decoder callback '
                                 f'{str(arg_names)}')
-        self.setup_container.decoders.append(DecoderHandler(name, decoder, _type, arg_names, heatmap_decoder))
+        self.setup_container.decoders.append(DecoderHandler(name, function, decoder_type, arg_names, heatmap_decoder))
         self._decoder_names.append(name)
 
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
@@ -56,7 +56,7 @@ class DatasetBinder:
     def add_custom_loss(self, name: str, function: CustomCallableInterface) -> None:
         self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function))
 
-    def create_prediction_type(self, name: str, labels: List[str], metrics: List[Metric],
+    def add_prediction_type(self, name: str, labels: List[str], metrics: List[Metric],
                                custom_metrics: Optional[List[CustomCallableInterface]] = None) -> None:
         self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels, metrics, custom_metrics))
 
