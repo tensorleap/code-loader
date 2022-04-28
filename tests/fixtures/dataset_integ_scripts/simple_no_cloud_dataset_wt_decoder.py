@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 import numpy.typing as npt
 
-from code_loader import dataset_binder
+from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
 from code_loader.contract.decoder_classes import LeapNumeric
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
@@ -71,21 +71,21 @@ def stub_decoder_func(data: npt.NDArray) -> LeapNumeric:
     return LeapNumeric(data)
 
 
-dataset_binder.set_decoder('stub_decoder', stub_decoder_func, LeapDataType.Numeric)
+leap_binder.set_decoder('stub_decoder', stub_decoder_func, LeapDataType.Numeric)
 
-dataset_binder.set_preprocess(prepare_data)
+leap_binder.set_preprocess(prepare_data)
 
-dataset_binder.set_input(input_normal_input_subset_1_10, 'normal_input_subset_1_10')
+leap_binder.set_input(input_normal_input_subset_1_10, 'normal_input_subset_1_10')
 
-dataset_binder.set_ground_truth(ground_truth_output_times_20, 'output_times_20')
+leap_binder.set_ground_truth(ground_truth_output_times_20, 'output_times_20')
 
-dataset_binder.set_metadata(metadata_x, DatasetMetadataType.int, 'x')
+leap_binder.set_metadata(metadata_x, DatasetMetadataType.int, 'x')
 
-dataset_binder.set_metadata(metadata_y, DatasetMetadataType.string, 'y')
+leap_binder.set_metadata(metadata_y, DatasetMetadataType.string, 'y')
 
 
 def custom_metric(pred, gt):
     return pred - gt
 
 
-dataset_binder.add_prediction_type('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError], [custom_metric])
+leap_binder.add_prediction_type('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError], [custom_metric])
