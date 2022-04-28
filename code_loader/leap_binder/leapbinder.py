@@ -14,7 +14,7 @@ from code_loader.decoders.default_decoders import DefaultDecoder, default_numeri
 from code_loader.utils import to_numpy_return_wrapper
 
 
-class DatasetBinder:
+class LeapBinder:
 
     def __init__(self) -> None:
         self.setup_container = DatasetIntegrationSetup()

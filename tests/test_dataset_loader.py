@@ -1,4 +1,4 @@
-from tests.assertions.dataset_loader import assert_dataset_binder_is_valid, \
+from tests.assertions.dataset_loader import assert_leap_binder_is_valid, \
     assert_encoder_is_valid, assert_sample_is_valid, assert_word_to_index_in_cache_container, assert_input_has_value
 from tests.fixtures.dataset_integ_scripts.scripts_metadata import word_idx_dataset_params
 from tests.fixtures.dataset_loaders import no_cloud_dataset_loader, word_idx_dataset_loader
@@ -13,7 +13,7 @@ def test_exec_script_no_cloud(no_cloud_dataset_loader, refresh_setup_container):
     no_cloud_dataset_loader.exec_script()
 
     # assert
-    assert_dataset_binder_is_valid()
+    assert_leap_binder_is_valid()
 
 
 @use_fixture(no_cloud_dataset_loader)
@@ -25,7 +25,7 @@ def test_get_inputs_no_cloud(no_cloud_dataset_loader, refresh_setup_container, s
     inputs = no_cloud_dataset_loader._get_inputs(**simple_sample_params)
 
     # assert
-    assert_dataset_binder_is_valid()
+    assert_leap_binder_is_valid()
     assert_encoder_is_valid(inputs)
 
 
@@ -38,7 +38,7 @@ def test_get_gt_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simpl
     gt = no_cloud_dataset_loader._get_gt(**simple_sample_params)
 
     # assert
-    assert_dataset_binder_is_valid()
+    assert_leap_binder_is_valid()
     assert_encoder_is_valid(gt)
 
 
@@ -51,8 +51,8 @@ def test_get_metadata_no_cloud(no_cloud_dataset_loader, refresh_setup_container,
     metadata = no_cloud_dataset_loader._get_metadata(**simple_sample_params)
 
     # assert
-    assert_dataset_binder_is_valid()
-    assert_metadata_encoder_is_valid(metadata)
+    assert_leap_binder_is_valid()
+    assert_encoder_is_valid(metadata)
 
 
 @use_fixture(no_cloud_dataset_loader)
@@ -63,7 +63,7 @@ def test_get_sample_dataset_loader_no_cloud(no_cloud_dataset_loader, refresh_set
     sample = no_cloud_dataset_loader.get_sample(**simple_sample_params)
 
     # assert
-    assert_dataset_binder_is_valid()
+    assert_leap_binder_is_valid()
     assert_sample_is_valid(sample)
 
 
@@ -76,7 +76,7 @@ def test_word_to_index(word_idx_dataset_loader, refresh_setup_container, word_id
     word_idx_dataset_loader._preprocess_result()
 
     # assert
-    assert_dataset_binder_is_valid()
+    assert_leap_binder_is_valid()
     assert_word_to_index_in_cache_container(word_idx_dataset_params["input_name"],
                                             word_idx_dataset_params["word_to_index_value"])
 
@@ -92,7 +92,7 @@ def test_cache_container_in_encoder(word_idx_dataset_loader, refresh_setup_conta
     inputs = word_idx_dataset_loader._get_inputs(**simple_sample_params)
 
     # assert
-    assert_dataset_binder_is_valid()
+    assert_leap_binder_is_valid()
     assert_word_to_index_in_cache_container(word_idx_dataset_params["input_name"],
                                             word_idx_dataset_params["word_to_index_value"])
     assert_input_has_value(inputs[word_idx_dataset_params["input_name"]],

@@ -2,14 +2,14 @@ from typing import Dict, Any
 
 import numpy as np  # type: ignore
 
-from code_loader import dataset_binder
+from code_loader import leap_binder
 from grappa import should  # type: ignore
 
 from code_loader.contract.datasetclasses import DatasetSample, PreprocessHandler
 
 
-def assert_dataset_binder_is_valid() -> None:
-    setup_container = dataset_binder.setup_container
+def assert_leap_binder_is_valid() -> None:
+    setup_container = leap_binder.setup_container
 
     setup_container.preprocess | should.be.type(PreprocessHandler)
     len(setup_container.inputs) | should.be.higher.than(0)
@@ -36,8 +36,8 @@ def assert_sample_is_valid(sample: DatasetSample) -> None:
 
 
 def assert_word_to_index_in_cache_container(expected_key: str, expected_value: Any) -> None:
-    dataset_binder.cache_container | should.have.key("word_to_index")
-    dataset_binder.cache_container["word_to_index"][expected_key] | should.be.equal(expected_value)
+    leap_binder.cache_container | should.have.key("word_to_index")
+    leap_binder.cache_container["word_to_index"][expected_key] | should.be.equal(expected_value)
 
 
 def assert_input_has_value(actual_input: Any, expected_input: Any) -> None:
