@@ -1,6 +1,7 @@
 import sys
-from typing import List, Union
 from types import TracebackType
+from typing import List, Union
+
 import numpy as np
 import numpy.typing as npt
 
@@ -32,7 +33,9 @@ def get_root_exception_line_number() -> int:
     return root_exception_line_number
 
 
-def get_shape(result: npt.NDArray[np.float32]) -> List[int]:
+def get_shape(result: Union[npt.NDArray[np.float32], str, float, int, bool]) -> List[int]:
+    if not isinstance(result, np.ndarray):
+        return [1]
     np_shape = result.shape
     # fix single result shape viewing
     if np_shape == ():

@@ -1,12 +1,12 @@
 from functools import lru_cache
-from typing import Dict, List, Iterable, Any
+from typing import Dict, List, Iterable, Any, Union, cast
 
 import numpy as np
 import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
     GroundTruthHandler, PreprocessResponse, DecoderHandler, DecoderCallableReturnType, CustomLossHandler, \
-    PredictionTypeHandler
+    PredictionTypeHandler, MetadataHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
@@ -107,7 +107,7 @@ class LeapLoader:
         preprocess_result = self._preprocess_result()
         result_payloads: List[DatasetTestResultPayload] = []
         idx = 0
-        dataset_base_handlers: List[DatasetBaseHandler] = self._get_all_dataset_base_handlers()
+        dataset_base_handlers: List[Union[DatasetBaseHandler, MetadataHandler]] = self._get_all_dataset_base_handlers()
         for dataset_base_handler in dataset_base_handlers:
             test_result = DatasetTestResultPayload(dataset_base_handler.name)
             for state, preprocess_response in zip(list(DataStateEnum), preprocess_result):
@@ -134,8 +134,8 @@ class LeapLoader:
         return result_payloads
 
     @staticmethod
-    def _get_all_dataset_base_handlers() -> List[DatasetBaseHandler]:
-        all_dataset_base_handlers: List[DatasetBaseHandler] = []
+    def _get_all_dataset_base_handlers() -> List[Union[DatasetBaseHandler, MetadataHandler]]:
+        all_dataset_base_handlers: List[Union[DatasetBaseHandler, MetadataHandler]] = []
         all_dataset_base_handlers.extend(global_leap_binder.setup_container.inputs)
         all_dataset_base_handlers.extend(global_leap_binder.setup_container.ground_truths)
         all_dataset_base_handlers.extend(global_leap_binder.setup_container.metadata)
@@ -205,9 +205,8 @@ class LeapLoader:
 
         return preprocess_result
 
-    def _get_dataset_handlers(
-            self, handlers: Iterable[DatasetBaseHandler], state: DataStateEnum, idx: int) -> Dict[
-        str, npt.NDArray[np.float32]]:
+    def _get_dataset_handlers(self, handlers: Iterable[DatasetBaseHandler],
+                              state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         result_agg = {}
         preprocess_result = self._preprocess_result()
         preprocess_state = preprocess_result[state]
@@ -223,5 +222,13 @@ class LeapLoader:
     def _get_gt(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         return self._get_dataset_handlers(global_leap_binder.setup_container.ground_truths, state, idx)
 
-    def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
-        return self._get_dataset_handlers(global_leap_binder.setup_container.metadata, state, idx)
+    def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, Union[str, int, bool, float]]:
+        result_agg = {}
+        preprocess_result = self._preprocess_result()
+        preprocess_state = preprocess_result[state]
+        for handler in global_leap_binder.setup_container.metadata:
+            handler_result = handler.function(idx, preprocess_state)
+            handler_name = handler.name
+            result_agg[handler_name] = handler_result
+
+        return result_agg

@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, Union
 
 import numpy as np  # type: ignore
 
@@ -21,6 +21,7 @@ def assert_encoder_is_valid(encoder_result: Dict[str, np.ndarray]) -> None:
     for encoder_name, encoder_data in encoder_result.items():
         encoder_name | should.be.type(str)
         type(encoder_data) | should.be.type(type(np.ndarray))
+
 
 def assert_metadata_encoder_is_valid(encoder_result: Dict[str, Union[str, int, bool, float]]) -> None:
     for encoder_name, encoder_data in encoder_result.items():
