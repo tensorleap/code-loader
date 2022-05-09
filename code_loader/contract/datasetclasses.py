@@ -1,15 +1,14 @@
+from dataclasses import dataclass, field
 from typing import Any, Callable, List, Optional, Dict, Union
 
-import tensorflow as tf  # type: ignore
 import numpy as np
 import numpy.typing as npt
-from dataclasses import dataclass, field
+import tensorflow as tf  # type: ignore
 
 from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
     DataStateEnum, LeapDataType, Metric
-from code_loader.contract.responsedataclasses import PredictionTypeInstance
 
 
 @dataclass
@@ -19,6 +18,13 @@ class PreprocessResponse:
 
 
 SectionCallableInterface = Callable[[int, PreprocessResponse], npt.NDArray[np.float32]]
+
+MetadataSectionCallableInterface = Union[
+    Callable[[int, PreprocessResponse], int],
+    Callable[[int, PreprocessResponse], str],
+    Callable[[int, PreprocessResponse], bool],
+    Callable[[int, PreprocessResponse], float]
+]
 
 
 @dataclass
@@ -78,7 +84,6 @@ class GroundTruthHandler(DatasetBaseHandler):
 class MetadataHandler:
     name: str
     function: MetadataSectionCallableInterface
-    subset_name: str
     type: DatasetMetadataType
 
 
@@ -105,6 +110,6 @@ class DatasetIntegrationSetup:
 class DatasetSample:
     inputs: Dict[str, npt.NDArray[np.float32]]
     gt: Dict[str, npt.NDArray[np.float32]]
-    metadata: Dict[str, npt.NDArray[np.float32]]
+    metadata: Dict[str, Union[str, int, bool, float]]
     index: int
     state: DataStateEnum
