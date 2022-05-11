@@ -5,12 +5,12 @@ import numpy as np
 import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
-    GroundTruthHandler, PreprocessResponse, DecoderHandler, DecoderCallableReturnType, CustomLossHandler, \
+    GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
     PredictionTypeHandler, MetadataHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
-    DecoderInstance, PredictionTypeInstance
+    VisualizerInstance, PredictionTypeInstance
 from code_loader.leap_binder import global_leap_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
 
@@ -29,12 +29,12 @@ class LeapLoader:
         exec(self.dataset_script, global_variables)
 
     @lru_cache()
-    def decoder_by_name(self) -> Dict[str, DecoderHandler]:
+    def visualizer_by_name(self) -> Dict[str, VisualizerHandler]:
         self.exec_script()
         setup = global_leap_binder.setup_container
         return {
-            decoder_handler.name: decoder_handler
-            for decoder_handler in setup.decoders
+            visualizer_handler.name: visualizer_handler
+            for visualizer_handler in setup.visualizers
         }
 
     @lru_cache()
@@ -141,13 +141,13 @@ class LeapLoader:
         all_dataset_base_handlers.extend(global_leap_binder.setup_container.metadata)
         return all_dataset_base_handlers
 
-    def run_decoder(self, decoder_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]],
-                    ) -> DecoderCallableReturnType:
-        return self.decoder_by_name()[decoder_name].function(**input_tensors_by_arg_name)
+    def run_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]],
+                       ) -> VisualizerCallableReturnType:
+        return self.visualizer_by_name()[visualizer_name].function(**input_tensors_by_arg_name)
 
-    def run_heatmap_decoder(self, decoder_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]
-                            ) -> npt.NDArray[np.float32]:
-        heatmap_function = self.decoder_by_name()[decoder_name].heatmap_function
+    def run_heatmap_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]
+                               ) -> npt.NDArray[np.float32]:
+        heatmap_function = self.visualizer_by_name()[visualizer_name].heatmap_function
         if heatmap_function is None:
             assert len(input_tensors_by_arg_name) == 1
             return list(input_tensors_by_arg_name.values())[0]
@@ -178,8 +178,8 @@ class LeapLoader:
         metadata = [DatasetMetadataInstance(name=metadata.name, type=metadata.type)
                     for metadata in setup.metadata]
 
-        decoders = [DecoderInstance(decoder_handler.name, decoder_handler.type, decoder_handler.arg_names)
-                    for decoder_handler in setup.decoders]
+        visualizers = [VisualizerInstance(visualizer_handler.name, visualizer_handler.type, visualizer_handler.arg_names)
+                    for visualizer_handler in setup.visualizers]
 
         custom_loss_names = [custom_loss.name for custom_loss in setup.custom_loss_handlers]
 
@@ -193,7 +193,7 @@ class LeapLoader:
             prediction_types.append(pred_type_inst)
 
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
-                            decoders=decoders, prediction_types=prediction_types,
+                            visualizers=visualizers, prediction_types=prediction_types,
                             custom_loss_names=custom_loss_names)
 
     @lru_cache()

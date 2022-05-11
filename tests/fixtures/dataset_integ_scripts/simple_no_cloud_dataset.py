@@ -5,7 +5,7 @@ import numpy as np  # type: ignore
 from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
 from code_loader.contract.enums import DatasetMetadataType
-from code_loader.decoders.default_decoders import DefaultDecoder
+from code_loader.visualizers.default_visualizers import DefaultVisualizer
 
 
 def get_length(data):

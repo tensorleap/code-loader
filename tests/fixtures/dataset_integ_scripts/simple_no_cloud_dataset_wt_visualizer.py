@@ -5,7 +5,7 @@ import numpy.typing as npt
 
 from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
-from code_loader.contract.decoder_classes import LeapNumeric
+from code_loader.contract.visualizer_classes import LeapNumeric
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
 
 
@@ -67,11 +67,11 @@ def metadata_y(idx, samples):
     return batch_metadata[0]
 
 
-def stub_decoder_func(data: npt.NDArray) -> LeapNumeric:
+def stub_visualizer_func(data: npt.NDArray) -> LeapNumeric:
     return LeapNumeric(data)
 
 
-leap_binder.set_decoder(function=stub_decoder_func, name='stub_decoder', decoder_type=LeapDataType.Numeric)
+leap_binder.set_visualizer(function=stub_visualizer_func, name='stub_visualizer', visualizer_type=LeapDataType.Numeric)
 
 leap_binder.set_preprocess(function=prepare_data)
 
