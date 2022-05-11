@@ -25,16 +25,16 @@ class LeapBinder:
         self._extend_with_default_decoders()
 
     def _extend_with_default_decoders(self) -> None:
-        self.set_decoder(DefaultDecoder.Image.value, default_image_decoder, LeapDataType.Image)
-        self.set_decoder(DefaultDecoder.Graph.value, default_graph_decoder, LeapDataType.Graph)
-        self.set_decoder(DefaultDecoder.Numeric.value, default_numeric_decoder, LeapDataType.Numeric)
-        self.set_decoder(DefaultDecoder.HorizontalBar.value, default_horizontal_bar_decoder, LeapDataType.HorizontalBar)
-        self.set_decoder(DefaultDecoder.Text.value, default_word_decoder, LeapDataType.Text)
-        self.set_decoder(DefaultDecoder.ImageMask.value, default_image_mask_decoder, LeapDataType.ImageMask)
-        self.set_decoder(DefaultDecoder.TextMask.value, default_text_mask_decoder, LeapDataType.TextMask)
+        self.set_decoder(function=default_image_decoder, name=DefaultDecoder.Image.value, decoder_type=LeapDataType.Image)
+        self.set_decoder(function=default_graph_decoder, name=DefaultDecoder.Graph.value, decoder_type=LeapDataType.Graph)
+        self.set_decoder(function=default_numeric_decoder, name=DefaultDecoder.Numeric.value, decoder_type=LeapDataType.Numeric)
+        self.set_decoder(function=default_horizontal_bar_decoder, name=DefaultDecoder.HorizontalBar.value, decoder_type=LeapDataType.HorizontalBar)
+        self.set_decoder(function=default_word_decoder, name=DefaultDecoder.Text.value, decoder_type=LeapDataType.Text)
+        self.set_decoder(function=default_image_mask_decoder, name=DefaultDecoder.ImageMask.value, decoder_type=LeapDataType.ImageMask)
+        self.set_decoder(function=default_text_mask_decoder, name=DefaultDecoder.TextMask.value, decoder_type=LeapDataType.TextMask)
 
-    def set_decoder(self, name: str,
-                    function: DecoderCallableInterface,
+    def set_decoder(self, function: DecoderCallableInterface,
+                    name: str,
                     decoder_type: LeapDataType,
                     heatmap_decoder: Optional[
                         Callable[[npt.NDArray[np.float32]], npt.NDArray[np.float32]]] = None) -> None:
@@ -49,24 +49,24 @@ class LeapBinder:
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
         self.setup_container.preprocess = PreprocessHandler(function)
 
-    def set_input(self, function: SectionCallableInterface, input_name: str) -> None:
+    def set_input(self, function: SectionCallableInterface, name: str) -> None:
         function = to_numpy_return_wrapper(function)
-        self.setup_container.inputs.append(InputHandler(input_name, function))
+        self.setup_container.inputs.append(InputHandler(name, function))
 
-        self._encoder_names.append(input_name)
+        self._encoder_names.append(name)
 
-    def add_custom_loss(self, name: str, function: CustomCallableInterface) -> None:
+    def add_custom_loss(self, function: CustomCallableInterface, name: str) -> None:
         self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function))
 
-    def add_prediction_type(self, name: str, labels: List[str], metrics: List[Metric],
-                            custom_metrics: Optional[List[CustomCallableInterface]] = None) -> None:
+    def add_prediction_config(self, name: str, labels: List[str], metrics: List[Metric],
+                              custom_metrics: Optional[List[CustomCallableInterface]] = None) -> None:
         self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels, metrics, custom_metrics))
 
-    def set_ground_truth(self, function: SectionCallableInterface, gt_name: str) -> None:
+    def set_ground_truth(self, function: SectionCallableInterface, name: str) -> None:
         function = to_numpy_return_wrapper(function)
-        self.setup_container.ground_truths.append(GroundTruthHandler(gt_name, function))
+        self.setup_container.ground_truths.append(GroundTruthHandler(name, function))
 
-        self._encoder_names.append(gt_name)
+        self._encoder_names.append(name)
 
     def set_metadata(self, function: MetadataSectionCallableInterface, metadata_type: DatasetMetadataType,
                      name: str) -> None:
