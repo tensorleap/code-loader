@@ -16,8 +16,8 @@ def no_cloud_dataset_loader() -> LeapLoader:
 
 
 @pytest.fixture
-def no_cloud_wt_decoder_dataset_loader() -> LeapLoader:
-    script_path = os.path.join(dataset_integ_scripts_path, "simple_no_cloud_dataset_wt_decoder.py")
+def no_cloud_wt_visualizer_dataset_loader() -> LeapLoader:
+    script_path = os.path.join(dataset_integ_scripts_path, "simple_no_cloud_dataset_wt_visualizer.py")
     with open(script_path, "r") as f:
         script = f.read()
     leap_loader = LeapLoader(script)

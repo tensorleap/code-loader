@@ -4,12 +4,12 @@ from typing import cast, List
 import numpy as np
 import numpy.typing as npt
 
-from code_loader.contract.decoder_classes import LeapImage, LeapNumeric, LeapGraph, LeapHorizontalBar, LeapText, \
+from code_loader.contract.visualizer_classes import LeapImage, LeapNumeric, LeapGraph, LeapHorizontalBar, LeapText, \
     LeapImageMask, LeapTextMask
 from code_loader.utils import rescale_min_max
 
 
-class DefaultDecoder(Enum):
+class DefaultVisualizer(Enum):
     Image = 'Image'
     Graph = 'Graph'
     Numeric = 'Numeric'
@@ -19,32 +19,32 @@ class DefaultDecoder(Enum):
     TextMask = 'TextMask'
 
 
-def default_image_decoder(data: npt.NDArray[np.float32]) -> LeapImage:
+def default_image_visualizer(data: npt.NDArray[np.float32]) -> LeapImage:
     rescaled_data = rescale_min_max(data)
     return LeapImage(rescaled_data)
 
 
-def default_graph_decoder(data: npt.NDArray[np.float32]) -> LeapGraph:
+def default_graph_visualizer(data: npt.NDArray[np.float32]) -> LeapGraph:
     return LeapGraph(data)
 
 
-def default_numeric_decoder(data: npt.NDArray[np.float32]) -> LeapNumeric:
+def default_numeric_visualizer(data: npt.NDArray[np.float32]) -> LeapNumeric:
     return LeapNumeric(data)
 
 
-def default_horizontal_bar_decoder(data: npt.NDArray[np.float32]) -> LeapHorizontalBar:
+def default_horizontal_bar_visualizer(data: npt.NDArray[np.float32]) -> LeapHorizontalBar:
     labels = [str(index) for index in range(data.shape[-1])]
     return LeapHorizontalBar(data, labels)
 
 
-def default_word_decoder(data: npt.NDArray[np.float32]) -> LeapText:
+def default_word_visualizer(data: npt.NDArray[np.float32]) -> LeapText:
     if hasattr(data, 'tolist'):
         data = data.tolist()
     words = [str(index[0]) if type(index) is list else str(index) for index in data]
     return LeapText(words)
 
 
-def default_image_mask_decoder(mask: npt.NDArray[np.float32], image: npt.NDArray[np.float32]) -> LeapImageMask:
+def default_image_mask_visualizer(mask: npt.NDArray[np.float32], image: npt.NDArray[np.float32]) -> LeapImageMask:
     n_different_labels = mask.shape[-1]
     labels = [str(i) for i in range(n_different_labels)]
 
@@ -57,7 +57,7 @@ def default_image_mask_decoder(mask: npt.NDArray[np.float32], image: npt.NDArray
     return LeapImageMask(mask, image, labels)
 
 
-def default_text_mask_decoder(mask: npt.NDArray[np.float32], text_data: npt.NDArray[np.float32]) -> LeapTextMask:
+def default_text_mask_visualizer(mask: npt.NDArray[np.float32], text_data: npt.NDArray[np.float32]) -> LeapTextMask:
     n_different_labels = mask.shape[-1]
     labels = [str(i) for i in range(n_different_labels)]
 

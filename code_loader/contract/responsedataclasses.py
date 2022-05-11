@@ -33,7 +33,7 @@ class DatasetOutputInstance(DatasetBaseSectionInstance):
 
 
 @dataclass
-class DecoderInstance:
+class VisualizerInstance:
     name: str
     type: LeapDataType
     arg_names: List[str]
@@ -53,7 +53,7 @@ class DatasetSetup:
     inputs: List[DatasetInputInstance]
     metadata: List[DatasetMetadataInstance]
     outputs: List[DatasetOutputInstance]
-    decoders: List[DecoderInstance]
+    visualizers: List[VisualizerInstance]
     prediction_types: List[PredictionTypeInstance]
     custom_loss_names: List[str]
 

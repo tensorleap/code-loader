@@ -5,7 +5,7 @@ import numpy as np
 import numpy.typing as npt
 import tensorflow as tf  # type: ignore
 
-from code_loader.contract.decoder_classes import LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar, \
+from code_loader.contract.visualizer_classes import  LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
     DataStateEnum, LeapDataType, Metric
@@ -33,7 +33,7 @@ class PreprocessHandler:
     data_length: Dict[DataStateType, int] = field(default_factory=dict)
 
 
-DecoderCallableInterface = Union[
+VisualizerCallableInterface = Union[
     Callable[..., LeapImage],
     Callable[..., LeapNumeric],
     Callable[..., LeapText],
@@ -43,8 +43,8 @@ DecoderCallableInterface = Union[
     Callable[..., LeapTextMask],
 ]
 
-DecoderCallableReturnType = Union[LeapImage, LeapNumeric, LeapText,
-                                  LeapGraph, LeapHorizontalBar, LeapImageMask, LeapTextMask]
+VisualizerCallableReturnType = Union[LeapImage, LeapNumeric, LeapText,
+                                     LeapGraph, LeapHorizontalBar, LeapImageMask, LeapTextMask]
 
 CustomCallableInterface = Callable[[tf.Tensor, tf.Tensor], tf.Tensor]
 
@@ -56,9 +56,9 @@ class CustomLossHandler:
 
 
 @dataclass
-class DecoderHandler:
+class VisualizerHandler:
     name: str
-    function: DecoderCallableInterface
+    function: VisualizerCallableInterface
     type: LeapDataType
     arg_names: List[str]
     heatmap_function: Optional[Callable[..., npt.NDArray[np.float32]]] = None
@@ -98,7 +98,7 @@ class PredictionTypeHandler:
 @dataclass
 class DatasetIntegrationSetup:
     preprocess: Optional[PreprocessHandler] = None
-    decoders: List[DecoderHandler] = field(default_factory=list)
+    visualizers: List[VisualizerHandler] = field(default_factory=list)
     inputs: List[InputHandler] = field(default_factory=list)
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
     metadata: List[MetadataHandler] = field(default_factory=list)
