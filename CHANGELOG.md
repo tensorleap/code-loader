@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.2.22
+### Changed
+* Decoders are now referred as Visualizers
+
 ### Added
 
 * Decoders mechanism with some simple default decoders
