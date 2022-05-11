@@ -71,21 +71,21 @@ def stub_decoder_func(data: npt.NDArray) -> LeapNumeric:
     return LeapNumeric(data)
 
 
-leap_binder.set_decoder('stub_decoder', stub_decoder_func, LeapDataType.Numeric)
+leap_binder.set_decoder(function=stub_decoder_func, name='stub_decoder', decoder_type=LeapDataType.Numeric)
 
-leap_binder.set_preprocess(prepare_data)
+leap_binder.set_preprocess(function=prepare_data)
 
-leap_binder.set_input(input_normal_input_subset_1_10, 'normal_input_subset_1_10')
+leap_binder.set_input(function=input_normal_input_subset_1_10, name='normal_input_subset_1_10')
 
-leap_binder.set_ground_truth(ground_truth_output_times_20, 'output_times_20')
+leap_binder.set_ground_truth(function=ground_truth_output_times_20, name='output_times_20')
 
-leap_binder.set_metadata(metadata_x, DatasetMetadataType.int, 'x')
+leap_binder.set_metadata(function=metadata_x, metadata_type=DatasetMetadataType.int, name='x')
 
-leap_binder.set_metadata(metadata_y, DatasetMetadataType.string, 'y')
+leap_binder.set_metadata(function=metadata_y, metadata_type=DatasetMetadataType.string, name='y')
 
 
 def custom_metric(pred, gt):
     return pred - gt
 
 
-leap_binder.add_prediction_type('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError], [custom_metric])
+leap_binder.add_prediction_config(name='pred_type1', labels=['yes', 'no'], metrics=[Metric.MeanAbsoluteError], custom_metrics=[custom_metric])
