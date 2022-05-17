@@ -88,4 +88,4 @@ def custom_metric(pred, gt):
     return pred - gt
 
 
-leap_binder.add_prediction_config(name='pred_type1', labels=['yes', 'no'], metrics=[Metric.MeanAbsoluteError], custom_metrics=[custom_metric])
+leap_binder.add_prediction(name='pred_type1', labels=['yes', 'no'], metrics=[Metric.MeanAbsoluteError], custom_metrics=[custom_metric])
