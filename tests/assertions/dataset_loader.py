@@ -32,6 +32,7 @@ def assert_metadata_encoder_is_valid(encoder_result: Dict[str, Union[str, int, b
 def assert_sample_is_valid(sample: DatasetSample) -> None:
     sample | should.be.type(DatasetSample)
     assert_encoder_is_valid(sample.inputs)
+    assert  sample.gt is not None
     assert_encoder_is_valid(sample.gt)
     assert_metadata_encoder_is_valid(sample.metadata)
 
