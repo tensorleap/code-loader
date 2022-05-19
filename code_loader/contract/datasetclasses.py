@@ -32,6 +32,10 @@ class PreprocessHandler:
     function: Callable[[], List[PreprocessResponse]]
     data_length: Dict[DataStateType, int] = field(default_factory=dict)
 
+@dataclass
+class UnlabeledDataPreprocessHandler:
+    function: Callable[[], PreprocessResponse]
+    data_length: int = 0
 
 VisualizerCallableInterface = Union[
     Callable[..., LeapImage],
@@ -98,6 +102,7 @@ class PredictionTypeHandler:
 @dataclass
 class DatasetIntegrationSetup:
     preprocess: Optional[PreprocessHandler] = None
+    unlabeled_data_preprocess: Optional[UnlabeledDataPreprocessHandler] = None
     visualizers: List[VisualizerHandler] = field(default_factory=list)
     inputs: List[InputHandler] = field(default_factory=list)
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
