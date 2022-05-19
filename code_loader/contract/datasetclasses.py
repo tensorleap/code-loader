@@ -114,7 +114,7 @@ class DatasetIntegrationSetup:
 @dataclass
 class DatasetSample:
     inputs: Dict[str, npt.NDArray[np.float32]]
-    gt: Dict[str, npt.NDArray[np.float32]]
+    gt: Optional[Dict[str, npt.NDArray[np.float32]]]
     metadata: Dict[str, Union[str, int, bool, float]]
     index: int
     state: DataStateEnum
