@@ -10,6 +10,7 @@ class DatasetPreprocess:
     training_length: int
     validation_length: int
     test_length: Optional[int] = None
+    unlabeled_length: Optional[int] = None
 
 
 @dataclass

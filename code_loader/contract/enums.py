@@ -32,12 +32,14 @@ class DataStateType(Enum):
     training = "training"
     validation = "validation"
     test = "test"
+    unlabeled = "unlabeled"
 
 
 class DataStateEnum(IntEnum):
     training = 0
     validation = 1
     test = 2
+    unlabeled = 3
 
 
 # todo: handle test not run due to error in pre process and Add to TestingSectionEnum Enum didn't run

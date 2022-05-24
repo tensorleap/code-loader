@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Dict, List, Iterable, Any, Union, cast
+from typing import Dict, List, Iterable, Any, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -13,10 +13,6 @@ from code_loader.contract.responsedataclasses import DatasetIntegParseResult, Da
     VisualizerInstance, PredictionTypeInstance
 from code_loader.leap_binder import global_leap_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
-
-
-# TODO: add handling of large return messages (usually return of large subsets)
-# MAX_PUBSUB_MSG_SIZE = 500000
 
 
 class LeapLoader:
@@ -58,7 +54,7 @@ class LeapLoader:
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
         self.exec_script()
         sample = DatasetSample(inputs=self._get_inputs(state, idx),
-                               gt=self._get_gt(state, idx),
+                               gt=None if state == DataStateEnum.unlabeled else self._get_gt(state, idx),
                                metadata=self._get_metadata(state, idx),
                                index=idx,
                                state=state)
@@ -96,6 +92,12 @@ class LeapLoader:
                 state_name = state.name
                 test_result.display[state_name] = str(preprocess_result.data)
                 preprocess_handler.data_length[state] = preprocess_result.length
+
+            unlabeled_preprocess_handler = global_leap_binder.setup_container.unlabeled_data_preprocess
+            if unlabeled_preprocess_handler is not None:
+                unlabeled_preprocess_result = unlabeled_preprocess_handler.function()
+                unlabeled_preprocess_handler.data_length = unlabeled_preprocess_result.length
+                test_result.display[DataStateType.unlabeled.name] = str(unlabeled_preprocess_result.data)
         except Exception as e:
             line_number = get_root_exception_line_number()
             error_string = f"{repr(e)} line number: {line_number}"
@@ -110,7 +112,9 @@ class LeapLoader:
         dataset_base_handlers: List[Union[DatasetBaseHandler, MetadataHandler]] = self._get_all_dataset_base_handlers()
         for dataset_base_handler in dataset_base_handlers:
             test_result = DatasetTestResultPayload(dataset_base_handler.name)
-            for state, preprocess_response in zip(list(DataStateEnum), preprocess_result):
+            for state, preprocess_response in preprocess_result.items():
+                if state == DataStateEnum.unlabeled and isinstance(dataset_base_handler, GroundTruthHandler):
+                    continue
                 state_name = state.name
                 try:
                     raw_result = dataset_base_handler.function(idx, preprocess_response)
@@ -127,8 +131,6 @@ class LeapLoader:
                     test_result.display[state_name] = f"{repr(e)} line number: {line_number}"
                     test_result.is_passed = False
 
-            # TODO: check types
-            # TODO: check for differences between results of states and add warning for that
             result_payloads.append(test_result)
 
         return result_payloads
@@ -157,10 +159,16 @@ class LeapLoader:
     def get_dataset_setup_response() -> DatasetSetup:
         setup = global_leap_binder.setup_container
         assert setup.preprocess is not None
+
+        unlabeled_length = None
+        if global_leap_binder.setup_container.unlabeled_data_preprocess:
+            unlabeled_length = global_leap_binder.setup_container.unlabeled_data_preprocess.data_length
         dataset_preprocess = DatasetPreprocess(
             training_length=setup.preprocess.data_length[DataStateType.training],
             validation_length=setup.preprocess.data_length[DataStateType.validation],
-            test_length=setup.preprocess.data_length.get(DataStateType.test))
+            test_length=setup.preprocess.data_length.get(DataStateType.test),
+            unlabeled_length=unlabeled_length
+        )
 
         inputs = []
         for inp in setup.inputs:
@@ -197,13 +205,21 @@ class LeapLoader:
                             custom_loss_names=custom_loss_names)
 
     @lru_cache()
-    def _preprocess_result(self) -> List[PreprocessResponse]:
+    def _preprocess_result(self) -> Dict[DataStateEnum, PreprocessResponse]:
         preprocess = global_leap_binder.setup_container.preprocess
         # TODO: add caching of subset result
         assert preprocess is not None
-        preprocess_result = preprocess.function()
+        preprocess_results = preprocess.function()
+        preprocess_result_dict = {
+            DataStateEnum(i): preprocess_result
+            for i, preprocess_result in enumerate(preprocess_results)
+        }
 
-        return preprocess_result
+        unlabeled_preprocess = global_leap_binder.setup_container.unlabeled_data_preprocess
+        if unlabeled_preprocess is not None:
+            preprocess_result_dict[DataStateEnum.unlabeled] = unlabeled_preprocess.function()
+
+        return preprocess_result_dict
 
     def _get_dataset_handlers(self, handlers: Iterable[DatasetBaseHandler],
                               state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
