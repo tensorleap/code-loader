@@ -5,8 +5,8 @@ import numpy.typing as npt
 
 from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
-from code_loader.contract.visualizer_classes import LeapNumeric
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
+from code_loader.contract.visualizer_classes import LeapText
 
 
 def get_length(data):
@@ -67,11 +67,11 @@ def metadata_y(idx, samples):
     return batch_metadata[0]
 
 
-def stub_visualizer_func(data: npt.NDArray) -> LeapNumeric:
-    return LeapNumeric(data)
+def raw_custom_visualizer_func(data: npt.NDArray) -> LeapText:
+    return LeapText([str(data)])
 
 
-leap_binder.set_visualizer(function=stub_visualizer_func, name='stub_visualizer', visualizer_type=LeapDataType.Numeric)
+leap_binder.set_visualizer(function=raw_custom_visualizer_func, name='stub_visualizer', visualizer_type=LeapDataType.Text)
 
 leap_binder.set_preprocess(function=prepare_data)
 
@@ -88,4 +88,5 @@ def custom_metric(pred, gt):
     return pred - gt
 
 
-leap_binder.add_prediction(name='pred_type1', labels=['yes', 'no'], metrics=[Metric.MeanAbsoluteError], custom_metrics=[custom_metric])
+leap_binder.add_prediction(name='pred_type1', labels=['yes', 'no'],
+                           metrics=[Metric.MeanAbsoluteError], custom_metrics=[custom_metric])

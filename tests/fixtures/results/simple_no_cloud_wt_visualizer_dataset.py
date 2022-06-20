@@ -21,12 +21,13 @@ def no_cloud_wt_visualizer_dataset_loader_expected_result() -> DatasetIntegParse
         visualizers=[
             VisualizerInstance(name='Image', type=LeapDataType.Image, arg_names=['data']),
             VisualizerInstance(name='Graph', type=LeapDataType.Graph, arg_names=['data']),
-            VisualizerInstance(name='Numeric', type=LeapDataType.Numeric, arg_names=['data']),
+            VisualizerInstance(name='RawData', type=LeapDataType.Text, arg_names=['data']),
             VisualizerInstance(name='HorizontalBar', type=LeapDataType.HorizontalBar, arg_names=['data']),
             VisualizerInstance(name='Text', type=LeapDataType.Text, arg_names=['data']),
             VisualizerInstance(name='ImageMask', type=LeapDataType.ImageMask, arg_names=['mask', 'image']),
             VisualizerInstance(name='TextMask', type=LeapDataType.TextMask, arg_names=['mask', 'text_data']),
-            VisualizerInstance(name='stub_visualizer', type=LeapDataType.Numeric, arg_names=['data'])
+            VisualizerInstance(name='stub_visualizer', type=LeapDataType.Text, arg_names=['data'])
+
         ],
         prediction_types=[
             PredictionTypeInstance('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError], ["custom_metric"])],
