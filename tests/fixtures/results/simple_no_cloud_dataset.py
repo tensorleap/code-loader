@@ -21,7 +21,7 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
         visualizers=[
             VisualizerInstance(name='Image', type=LeapDataType.Image, arg_names=['data']),
             VisualizerInstance(name='Graph', type=LeapDataType.Graph, arg_names=['data']),
-            VisualizerInstance(name='Numeric', type=LeapDataType.Numeric, arg_names=['data']),
+            VisualizerInstance(name='RawData', type=LeapDataType.Text, arg_names=['data']),
             VisualizerInstance(name='HorizontalBar', type=LeapDataType.HorizontalBar, arg_names=['data']),
             VisualizerInstance(name='Text', type=LeapDataType.Text, arg_names=['data']),
             VisualizerInstance(name='ImageMask', type=LeapDataType.ImageMask, arg_names=['mask', 'image']),

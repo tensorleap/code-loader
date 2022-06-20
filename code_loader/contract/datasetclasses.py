@@ -5,7 +5,7 @@ import numpy as np
 import numpy.typing as npt
 import tensorflow as tf  # type: ignore
 
-from code_loader.contract.visualizer_classes import  LeapImage, LeapText, LeapNumeric, LeapGraph, LeapHorizontalBar, \
+from code_loader.contract.visualizer_classes import  LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
     DataStateEnum, LeapDataType, Metric
@@ -35,7 +35,6 @@ class PreprocessHandler:
 
 VisualizerCallableInterface = Union[
     Callable[..., LeapImage],
-    Callable[..., LeapNumeric],
     Callable[..., LeapText],
     Callable[..., LeapGraph],
     Callable[..., LeapHorizontalBar],
@@ -43,7 +42,7 @@ VisualizerCallableInterface = Union[
     Callable[..., LeapTextMask],
 ]
 
-VisualizerCallableReturnType = Union[LeapImage, LeapNumeric, LeapText,
+VisualizerCallableReturnType = Union[LeapImage, LeapText,
                                      LeapGraph, LeapHorizontalBar, LeapImageMask, LeapTextMask]
 
 CustomCallableInterface = Callable[[tf.Tensor, tf.Tensor], tf.Tensor]

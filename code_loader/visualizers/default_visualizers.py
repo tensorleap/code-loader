@@ -1,10 +1,9 @@
 from enum import Enum
-from typing import cast, List
 
 import numpy as np
 import numpy.typing as npt
 
-from code_loader.contract.visualizer_classes import LeapImage, LeapNumeric, LeapGraph, LeapHorizontalBar, LeapText, \
+from code_loader.contract.visualizer_classes import LeapImage, LeapGraph, LeapHorizontalBar, LeapText, \
     LeapImageMask, LeapTextMask
 from code_loader.utils import rescale_min_max
 
@@ -12,11 +11,11 @@ from code_loader.utils import rescale_min_max
 class DefaultVisualizer(Enum):
     Image = 'Image'
     Graph = 'Graph'
-    Numeric = 'Numeric'
     HorizontalBar = 'HorizontalBar'
     Text = 'Text'
     ImageMask = 'ImageMask'
     TextMask = 'TextMask'
+    RawData = 'RawData'
 
 
 def default_image_visualizer(data: npt.NDArray[np.float32]) -> LeapImage:
@@ -26,10 +25,6 @@ def default_image_visualizer(data: npt.NDArray[np.float32]) -> LeapImage:
 
 def default_graph_visualizer(data: npt.NDArray[np.float32]) -> LeapGraph:
     return LeapGraph(data)
-
-
-def default_numeric_visualizer(data: npt.NDArray[np.float32]) -> LeapNumeric:
-    return LeapNumeric(data)
 
 
 def default_horizontal_bar_visualizer(data: npt.NDArray[np.float32]) -> LeapHorizontalBar:
@@ -42,6 +37,10 @@ def default_word_visualizer(data: npt.NDArray[np.float32]) -> LeapText:
         data = data.tolist()
     words = [str(index[0]) if type(index) is list else str(index) for index in data]
     return LeapText(words)
+
+
+def default_raw_data_visualizer(data: npt.NDArray[np.float32]) -> LeapText:
+    return LeapText([str(data)])
 
 
 def default_image_mask_visualizer(mask: npt.NDArray[np.float32], image: npt.NDArray[np.float32]) -> LeapImageMask:
@@ -68,6 +67,3 @@ def default_text_mask_visualizer(mask: npt.NDArray[np.float32], text_data: npt.N
             mask = np.argmax(mask, axis=-1)
 
     return LeapTextMask(mask, text_data, labels)
-
-
-

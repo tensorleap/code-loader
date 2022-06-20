@@ -21,12 +21,6 @@ class LeapImageWithBBox:
 
 
 @dataclass
-class LeapNumeric:
-    data: npt.NDArray[np.float32]
-    type: LeapDataType = LeapDataType.Numeric
-
-
-@dataclass
 class LeapGraph:
     data: npt.NDArray[np.float32]
     type: LeapDataType = LeapDataType.Graph
