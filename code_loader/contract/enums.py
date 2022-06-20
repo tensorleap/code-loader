@@ -15,7 +15,6 @@ class LeapDataType(Enum):
     Image = 'Image'
     Text = 'Text'
     Graph = 'Graph'
-    Numeric = 'Numeric'
     HorizontalBar = 'HorizontalBar'
     ImageMask = 'ImageMask'
     TextMask = 'TextMask'

@@ -9,15 +9,14 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
-from code_loader.visualizers.default_visualizers import DefaultVisualizer, default_numeric_visualizer, \
+from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
     default_image_visualizer, default_horizontal_bar_visualizer, default_word_visualizer, \
-    default_image_mask_visualizer, default_text_mask_visualizer
+    default_image_mask_visualizer, default_text_mask_visualizer, default_raw_data_visualizer
 from code_loader.utils import to_numpy_return_wrapper
 
 
 class LeapBinder:
-
     def __init__(self) -> None:
         self.setup_container = DatasetIntegrationSetup()
         self.cache_container: Dict[str, Any] = {"word_to_index": {}}
@@ -30,8 +29,8 @@ class LeapBinder:
                             visualizer_type=LeapDataType.Image)
         self.set_visualizer(function=default_graph_visualizer, name=DefaultVisualizer.Graph.value,
                             visualizer_type=LeapDataType.Graph)
-        self.set_visualizer(function=default_numeric_visualizer, name=DefaultVisualizer.Numeric.value,
-                            visualizer_type=LeapDataType.Numeric)
+        self.set_visualizer(function=default_raw_data_visualizer, name=DefaultVisualizer.RawData.value,
+                            visualizer_type=LeapDataType.Text)
         self.set_visualizer(function=default_horizontal_bar_visualizer, name=DefaultVisualizer.HorizontalBar.value,
                             visualizer_type=LeapDataType.HorizontalBar)
         self.set_visualizer(function=default_word_visualizer, name=DefaultVisualizer.Text.value,
