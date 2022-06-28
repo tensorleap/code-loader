@@ -7,7 +7,7 @@ import inspect
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
-    MetadataSectionCallableInterface
+    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
@@ -57,6 +57,9 @@ class LeapBinder:
 
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
         self.setup_container.preprocess = PreprocessHandler(function)
+
+    def set_unlabeled_data_preprocess(self, function: Callable[[], PreprocessResponse]) -> None:
+        self.setup_container.unlabeled_data_preprocess = UnlabeledDataPreprocessHandler(function)
 
     def set_input(self, function: SectionCallableInterface, name: str) -> None:
         function = to_numpy_return_wrapper(function)
