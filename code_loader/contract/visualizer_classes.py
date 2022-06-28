@@ -11,7 +11,7 @@ class LeapValidationError(Exception):
     pass
 
 
-def validate_type(actual: Any, expected: Any, prefix_message=''):
+def validate_type(actual: Any, expected: Any, prefix_message: str = '') -> None:
     if not isinstance(expected, list):
         expected = [expected]
     if actual not in expected:
@@ -30,7 +30,7 @@ class LeapImage:
     data: npt.NDArray[np.float32]
     type: LeapDataType = LeapDataType.Image
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.Image)
         validate_type(type(self.data), np.ndarray)
         validate_type(self.data.dtype, [np.uint8, np.float32])
@@ -50,7 +50,7 @@ class LeapGraph:
     data: npt.NDArray[np.float32]
     type: LeapDataType = LeapDataType.Graph
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.Graph)
         validate_type(type(self.data), np.ndarray)
         validate_type(self.data.dtype, np.float32)
@@ -62,7 +62,7 @@ class LeapText:
     data: List[str]
     type: LeapDataType = LeapDataType.Text
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.Text)
         validate_type(type(self.data), list)
         validate_type(type(self.data[0]), str)
@@ -74,7 +74,7 @@ class LeapHorizontalBar:
     labels: List[str]
     type: LeapDataType = LeapDataType.HorizontalBar
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.HorizontalBar)
         validate_type(type(self.body), np.ndarray)
         validate_type(self.body.dtype, np.float32)
@@ -91,7 +91,7 @@ class LeapImageMask:
     labels: List[str]
     type: LeapDataType = LeapDataType.ImageMask
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.ImageMask)
         validate_type(type(self.mask), np.ndarray)
         validate_type(self.mask.dtype, np.float32)
@@ -111,7 +111,7 @@ class LeapTextMask:
     labels: List[str]
     type: LeapDataType = LeapDataType.TextMask
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.ImageMask)
         validate_type(type(self.mask), np.ndarray)
         validate_type(self.mask.dtype, np.float32)
