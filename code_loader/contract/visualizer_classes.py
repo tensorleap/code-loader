@@ -65,7 +65,8 @@ class LeapText:
     def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.Text)
         validate_type(type(self.data), list)
-        validate_type(type(self.data[0]), str)
+        for value in self.data:
+            validate_type(type(value), str)
 
 
 @dataclass
@@ -81,7 +82,8 @@ class LeapHorizontalBar:
         validate_type(len(self.body.shape), 1, 'HorizontalBar body must be of shape 1')
 
         validate_type(type(self.labels), list)
-        validate_type(type(self.labels[0]), str)
+        for label in self.labels:
+            validate_type(type(label), str)
 
 
 @dataclass
@@ -101,7 +103,8 @@ class LeapImageMask:
         validate_type(len(self.image.shape), 3, 'Image must be of shape 3')
         validate_type(self.image.shape[2], [1, 3], 'Image channel must be either 3(rgb) or 1(gray)')
         validate_type(type(self.labels), list)
-        validate_type(type(self.labels[0]), str)
+        for label in self.labels:
+            validate_type(type(label), str)
 
 
 @dataclass
@@ -119,4 +122,5 @@ class LeapTextMask:
         validate_type(type(self.text_array), np.ndarray)
         validate_type(self.text_array.dtype, np.float32)
         validate_type(type(self.labels), list)
-        validate_type(type(self.labels[0]), str)
+        for label in self.labels:
+            validate_type(type(label), str)
