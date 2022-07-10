@@ -5,6 +5,7 @@ import numpy.typing as npt
 from dataclasses import dataclass
 
 from code_loader.contract.enums import LeapDataType
+from code_loader.contract.responsedataclasses import BoundingBox
 
 
 class LeapValidationError(Exception):
@@ -41,8 +42,15 @@ class LeapImage:
 @dataclass
 class LeapImageWithBBox:
     data: npt.NDArray[np.float32]
-    bbox: npt.NDArray[np.float32]
+    bounding_boxes: List[BoundingBox]
     type: LeapDataType = LeapDataType.ImageWithBBox
+
+    def __post_init__(self) -> None:
+        validate_type(self.type, LeapDataType.ImageWithBBox)
+        validate_type(type(self.data), np.ndarray)
+        validate_type(self.data.dtype, [np.uint8, np.float32])
+        validate_type(len(self.data.shape), 3, 'Image must be of shape 3')
+        validate_type(self.data.shape[2], [1, 3], 'Image channel must be either 3(rgb) or 1(gray)')
 
 
 @dataclass

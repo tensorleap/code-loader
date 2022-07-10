@@ -5,8 +5,8 @@ import numpy as np
 import numpy.typing as npt
 import tensorflow as tf  # type: ignore
 
-from code_loader.contract.visualizer_classes import  LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
-    LeapTextMask, LeapImageMask
+from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
+    LeapTextMask, LeapImageMask, LeapImageWithBBox
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
     DataStateEnum, LeapDataType, Metric
 
@@ -32,10 +32,12 @@ class PreprocessHandler:
     function: Callable[[], List[PreprocessResponse]]
     data_length: Dict[DataStateType, int] = field(default_factory=dict)
 
+
 @dataclass
 class UnlabeledDataPreprocessHandler:
     function: Callable[[], PreprocessResponse]
     data_length: int = 0
+
 
 VisualizerCallableInterface = Union[
     Callable[..., LeapImage],
@@ -44,10 +46,11 @@ VisualizerCallableInterface = Union[
     Callable[..., LeapHorizontalBar],
     Callable[..., LeapImageMask],
     Callable[..., LeapTextMask],
+    Callable[..., LeapImageWithBBox]
 ]
 
-VisualizerCallableReturnType = Union[LeapImage, LeapText,
-                                     LeapGraph, LeapHorizontalBar, LeapImageMask, LeapTextMask]
+VisualizerCallableReturnType = Union[LeapImage, LeapText, LeapGraph, LeapHorizontalBar,
+                                     LeapImageMask, LeapTextMask, LeapImageWithBBox]
 
 CustomCallableInterface = Callable[[tf.Tensor, tf.Tensor], tf.Tensor]
 
