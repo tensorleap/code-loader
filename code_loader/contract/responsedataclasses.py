@@ -68,6 +68,16 @@ class DatasetTestResultPayload:
 
 
 @dataclass
+class BoundingBox:
+    x: float  # value between [0, 1], represent the percentage according to image size.
+    y: float  # value between [0, 1], represent the percentage according to image size.
+    width: float  # value between [0, 1], represent the percentage according to image size.
+    height: float  # value between [0, 1], represent the percentage according to image size.
+    confidence: float = 1.0
+    class_name: Optional[str] = None
+
+
+@dataclass
 class DatasetIntegParseResult:
     payloads: List[DatasetTestResultPayload]
     is_valid: bool
