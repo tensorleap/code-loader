@@ -3,12 +3,15 @@ from typing import Callable, List, Optional, Dict, Any
 import numpy as np
 import numpy.typing as npt
 import inspect
+from typeguard import typechecked
+
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
+from code_loader.contract.visualizer_classes import validate_type
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
     default_image_visualizer, default_horizontal_bar_visualizer, default_word_visualizer, \
@@ -40,6 +43,7 @@ class LeapBinder:
         self.set_visualizer(function=default_text_mask_visualizer, name=DefaultVisualizer.TextMask.value,
                             visualizer_type=LeapDataType.TextMask)
 
+    @typechecked
     def set_visualizer(self, function: VisualizerCallableInterface,
                        name: str,
                        visualizer_type: LeapDataType,
@@ -55,31 +59,38 @@ class LeapBinder:
             VisualizerHandler(name, function, visualizer_type, arg_names, heatmap_visualizer))
         self._visualizer_names.append(name)
 
+    @typechecked
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
         self.setup_container.preprocess = PreprocessHandler(function)
 
+    @typechecked
     def set_unlabeled_data_preprocess(self, function: Callable[[], PreprocessResponse]) -> None:
         self.setup_container.unlabeled_data_preprocess = UnlabeledDataPreprocessHandler(function)
 
+    @typechecked
     def set_input(self, function: SectionCallableInterface, name: str) -> None:
         function = to_numpy_return_wrapper(function)
         self.setup_container.inputs.append(InputHandler(name, function))
 
         self._encoder_names.append(name)
 
+    @typechecked
     def add_custom_loss(self, function: CustomCallableInterface, name: str) -> None:
         self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function))
 
+    @typechecked
     def add_prediction(self, name: str, labels: List[str], metrics: List[Metric],
                        custom_metrics: Optional[List[CustomCallableInterface]] = None) -> None:
         self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels, metrics, custom_metrics))
 
+    @typechecked
     def set_ground_truth(self, function: SectionCallableInterface, name: str) -> None:
         function = to_numpy_return_wrapper(function)
         self.setup_container.ground_truths.append(GroundTruthHandler(name, function))
 
         self._encoder_names.append(name)
 
+    @typechecked
     def set_metadata(self, function: MetadataSectionCallableInterface, metadata_type: DatasetMetadataType,
                      name: str) -> None:
         self.setup_container.metadata.append(MetadataHandler(name, function, metadata_type))
