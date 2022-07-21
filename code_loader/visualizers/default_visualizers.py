@@ -53,7 +53,7 @@ def default_image_mask_visualizer(mask: npt.NDArray[np.float32], image: npt.NDAr
         else:
             mask = np.argmax(mask, axis=-1)
 
-    return LeapImageMask(mask.astype(np.float32), image.astype(np.float32), labels)
+    return LeapImageMask(mask.astype(np.uint8), image.astype(np.float32), labels)
 
 
 def default_text_mask_visualizer(mask: npt.NDArray[np.float32], text_data: npt.NDArray[np.float32]) -> LeapTextMask:
