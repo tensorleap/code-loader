@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import List, Any, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -28,7 +28,7 @@ def validate_type(actual: Any, expected: Any, prefix_message: str = '') -> None:
 
 @dataclass
 class LeapImage:
-    data: npt.NDArray[np.float32]
+    data: Union[npt.NDArray[np.float32], npt.NDArray[np.uint8]]
     type: LeapDataType = LeapDataType.Image
 
     def __post_init__(self) -> None:
@@ -41,7 +41,7 @@ class LeapImage:
 
 @dataclass
 class LeapImageWithBBox:
-    data: npt.NDArray[np.float32]
+    data: Union[npt.NDArray[np.float32], npt.NDArray[np.uint8]]
     bounding_boxes: List[BoundingBox]
     type: LeapDataType = LeapDataType.ImageWithBBox
 
@@ -96,18 +96,18 @@ class LeapHorizontalBar:
 
 @dataclass
 class LeapImageMask:
-    mask: npt.NDArray[np.float32]
-    image: npt.NDArray[np.float32]
+    mask: npt.NDArray[np.uint8]
+    image: Union[npt.NDArray[np.float32], npt.NDArray[np.uint8]]
     labels: List[str]
     type: LeapDataType = LeapDataType.ImageMask
 
     def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.ImageMask)
         validate_type(type(self.mask), np.ndarray)
-        validate_type(self.mask.dtype, np.float32)
+        validate_type(self.mask.dtype, np.uint8)
         validate_type(len(self.mask.shape), 2, 'image mask must be of shape 2')
         validate_type(type(self.image), np.ndarray)
-        validate_type(self.image.dtype, np.float32)
+        validate_type(self.image.dtype, [np.uint8, np.float32])
         validate_type(len(self.image.shape), 3, 'Image must be of shape 3')
         validate_type(self.image.shape[2], [1, 3], 'Image channel must be either 3(rgb) or 1(gray)')
         validate_type(type(self.labels), list)
