@@ -47,8 +47,7 @@ class LeapBinder:
     def set_visualizer(self, function: VisualizerCallableInterface,
                        name: str,
                        visualizer_type: LeapDataType,
-                       heatmap_visualizer: Optional[
-                           Callable[[npt.NDArray[np.float32]], npt.NDArray[np.float32]]] = None) -> None:
+                       heatmap_visualizer: Optional[Callable[..., npt.NDArray[np.float32]]] = None) -> None:
         arg_names = inspect.getfullargspec(function)[0]
         if heatmap_visualizer:
             if arg_names != inspect.getfullargspec(heatmap_visualizer)[0]:
