@@ -69,8 +69,10 @@ class DatasetTestResultPayload:
 
 @dataclass
 class BoundingBox:
+    # (x, y) is the center of the bounding box
     x: float        # value between [0, 1], represent the percentage according to the image size.
     y: float        # value between [0, 1], represent the percentage according to the image size.
+
     width: float    # value between [0, 1], represent the percentage according to the image size.
     height: float   # value between [0, 1], represent the percentage according to the image size.
     confidence: float
