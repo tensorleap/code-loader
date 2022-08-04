@@ -1,8 +1,9 @@
 from functools import lru_cache
-from typing import Dict, List, Iterable, Any, Union
+from typing import Dict, List, Iterable, Any, Union, Type
 
 import numpy as np
 import numpy.typing as npt
+import tensorflow as tf
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
     GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
@@ -10,7 +11,7 @@ from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandle
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
-    VisualizerInstance, PredictionTypeInstance
+    VisualizerInstance, PredictionTypeInstance, ModelSetup
 from code_loader.leap_binder import global_leap_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
 
@@ -41,6 +42,11 @@ class LeapLoader:
             custom_loss_handler.name: custom_loss_handler
             for custom_loss_handler in setup.custom_loss_handlers
         }
+
+    @lru_cache()
+    def custom_layers(self) -> Dict[str, Type[tf.keras.layers.Layer]]:
+        self.exec_script()
+        return global_leap_binder.setup_container.custom_layers
 
     @lru_cache()
     def prediction_type_by_name(self) -> Dict[str, PredictionTypeHandler]:
@@ -77,8 +83,12 @@ class LeapLoader:
             general_error = f"Something went wrong, {repr(e)} line number: {line_number}"
             is_valid = False
 
-        return DatasetIntegParseResult(is_valid=is_valid, payloads=test_payloads, setup=setup_response,
-                                       general_error=general_error)
+        is_valid_for_model = bool(global_leap_binder.setup_container.custom_layers)
+        model_setup = ModelSetup(list(global_leap_binder.setup_container.custom_layers.keys()))
+
+        return DatasetIntegParseResult(is_valid=is_valid, payloads=test_payloads,
+                                       is_valid_for_model=is_valid_for_model, setup=setup_response,
+                                       model_setup=model_setup, general_error=general_error)
 
     @staticmethod
     def _check_preprocess() -> DatasetTestResultPayload:
@@ -203,6 +213,11 @@ class LeapLoader:
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
                             visualizers=visualizers, prediction_types=prediction_types,
                             custom_loss_names=custom_loss_names)
+
+    @staticmethod
+    def get_model_setup_response() -> ModelSetup:
+        setup = global_leap_binder.setup_container
+        return ModelSetup(list(setup.custom_layers.keys()))
 
     @lru_cache()
     def _preprocess_result(self) -> Dict[DataStateEnum, PreprocessResponse]:

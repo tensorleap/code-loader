@@ -1,17 +1,16 @@
-from typing import Callable, List, Optional, Dict, Any
+from typing import Callable, List, Optional, Dict, Any, Type
 
 import numpy as np
 import numpy.typing as npt
 import inspect
 from typeguard import typechecked
-
+import tensorflow as tf
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
-from code_loader.contract.visualizer_classes import validate_type
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
     default_image_visualizer, default_horizontal_bar_visualizer, default_word_visualizer, \
@@ -93,3 +92,8 @@ class LeapBinder:
     def set_metadata(self, function: MetadataSectionCallableInterface, metadata_type: DatasetMetadataType,
                      name: str) -> None:
         self.setup_container.metadata.append(MetadataHandler(name, function, metadata_type))
+
+    @typechecked
+    def set_model_custom_layers(self, custom_layers: Dict[str, Type[tf.keras.layers.Layer]]):
+        self.setup_container.custom_layers = custom_layers
+
