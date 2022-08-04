@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Callable, List, Optional, Dict, Union
+from typing import Any, Callable, List, Optional, Dict, Union, Type
 
 import numpy as np
 import numpy.typing as npt
@@ -111,6 +111,7 @@ class DatasetIntegrationSetup:
     metadata: List[MetadataHandler] = field(default_factory=list)
     prediction_types: List[PredictionTypeHandler] = field(default_factory=list)
     custom_loss_handlers: List[CustomLossHandler] = field(default_factory=list)
+    custom_layers: Dict[str, Type[tf.keras.layers.Layer]] = field(default_factory=dict)
 
 
 @dataclass

@@ -1,7 +1,6 @@
 from typing import List, Optional, Dict
 
 from dataclasses import dataclass, field
-
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
 
 
@@ -60,6 +59,11 @@ class DatasetSetup:
 
 
 @dataclass
+class ModelSetup:
+    custom_layer_names: List[str]
+
+
+@dataclass
 class DatasetTestResultPayload:
     name: str
     display: Dict[str, str] = field(default_factory=dict)
@@ -70,11 +74,11 @@ class DatasetTestResultPayload:
 @dataclass
 class BoundingBox:
     # (x, y) is the center of the bounding box
-    x: float        # value between [0, 1], represent the percentage according to the image size.
-    y: float        # value between [0, 1], represent the percentage according to the image size.
+    x: float  # value between [0, 1], represent the percentage according to the image size.
+    y: float  # value between [0, 1], represent the percentage according to the image size.
 
-    width: float    # value between [0, 1], represent the percentage according to the image size.
-    height: float   # value between [0, 1], represent the percentage according to the image size.
+    width: float  # value between [0, 1], represent the percentage according to the image size.
+    height: float  # value between [0, 1], represent the percentage according to the image size.
     confidence: float
     label: str
 
@@ -83,5 +87,7 @@ class BoundingBox:
 class DatasetIntegParseResult:
     payloads: List[DatasetTestResultPayload]
     is_valid: bool
+    is_valid_for_model: bool
     setup: Optional[DatasetSetup] = None
+    model_setup: Optional[ModelSetup] = None
     general_error: Optional[str] = None
