@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 import inspect
 from typeguard import typechecked
-import tensorflow as tf
+import tensorflow as tf  # type: ignore
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
@@ -94,6 +94,6 @@ class LeapBinder:
         self.setup_container.metadata.append(MetadataHandler(name, function, metadata_type))
 
     @typechecked
-    def set_model_custom_layers(self, custom_layers: Dict[str, Type[tf.keras.layers.Layer]]):
+    def set_model_custom_layers(self, custom_layers: Dict[str, Type[tf.keras.layers.Layer]]) -> None:
         self.setup_container.custom_layers = custom_layers
 

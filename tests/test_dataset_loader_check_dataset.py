@@ -24,7 +24,7 @@ def test_check_dataset_no_cloud(no_cloud_dataset_loader, refresh_setup_container
 @use_fixture(no_cloud_wt_visualizer_dataset_loader)
 @use_fixture(refresh_setup_container)
 def test_check_dataset_no_cloud_wt_visualizer(no_cloud_wt_visualizer_dataset_loader, refresh_setup_container,
-                                           no_cloud_wt_visualizer_dataset_loader_expected_result):
+                                              no_cloud_wt_visualizer_dataset_loader_expected_result):
     # act
     parse_result: DatasetIntegParseResult = no_cloud_wt_visualizer_dataset_loader.check_dataset()
 

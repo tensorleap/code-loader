@@ -3,7 +3,7 @@ from typing import Dict, List, Iterable, Any, Union, Type
 
 import numpy as np
 import numpy.typing as npt
-import tensorflow as tf
+import tensorflow as tf  # type: ignore
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
     GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
