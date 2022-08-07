@@ -9,7 +9,7 @@ import tensorflow as tf  # type: ignore
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
-    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler
+    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
@@ -94,6 +94,8 @@ class LeapBinder:
         self.setup_container.metadata.append(MetadataHandler(name, function, metadata_type))
 
     @typechecked
-    def set_model_custom_layers(self, custom_layers: Dict[str, Type[tf.keras.layers.Layer]]) -> None:
-        self.setup_container.custom_layers = custom_layers
+    def set_custom_layer(self, custom_layer: Type[tf.keras.layers.Layer], name: str) -> None:
+        init_args = inspect.getfullargspec(custom_layer.__init__)[0][1:]
+        call_args = inspect.getfullargspec(custom_layer.call)[0][1:]
+        self.setup_container.custom_layers[name] = CustomLayerHandler(name, custom_layer, init_args, call_args)
 

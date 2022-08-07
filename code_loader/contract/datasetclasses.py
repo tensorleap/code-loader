@@ -102,6 +102,14 @@ class PredictionTypeHandler:
 
 
 @dataclass
+class CustomLayerHandler:
+    name: str
+    layer: Type[tf.keras.layers.Layer]
+    init_arg_names: List[str]
+    call_arg_names: List[str]
+
+
+@dataclass
 class DatasetIntegrationSetup:
     preprocess: Optional[PreprocessHandler] = None
     unlabeled_data_preprocess: Optional[UnlabeledDataPreprocessHandler] = None
@@ -111,7 +119,7 @@ class DatasetIntegrationSetup:
     metadata: List[MetadataHandler] = field(default_factory=list)
     prediction_types: List[PredictionTypeHandler] = field(default_factory=list)
     custom_loss_handlers: List[CustomLossHandler] = field(default_factory=list)
-    custom_layers: Dict[str, Type[tf.keras.layers.Layer]] = field(default_factory=dict)
+    custom_layers: Dict[str, CustomLayerHandler] = field(default_factory=dict)
 
 
 @dataclass

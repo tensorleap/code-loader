@@ -40,6 +40,13 @@ class VisualizerInstance:
 
 
 @dataclass
+class CustomLayerInstance:
+    name: str
+    init_arg_names: List[str]
+    call_arg_names: List[str]
+
+
+@dataclass
 class PredictionTypeInstance:
     name: str
     labels: List[str]
@@ -60,7 +67,7 @@ class DatasetSetup:
 
 @dataclass
 class ModelSetup:
-    custom_layer_names: List[str]
+    custom_layers: List[CustomLayerInstance]
 
 
 @dataclass

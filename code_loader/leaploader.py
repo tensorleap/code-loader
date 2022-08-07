@@ -7,11 +7,11 @@ import tensorflow as tf  # type: ignore
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
     GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
-    PredictionTypeHandler, MetadataHandler
+    PredictionTypeHandler, MetadataHandler, CustomLayerHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
-    VisualizerInstance, PredictionTypeInstance, ModelSetup
+    VisualizerInstance, PredictionTypeInstance, ModelSetup, CustomLayerInstance
 from code_loader.leap_binder import global_leap_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
 
@@ -44,7 +44,7 @@ class LeapLoader:
         }
 
     @lru_cache()
-    def custom_layers(self) -> Dict[str, Type[tf.keras.layers.Layer]]:
+    def custom_layers(self) -> Dict[str, CustomLayerHandler]:
         self.exec_script()
         return global_leap_binder.setup_container.custom_layers
 
@@ -84,7 +84,7 @@ class LeapLoader:
             is_valid = False
 
         is_valid_for_model = bool(global_leap_binder.setup_container.custom_layers)
-        model_setup = ModelSetup(list(global_leap_binder.setup_container.custom_layers.keys()))
+        model_setup = self.get_model_setup_response()
 
         return DatasetIntegParseResult(is_valid=is_valid, payloads=test_payloads,
                                        is_valid_for_model=is_valid_for_model, setup=setup_response,
@@ -217,7 +217,12 @@ class LeapLoader:
     @staticmethod
     def get_model_setup_response() -> ModelSetup:
         setup = global_leap_binder.setup_container
-        return ModelSetup(list(setup.custom_layers.keys()))
+        custom_layer_instances = [
+            CustomLayerInstance(custom_layer_handler.name, custom_layer_handler.init_arg_names,
+                                custom_layer_handler.call_arg_names)
+            for custom_layer_handler in setup.custom_layers.values()
+        ]
+        return ModelSetup(custom_layer_instances)
 
     @lru_cache()
     def _preprocess_result(self) -> Dict[DataStateEnum, PreprocessResponse]:
