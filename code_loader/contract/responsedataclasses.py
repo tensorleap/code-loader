@@ -94,7 +94,7 @@ class BoundingBox:
 class DatasetIntegParseResult:
     payloads: List[DatasetTestResultPayload]
     is_valid: bool
-    is_valid_for_model: bool
+    is_valid_for_model: Optional[bool] = False
     setup: Optional[DatasetSetup] = None
     model_setup: Optional[ModelSetup] = None
     general_error: Optional[str] = None
