@@ -51,6 +51,6 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
             'test': 'fake_string'}, is_passed=True, shape=[1])]
 
     expected_result = DatasetIntegParseResult(expected_payloads, is_valid=True, setup=expected_setup,
-                                              general_error=None)
+                                              general_error=None, is_valid_for_model=False)
 
     return expected_result
