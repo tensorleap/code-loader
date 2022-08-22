@@ -117,18 +117,19 @@ class LeapImageMask:
 
 @dataclass
 class LeapTextMask:
-    mask: npt.NDArray[np.float32]
-    text_array: npt.NDArray[np.float32]
+    mask: npt.NDArray[np.uint8]
+    text: List[str]
     labels: List[str]
     type: LeapDataType = LeapDataType.TextMask
 
     def __post_init__(self) -> None:
-        validate_type(self.type, LeapDataType.ImageMask)
+        validate_type(self.type, LeapDataType.TextMask)
         validate_type(type(self.mask), np.ndarray)
-        validate_type(self.mask.dtype, np.float32)
+        validate_type(self.mask.dtype, np.uint8)
         validate_type(len(self.mask.shape), 1, 'text mask must be of shape 1')
-        validate_type(type(self.text_array), np.ndarray)
-        validate_type(self.text_array.dtype, np.float32)
+        validate_type(type(self.text), list)
+        for t in self.text:
+            validate_type(type(t), str)
         validate_type(type(self.labels), list)
         for label in self.labels:
             validate_type(type(label), str)
