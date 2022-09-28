@@ -36,9 +36,9 @@ def no_cloud_wt_visualizer_dataset_loader_expected_result() -> DatasetIntegParse
 
     expected_payloads = [
         DatasetTestResultPayload(name='preprocess', display={
-            'training': '[0 0 0 0]',
-            'validation': '[0 0]',
-            'test': '[0]'}, is_passed=True, shape=None),
+            'training': '',
+            'validation': '',
+            'test': ''}, is_passed=True, shape=None),
         DatasetTestResultPayload(name='normal_input_subset_1_10',
                                  display={'training': '0', 'validation': '0',
                                           'test': '0'}, is_passed=True, shape=[1]),

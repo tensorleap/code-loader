@@ -100,14 +100,14 @@ class LeapLoader:
             preprocess_result_list = preprocess_handler.function()
             for state, preprocess_result in zip(list(DataStateType), preprocess_result_list):
                 state_name = state.name
-                test_result.display[state_name] = str(preprocess_result.data)
+                test_result.display[state_name] = ''
                 preprocess_handler.data_length[state] = preprocess_result.length
 
             unlabeled_preprocess_handler = global_leap_binder.setup_container.unlabeled_data_preprocess
             if unlabeled_preprocess_handler is not None:
                 unlabeled_preprocess_result = unlabeled_preprocess_handler.function()
                 unlabeled_preprocess_handler.data_length = unlabeled_preprocess_result.length
-                test_result.display[DataStateType.unlabeled.name] = str(unlabeled_preprocess_result.data)
+                test_result.display[DataStateType.unlabeled.name] = ''
         except Exception as e:
             line_number = get_root_exception_line_number()
             error_string = f"{repr(e)} line number: {line_number}"
