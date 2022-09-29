@@ -35,23 +35,14 @@ def no_cloud_wt_visualizer_dataset_loader_expected_result() -> DatasetIntegParse
     )
 
     expected_payloads = [
-        DatasetTestResultPayload(name='preprocess', display={
-            'training': '',
-            'validation': '',
-            'test': ''}, is_passed=True, shape=None),
+        DatasetTestResultPayload(name='preprocess', display={}, is_passed=True, shape=None),
         DatasetTestResultPayload(name='normal_input_subset_1_10',
-                                 display={'training': '0', 'validation': '0',
-                                          'test': '0'}, is_passed=True, shape=[1]),
+                                 display={}, is_passed=True, shape=[1]),
         DatasetTestResultPayload(name='output_times_20',
-                                 display={'training': '0', 'validation': '0',
-                                          'test': '0'}, is_passed=True, shape=[1]),
-        DatasetTestResultPayload(name='x', display={'training': '0', 'validation': '0',
-                                                    'test': '0'}, is_passed=True,
+                                 display={}, is_passed=True, shape=[1]),
+        DatasetTestResultPayload(name='x', display={}, is_passed=True,
                                  shape=[1]),
-        DatasetTestResultPayload(name='y', display={
-            'training': 'fake_string',
-            'validation': 'fake_string',
-            'test': 'fake_string'}, is_passed=True, shape=[1])]
+        DatasetTestResultPayload(name='y', display={}, is_passed=True, shape=[1])]
 
     expected_result = DatasetIntegParseResult(expected_payloads, is_valid=True, setup=expected_setup,
                                               general_error=None, is_valid_for_model=False)
