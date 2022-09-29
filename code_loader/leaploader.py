@@ -100,7 +100,6 @@ class LeapLoader:
             preprocess_result_list = preprocess_handler.function()
             for state, preprocess_result in zip(list(DataStateType), preprocess_result_list):
                 state_name = state.name
-                test_result.display[state_name] = ''
                 preprocess_handler.data_length[state] = preprocess_result.length
 
             unlabeled_preprocess_handler = global_leap_binder.setup_container.unlabeled_data_preprocess
@@ -128,7 +127,6 @@ class LeapLoader:
                 state_name = state.name
                 try:
                     raw_result = dataset_base_handler.function(idx, preprocess_response)
-                    test_result.display[state_name] = str(raw_result)
                     result_shape = get_shape(raw_result)
                     test_result.shape = result_shape
 
