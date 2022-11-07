@@ -42,6 +42,11 @@ class DataStateEnum(IntEnum):
     unlabeled = 3
 
 
+class ConfusionMatrixValue(Enum):
+    Positive = "Positive"
+    Negative = "Negative"
+
+
 # todo: handle test not run due to error in pre process and Add to TestingSectionEnum Enum didn't run
 class TestingSectionEnum(Enum):
     Warnings = "Warnings"

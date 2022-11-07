@@ -1,4 +1,4 @@
-from typing import Callable, List, Optional, Dict, Any, Type
+from typing import Callable, List, Optional, Dict, Any, Type, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -9,7 +9,8 @@ import tensorflow as tf  # type: ignore
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
-    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler
+    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, \
+    ConfusionMatrixCallableInterface
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
@@ -77,8 +78,10 @@ class LeapBinder:
         self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function))
 
     @typechecked
-    def add_prediction(self, name: str, labels: List[str], metrics: List[Metric],
-                       custom_metrics: Optional[List[CustomCallableInterface]] = None) -> None:
+    def add_prediction(
+            self, name: str, labels: List[str], metrics: List[Metric],
+            custom_metrics: Optional[List[Union[CustomCallableInterface, ConfusionMatrixCallableInterface]]] = None
+    ) -> None:
         self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels, metrics, custom_metrics))
 
     @typechecked
