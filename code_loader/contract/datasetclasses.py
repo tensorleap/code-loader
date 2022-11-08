@@ -60,6 +60,7 @@ class ConfusionMatrixElement:
     label: str
     expected_outcome: ConfusionMatrixValue
     predicted_probability: float
+    id: str = ''
 
 
 ConfusionMatrixCallableInterface = Callable[[tf.Tensor, tf.Tensor], List[List[ConfusionMatrixElement]]]
