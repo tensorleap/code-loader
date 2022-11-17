@@ -8,7 +8,7 @@ import tensorflow as tf  # type: ignore
 from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask, LeapImageWithBBox
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
-    DataStateEnum, LeapDataType, Metric
+    DataStateEnum, LeapDataType, Metric, ConfusionMatrixValue
 
 
 @dataclass
@@ -56,6 +56,17 @@ CustomCallableInterface = Callable[[tf.Tensor, tf.Tensor], tf.Tensor]
 
 
 @dataclass
+class ConfusionMatrixElement:
+    label: str
+    expected_outcome: ConfusionMatrixValue
+    predicted_probability: float
+    id: str = ''
+
+
+ConfusionMatrixCallableInterface = Callable[[tf.Tensor, tf.Tensor], List[List[ConfusionMatrixElement]]]
+
+
+@dataclass
 class CustomLossHandler:
     name: str
     function: CustomCallableInterface
@@ -98,7 +109,7 @@ class PredictionTypeHandler:
     name: str
     labels: List[str]
     metrics: List[Metric]
-    custom_metrics: Optional[List[CustomCallableInterface]] = None
+    custom_metrics: Optional[List[Union[CustomCallableInterface, ConfusionMatrixCallableInterface]]] = None
 
 
 @dataclass
