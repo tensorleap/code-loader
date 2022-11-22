@@ -10,6 +10,7 @@ class Metric(Enum):
     BinaryAccuracy = 'BinaryAccuracy'
     MeanIOU = 'MeanIOU'
     ConfusionMatrixClassification = 'ConfusionMatrixClassification'
+    ConfusionMatrixBinaryClassification = 'ConfusionMatrixBinaryClassification'
 
 
 class LeapDataType(Enum):
