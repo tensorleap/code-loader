@@ -1,22 +1,21 @@
-from typing import Callable, List, Optional, Dict, Any, Type, Union
+import inspect
+from typing import Callable, List, Optional, Dict, Any, Type
 
 import numpy as np
 import numpy.typing as npt
-import inspect
-from typeguard import typechecked
 import tensorflow as tf  # type: ignore
+from typeguard import typechecked
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
-    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, \
-    ConfusionMatrixCallableInterface
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
+    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType
+from code_loader.utils import to_numpy_return_wrapper
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
     default_image_visualizer, default_horizontal_bar_visualizer, default_word_visualizer, \
     default_image_mask_visualizer, default_text_mask_visualizer, default_raw_data_visualizer
-from code_loader.utils import to_numpy_return_wrapper
 
 
 class LeapBinder:
@@ -78,11 +77,9 @@ class LeapBinder:
         self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function))
 
     @typechecked
-    def add_prediction(
-            self, name: str, labels: List[str], metrics: List[Metric],
-            custom_metrics: Optional[List[Union[CustomCallableInterface, ConfusionMatrixCallableInterface]]] = None
-    ) -> None:
-        self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels, metrics, custom_metrics))
+    @typechecked
+    def add_prediction(self, name: str, labels: List[str]) -> None:
+        self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels))
 
     @typechecked
     def set_ground_truth(self, function: SectionCallableInterface, name: str) -> None:

@@ -108,8 +108,6 @@ class MetadataHandler:
 class PredictionTypeHandler:
     name: str
     labels: List[str]
-    metrics: List[Metric]
-    custom_metrics: Optional[List[Union[CustomCallableInterface, ConfusionMatrixCallableInterface]]] = None
 
 
 @dataclass
