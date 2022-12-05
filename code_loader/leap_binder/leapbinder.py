@@ -1,5 +1,5 @@
 import inspect
-from typing import Callable, List, Optional, Dict, Any, Type
+from typing import Callable, List, Optional, Dict, Any, Type, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -9,7 +9,8 @@ from typeguard import typechecked
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
-    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler
+    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, CustomMetricHandler, \
+    ConfusionMatrixCallableInterface
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.utils import to_numpy_return_wrapper
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
@@ -77,6 +78,11 @@ class LeapBinder:
         self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function))
 
     @typechecked
+    def add_custom_metric(self, function: Union[CustomCallableInterface, ConfusionMatrixCallableInterface],
+                          name: str) -> None:
+        arg_names = inspect.getfullargspec(function)[0]
+        self.setup_container.custom_metric_handlers.append(CustomMetricHandler(name, function, arg_names))
+
     @typechecked
     def add_prediction(self, name: str, labels: List[str]) -> None:
         self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels))
@@ -98,4 +104,3 @@ class LeapBinder:
         init_args = inspect.getfullargspec(custom_layer.__init__)[0][1:]
         call_args = inspect.getfullargspec(custom_layer.call)[0][1:]
         self.setup_container.custom_layers[name] = CustomLayerHandler(name, custom_layer, init_args, call_args)
-
