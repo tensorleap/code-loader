@@ -73,6 +73,13 @@ class CustomLossHandler:
 
 
 @dataclass
+class CustomMetricHandler:
+    name: str
+    function: CustomCallableInterface
+    arg_names: List[str]
+
+
+@dataclass
 class VisualizerHandler:
     name: str
     function: VisualizerCallableInterface
@@ -128,6 +135,7 @@ class DatasetIntegrationSetup:
     metadata: List[MetadataHandler] = field(default_factory=list)
     prediction_types: List[PredictionTypeHandler] = field(default_factory=list)
     custom_loss_handlers: List[CustomLossHandler] = field(default_factory=list)
+    custom_metric_handlers: List[CustomMetricHandler] = field(default_factory=list)
     custom_layers: Dict[str, CustomLayerHandler] = field(default_factory=dict)
 
 
