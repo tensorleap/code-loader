@@ -12,6 +12,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, CustomMetricHandler, \
     ConfusionMatrixCallableInterface
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
+from code_loader.metrics.default_metrics import metrics_names_to_functions
 from code_loader.utils import to_numpy_return_wrapper
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
@@ -26,6 +27,11 @@ class LeapBinder:
         self._visualizer_names: List[str] = list()
         self._encoder_names: List[str] = list()
         self._extend_with_default_visualizers()
+        self._add_default_metrics()
+
+    def _add_default_metrics(self):
+        for metric_name, metric_function in metrics_names_to_functions:
+            self.add_custom_metric(function=metric_function, name=metric_name)
 
     def _extend_with_default_visualizers(self) -> None:
         self.set_visualizer(function=default_image_visualizer, name=DefaultVisualizer.Image.value,

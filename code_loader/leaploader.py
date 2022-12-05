@@ -30,6 +30,15 @@ class LeapLoader:
             raise DatasetScriptException(getattr(e, 'message', repr(e))) from e
 
     @lru_cache()
+    def metric_by_name(self) -> Dict[str, VisualizerHandler]:
+        self.exec_script()
+        setup = global_leap_binder.setup_container
+        return {
+            metric_handler.name: metric_handler
+            for metric_handler in setup.custom_metric_handlers
+        }
+
+    @lru_cache()
     def visualizer_by_name(self) -> Dict[str, VisualizerHandler]:
         self.exec_script()
         setup = global_leap_binder.setup_container
