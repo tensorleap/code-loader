@@ -7,7 +7,7 @@ import tensorflow as tf  # type: ignore
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
     GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
-    PredictionTypeHandler, MetadataHandler, CustomLayerHandler
+    PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
 from code_loader.contract.exceptions import DatasetScriptException
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
@@ -30,7 +30,7 @@ class LeapLoader:
             raise DatasetScriptException(getattr(e, 'message', repr(e))) from e
 
     @lru_cache()
-    def metric_by_name(self) -> Dict[str, VisualizerHandler]:
+    def metric_by_name(self) -> Dict[str, MetricHandler]:
         self.exec_script()
         setup = global_leap_binder.setup_container
         return {
