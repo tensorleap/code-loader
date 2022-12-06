@@ -2,7 +2,8 @@ import pytest
 
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.contract.responsedataclasses import DatasetSetup, DatasetInputInstance, DatasetMetadataInstance, \
-    DatasetOutputInstance, DatasetIntegParseResult, DatasetTestResultPayload, DatasetPreprocess, VisualizerInstance
+    DatasetOutputInstance, DatasetIntegParseResult, DatasetTestResultPayload, DatasetPreprocess, VisualizerInstance, \
+    MetricInstance
 
 
 @pytest.fixture
@@ -26,6 +27,16 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
             VisualizerInstance(name='Text', type=LeapDataType.Text, arg_names=['data']),
             VisualizerInstance(name='ImageMask', type=LeapDataType.ImageMask, arg_names=['mask', 'image']),
             VisualizerInstance(name='TextMask', type=LeapDataType.TextMask, arg_names=['mask', 'text_data'])
+        ],
+        metrics=[
+            MetricInstance(name='MeanSquaredError', arg_names=['ground_truth', 'prediction']),
+            MetricInstance(name='MeanSquaredLogarithmicError', arg_names=['ground_truth', 'prediction']),
+            MetricInstance(name='MeanAbsoluteError', arg_names=['ground_truth', 'prediction']),
+            MetricInstance(name='MeanAbsolutePercentageError', arg_names=['ground_truth', 'prediction']),
+            MetricInstance(name='Accuracy', arg_names=['ground_truth', 'prediction']),
+            MetricInstance(name='BinaryAccuracy', arg_names=['ground_truth', 'prediction']),
+            MetricInstance(name='ConfusionMatrixClassification', arg_names=['ground_truth', 'prediction']),
+            MetricInstance(name='MeanIOU', arg_names=['ground_truth', 'prediction'])
         ],
         prediction_types=[],
         custom_loss_names=[]
