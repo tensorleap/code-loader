@@ -9,7 +9,7 @@ from typeguard import typechecked
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
-    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, CustomMetricHandler, \
+    MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
     ConfusionMatrixCallableInterface
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.metrics.default_metrics import metrics_names_to_functions
@@ -87,7 +87,7 @@ class LeapBinder:
     def add_custom_metric(self, function: Union[CustomCallableInterface, ConfusionMatrixCallableInterface],
                           name: str) -> None:
         arg_names = inspect.getfullargspec(function)[0]
-        self.setup_container.custom_metric_handlers.append(CustomMetricHandler(name, function, arg_names))
+        self.setup_container.metrics.append(MetricHandler(name, function, arg_names))
 
     @typechecked
     def add_prediction(self, name: str, labels: List[str]) -> None:
