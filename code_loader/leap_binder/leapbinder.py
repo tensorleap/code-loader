@@ -30,7 +30,7 @@ class LeapBinder:
         self._add_default_metrics()
 
     def _add_default_metrics(self):
-        for metric_name, metric_function in metrics_names_to_functions:
+        for metric_name, metric_function in metrics_names_to_functions.items():
             self.add_custom_metric(function=metric_function, name=metric_name)
 
     def _extend_with_default_visualizers(self) -> None:

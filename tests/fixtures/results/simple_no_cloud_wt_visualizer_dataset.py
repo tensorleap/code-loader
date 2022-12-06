@@ -1,6 +1,6 @@
 import pytest
 
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.contract.responsedataclasses import DatasetSetup, DatasetInputInstance, DatasetMetadataInstance, \
     DatasetOutputInstance, DatasetIntegParseResult, DatasetTestResultPayload, DatasetPreprocess, VisualizerInstance, \
     PredictionTypeInstance
@@ -30,7 +30,7 @@ def no_cloud_wt_visualizer_dataset_loader_expected_result() -> DatasetIntegParse
 
         ],
         prediction_types=[
-            PredictionTypeInstance('pred_type1', ['yes', 'no'], [Metric.MeanAbsoluteError], ["custom_metric"])],
+            PredictionTypeInstance('pred_type1', ['yes', 'no'])],
         custom_loss_names=[]
     )
 
