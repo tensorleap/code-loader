@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 import numpy.typing as npt
-import tensorflow as tf
+import tensorflow as tf  # type: ignore
 
 from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse, ConfusionMatrixElement
@@ -98,7 +98,7 @@ leap_binder.add_prediction(name='pred_type1', labels=['yes', 'no'])
 def custom_confusion_metric(gt_one_hot_encoding: tf.Tensor, pred_probabilities: tf.Tensor) -> List[
     List[ConfusionMatrixElement]]:
     num_labels = pred_probabilities.shape[-1]
-    labels = list(range(num_labels))
+    labels = [str(i) for i in range(num_labels)]
     if len(labels) == 1:
         labels = ['0', '1']
         gt_one_hot_encoding = tf.concat([1 - gt_one_hot_encoding, gt_one_hot_encoding], axis=1)

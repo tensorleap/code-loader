@@ -1,14 +1,12 @@
 from enum import Enum
 from typing import List, Tuple
 
-import tensorflow as tf
-from keras import backend as K
-from keras.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, \
-    mean_squared_logarithmic_error, categorical_accuracy
+import tensorflow as tf  # type: ignore
+from keras import backend as K  # type: ignore
+from keras.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error  # type: ignore
+from keras.metrics import mean_squared_logarithmic_error, categorical_accuracy
 from keras import metrics
-from tensorflow.python.ops import array_ops
-from tensorflow.python.ops import confusion_matrix
-from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import array_ops, confusion_matrix, math_ops  # type: ignore
 
 from code_loader.contract.datasetclasses import ConfusionMatrixElement
 from code_loader.contract.enums import ConfusionMatrixValue
@@ -121,7 +119,7 @@ def is_gt_to_argmax(prediction: tf.Tensor, ground_truth: tf.Tensor) -> bool:
 def confusion_matrix_classification_metric(ground_truth: tf.Tensor, prediction: tf.Tensor) -> List[
     List[ConfusionMatrixElement]]:
     num_labels = prediction.shape[-1]
-    labels = list(range(num_labels))
+    labels = [str(i) for i in range(num_labels)]
     if len(labels) == 1:
         labels = ['0', '1']
         ground_truth = tf.concat([1 - ground_truth, ground_truth], axis=1)
