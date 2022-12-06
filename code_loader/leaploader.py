@@ -12,7 +12,7 @@ from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataSt
 from code_loader.contract.exceptions import DatasetScriptException
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
-    VisualizerInstance, PredictionTypeInstance, ModelSetup, CustomLayerInstance
+    VisualizerInstance, PredictionTypeInstance, ModelSetup, CustomLayerInstance, MetricInstance
 from code_loader.leap_binder import global_leap_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
 
@@ -35,7 +35,7 @@ class LeapLoader:
         setup = global_leap_binder.setup_container
         return {
             metric_handler.name: metric_handler
-            for metric_handler in setup.custom_metric_handlers
+            for metric_handler in setup.metrics
         }
 
     @lru_cache()
@@ -222,9 +222,14 @@ class LeapLoader:
             pred_type_inst = PredictionTypeInstance(prediction_type.name, prediction_type.labels)
             prediction_types.append(pred_type_inst)
 
+        metrics = []
+        for metric in setup.metrics:
+            metric_inst = MetricInstance(metric.name, metric.arg_names)
+            metrics.append(metric_inst)
+
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
                             visualizers=visualizers, prediction_types=prediction_types,
-                            custom_loss_names=custom_loss_names)
+                            custom_loss_names=custom_loss_names, metrics=metrics)
 
     @staticmethod
     def get_model_setup_response() -> ModelSetup:

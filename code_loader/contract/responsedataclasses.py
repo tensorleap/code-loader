@@ -40,6 +40,12 @@ class VisualizerInstance:
 
 
 @dataclass
+class MetricInstance:
+    name: str
+    arg_names: List[str]
+
+
+@dataclass
 class CustomLayerInstance:
     name: str
     init_arg_names: List[str]
@@ -59,6 +65,7 @@ class DatasetSetup:
     metadata: List[DatasetMetadataInstance]
     outputs: List[DatasetOutputInstance]
     visualizers: List[VisualizerInstance]
+    metrics: List[MetricInstance]
     prediction_types: List[PredictionTypeInstance]
     custom_loss_names: List[str]
 
