@@ -3,8 +3,9 @@ from typing import List, Tuple
 
 import tensorflow as tf
 from keras import backend as K
-from keras.metrics import mean_absolute_error, mean_absolute_percentage_error, binary_accuracy, mean_squared_error, \
+from keras.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, \
     mean_squared_logarithmic_error, categorical_accuracy
+from keras import metrics
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import confusion_matrix
 from tensorflow.python.ops import math_ops
@@ -52,80 +53,84 @@ def _inner_mean_iou(args: Tuple[tf.Tensor, tf.Tensor, int]) -> tf.Tensor:
     return mean_iou
 
 
-def batch_mean_iou(y_true_batch: tf.Tensor, y_pred_batch: tf.Tensor) -> tf.Tensor:
-    num_labels = y_pred_batch.shape[-1]
-    y_true_batch, y_pred_batch = argmax_and_fix_gt(y_true_batch, y_pred_batch)
-    mean_iou_result = tf.vectorized_map(_inner_mean_iou, (y_true_batch, y_pred_batch, num_labels))
+def batch_mean_iou(ground_truth: tf.Tensor, prediction: tf.Tensor) -> tf.Tensor:
+    num_labels = prediction.shape[-1]
+    ground_truth, prediction = argmax_and_fix_gt(ground_truth, prediction)
+    mean_iou_result = tf.vectorized_map(_inner_mean_iou, (ground_truth, prediction, num_labels))
     mean_iou_result = tf.transpose(mean_iou_result)
     return mean_iou_result
 
 
-def reduced_categorical_accuracy(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-    per_pixel_accuracy = categorical_accuracy(y_true, y_pred)
+def reduced_categorical_accuracy(ground_truth: tf.Tensor, prediction: tf.Tensor) -> tf.Tensor:
+    per_pixel_accuracy = categorical_accuracy(ground_truth, prediction)
     reduce_axis = tf.range(1, len(per_pixel_accuracy.shape))
     accuracy = tf.reduce_mean(per_pixel_accuracy, axis=reduce_axis)
     return accuracy
 
 
-def mean_squared_error_dimension_reduced(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-    y_true, y_pred = flatten_non_batch_dims(y_true, y_pred)
-    return mean_squared_error(y_true, y_pred)
+def mean_squared_error_dimension_reduced(ground_truth: tf.Tensor, prediction: tf.Tensor) -> tf.Tensor:
+    ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
+    return mean_squared_error(ground_truth, prediction)
 
 
-def mean_squared_logarithmic_error_dimension_reduced(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-    y_true, y_pred = flatten_non_batch_dims(y_true, y_pred)
-    return mean_squared_logarithmic_error(y_true, y_pred)
+def mean_squared_logarithmic_error_dimension_reduced(ground_truth: tf.Tensor, prediction: tf.Tensor) -> tf.Tensor:
+    ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
+    return mean_squared_logarithmic_error(ground_truth, prediction)
 
 
-def mean_absolute_error_dimension_reduced(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-    y_true, y_pred = flatten_non_batch_dims(y_true, y_pred)
-    return mean_absolute_error(y_true, y_pred)
+def mean_absolute_error_dimension_reduced(ground_truth: tf.Tensor, prediction: tf.Tensor) -> tf.Tensor:
+    ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
+    return mean_absolute_error(ground_truth, prediction)
 
 
-def mean_absolute_percentage_error_dimension_reduced(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-    y_true, y_pred = flatten_non_batch_dims(y_true, y_pred)
-    return mean_absolute_percentage_error(y_true, y_pred)
+def binary_accuracy(ground_truth: tf.Tensor, prediction: tf.Tensor) -> tf.Tensor:
+    return metrics.binary_accuracy(ground_truth, prediction)
 
 
-def flatten_non_batch_dims(y_true: tf.Tensor, y_pred: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
-    batch_size = y_true.shape[0]
-    y_true = K.reshape(y_true, (batch_size, -1))
-    y_pred = K.reshape(y_pred, (batch_size, -1))
-    return y_true, y_pred
+def mean_absolute_percentage_error_dimension_reduced(ground_truth: tf.Tensor, prediction: tf.Tensor) -> tf.Tensor:
+    ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
+    return mean_absolute_percentage_error(ground_truth, prediction)
 
 
-def argmax_and_fix_gt(y_true: tf.Tensor, y_pred: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+def flatten_non_batch_dims(ground_truth: tf.Tensor, prediction: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+    batch_size = ground_truth.shape[0]
+    ground_truth = K.reshape(ground_truth, (batch_size, -1))
+    prediction = K.reshape(prediction, (batch_size, -1))
+    return ground_truth, prediction
+
+
+def argmax_and_fix_gt(ground_truth: tf.Tensor, prediction: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
     # checking sparsity and converting all softmax and one-hots to its argmax value
-    y_pred = tf.argmax(y_pred, axis=-1)
+    prediction = tf.argmax(prediction, axis=-1)
 
-    if y_true.shape[-1] == 1:
-        y_true = tf.squeeze(y_true, axis=-1)
+    if ground_truth.shape[-1] == 1:
+        ground_truth = tf.squeeze(ground_truth, axis=-1)
 
-    if is_gt_to_argmax(y_pred, y_true):
-        y_true = tf.argmax(y_true, axis=-1)
+    if is_gt_to_argmax(prediction, ground_truth):
+        ground_truth = tf.argmax(ground_truth, axis=-1)
 
-    return y_true, y_pred
+    return ground_truth, prediction
 
 
-def is_gt_to_argmax(y_pred: tf.Tensor, y_true: tf.Tensor) -> bool:
-    if len(y_pred.shape) < len(y_true.shape):
+def is_gt_to_argmax(prediction: tf.Tensor, ground_truth: tf.Tensor) -> bool:
+    if len(prediction.shape) < len(ground_truth.shape):
         return True
     return False
 
 
-def confusion_matrix_classification_metric(gt_one_hot_encoding: tf.Tensor, pred_probabilities: tf.Tensor) -> List[
+def confusion_matrix_classification_metric(ground_truth: tf.Tensor, prediction: tf.Tensor) -> List[
     List[ConfusionMatrixElement]]:
-    num_labels = pred_probabilities.shape[-1]
+    num_labels = prediction.shape[-1]
     labels = list(range(num_labels))
     if len(labels) == 1:
         labels = ['0', '1']
-        gt_one_hot_encoding = tf.concat([1 - gt_one_hot_encoding, gt_one_hot_encoding], axis=1)
-        pred_probabilities = tf.concat([1 - pred_probabilities, pred_probabilities], axis=1)
+        ground_truth = tf.concat([1 - ground_truth, ground_truth], axis=1)
+        prediction = tf.concat([1 - prediction, prediction], axis=1)
 
     ret = []
-    for batch_i in range(gt_one_hot_encoding.shape[0]):
-        one_hot_vec = list(gt_one_hot_encoding[batch_i])
-        pred_vec = list(pred_probabilities[batch_i])
+    for batch_i in range(ground_truth.shape[0]):
+        one_hot_vec = list(ground_truth[batch_i])
+        pred_vec = list(prediction[batch_i])
         confusion_matrix_elements = []
         for i, label in enumerate(labels):
             expected_outcome = ConfusionMatrixValue.Positive if int(
