@@ -5,7 +5,7 @@ import numpy.typing as npt
 
 from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.contract.visualizer_classes import LeapText
 
 
@@ -88,5 +88,4 @@ def custom_metric(pred, gt):
     return pred - gt
 
 
-leap_binder.add_prediction(name='pred_type1', labels=['yes', 'no'],
-                           metrics=[Metric.MeanAbsoluteError], custom_metrics=[custom_metric])
+leap_binder.add_prediction(name='pred_type1', labels=['yes', 'no'])

@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Dict, List, Iterable, Any, Union, Type
+from typing import Dict, List, Iterable, Any, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -211,18 +211,15 @@ class LeapLoader:
         metadata = [DatasetMetadataInstance(name=metadata.name, type=metadata.type)
                     for metadata in setup.metadata]
 
-        visualizers = [VisualizerInstance(visualizer_handler.name, visualizer_handler.type, visualizer_handler.arg_names)
-                    for visualizer_handler in setup.visualizers]
+        visualizers = [
+            VisualizerInstance(visualizer_handler.name, visualizer_handler.type, visualizer_handler.arg_names)
+            for visualizer_handler in setup.visualizers]
 
         custom_loss_names = [custom_loss.name for custom_loss in setup.custom_loss_handlers]
 
         prediction_types = []
         for prediction_type in setup.prediction_types:
-            custom_metrics_names = None
-            if prediction_type.custom_metrics:
-                custom_metrics_names = [custom_metric.__name__ for custom_metric in prediction_type.custom_metrics]
-            pred_type_inst = PredictionTypeInstance(prediction_type.name, prediction_type.labels,
-                                                    prediction_type.metrics, custom_metrics_names)
+            pred_type_inst = PredictionTypeInstance(prediction_type.name, prediction_type.labels)
             prediction_types.append(pred_type_inst)
 
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,

@@ -5,7 +5,6 @@ import numpy as np  # type: ignore
 from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
 from code_loader.contract.enums import DatasetMetadataType
-from code_loader.visualizers.default_visualizers import DefaultVisualizer
 
 input_name = 'normal_input_subset_1_10'
 word_to_index_value = "mock word_to_index"
