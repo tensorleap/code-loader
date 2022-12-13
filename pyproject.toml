@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "code-loader"
-version = "0.2.40"
+version = "0.2.41"
 description = ""
 authors = ["dorhar <doron.harnoy@tensorleap.ai>"]
 license = "MIT"
@@ -14,8 +14,8 @@ include = [
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
 numpy = "^1.22.3"
-tensorflow = {version = "2.8.0", markers = "platform_machine  == 'x86_64'"}
-tensorflow-macos = {version = "2.8.0", markers = "platform_machine  == 'arm64'"}
+tensorflow = {version = "^2.11.0", markers = "platform_machine  == 'x86_64'"}
+tensorflow-macos = {version = "^2.11.0", markers = "platform_machine  == 'arm64'"}
 typeguard = "^2.13.3"
 
 [tool.poetry.dev-dependencies]
