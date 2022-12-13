@@ -1,5 +1,4 @@
-PYTHONPATH := .
-POETRY_MODULE := PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python poetry run python -m
+POETRY_MODULE := poetry run python -m
 PYTEST := $(POETRY_MODULE) pytest
 
 .PHONY: run_tests
