@@ -9,6 +9,7 @@ from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandle
     GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
     PredictionTypeHandler, MetadataHandler, CustomLayerHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
+from code_loader.contract.exceptions import DatasetScriptException
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
     VisualizerInstance, PredictionTypeInstance, ModelSetup, CustomLayerInstance
@@ -22,8 +23,11 @@ class LeapLoader:
 
     @lru_cache()
     def exec_script(self) -> None:
-        global_variables: Dict[Any, Any] = {}
-        exec(self.dataset_script, global_variables)
+        try:
+            global_variables: Dict[Any, Any] = {}
+            exec(self.dataset_script, global_variables)
+        except Exception as e:
+            raise DatasetScriptException from e
 
     @lru_cache()
     def visualizer_by_name(self) -> Dict[str, VisualizerHandler]:
