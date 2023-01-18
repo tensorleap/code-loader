@@ -27,7 +27,7 @@ class LeapLoader:
             global_variables: Dict[Any, Any] = {}
             exec(self.dataset_script, global_variables)
         except Exception as e:
-            raise DatasetScriptException from e
+            raise DatasetScriptException(getattr(e, 'message', repr(e))) from e
 
     @lru_cache()
     def visualizer_by_name(self) -> Dict[str, VisualizerHandler]:
@@ -82,6 +82,10 @@ class LeapLoader:
             test_payloads.extend(handlers_test_payloads)
             is_valid = all([payload.is_passed for payload in test_payloads])
             setup_response = self.get_dataset_setup_response()
+        except DatasetScriptException as e:
+            line_number = get_root_exception_line_number()
+            general_error = f"Something went wrong, {repr(e.__cause__)} line number: {line_number}"
+            is_valid = False
         except Exception as e:
             line_number = get_root_exception_line_number()
             general_error = f"Something went wrong, {repr(e)} line number: {line_number}"
