@@ -1,0 +1,4 @@
+
+
+class DatasetScriptException(Exception):
+    pass
