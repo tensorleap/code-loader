@@ -10,7 +10,7 @@ from tests.fixtures.utils import use_fixture, simple_sample_params
 @use_fixture(refresh_setup_container)
 def test_exec_script_no_cloud(no_cloud_dataset_loader, refresh_setup_container):
     # act
-    no_cloud_dataset_loader.exec_script()
+    _ = no_cloud_dataset_loader.exec_script
 
     # assert
     assert_leap_binder_is_valid()
@@ -21,7 +21,7 @@ def test_exec_script_no_cloud(no_cloud_dataset_loader, refresh_setup_container):
 @use_fixture(simple_sample_params)
 def test_get_inputs_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simple_sample_params):
     # act
-    no_cloud_dataset_loader.exec_script()
+    _ = no_cloud_dataset_loader.exec_script
     inputs = no_cloud_dataset_loader._get_inputs(**simple_sample_params)
 
     # assert
@@ -34,7 +34,7 @@ def test_get_inputs_no_cloud(no_cloud_dataset_loader, refresh_setup_container, s
 @use_fixture(simple_sample_params)
 def test_get_gt_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simple_sample_params):
     # act
-    no_cloud_dataset_loader.exec_script()
+    _ = no_cloud_dataset_loader.exec_script
     gt = no_cloud_dataset_loader._get_gt(**simple_sample_params)
 
     # assert
@@ -47,7 +47,7 @@ def test_get_gt_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simpl
 @use_fixture(simple_sample_params)
 def test_get_metadata_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simple_sample_params):
     # act
-    no_cloud_dataset_loader.exec_script()
+    _ = no_cloud_dataset_loader.exec_script
     metadata = no_cloud_dataset_loader._get_metadata(**simple_sample_params)
 
     # assert
@@ -72,8 +72,8 @@ def test_get_sample_dataset_loader_no_cloud(no_cloud_dataset_loader, refresh_set
 @use_fixture(word_idx_dataset_params)
 def test_word_to_index(word_idx_dataset_loader, refresh_setup_container, word_idx_dataset_params):
     # act
-    word_idx_dataset_loader.exec_script()
-    word_idx_dataset_loader._preprocess_result()
+    _ = word_idx_dataset_loader.exec_script
+    _ = word_idx_dataset_loader._preprocess_result
 
     # assert
     assert_leap_binder_is_valid()
@@ -88,7 +88,7 @@ def test_word_to_index(word_idx_dataset_loader, refresh_setup_container, word_id
 def test_cache_container_in_encoder(word_idx_dataset_loader, refresh_setup_container, simple_sample_params,
                                     word_idx_dataset_params):
     # act
-    word_idx_dataset_loader.exec_script()
+    _ = word_idx_dataset_loader.exec_script
     inputs = word_idx_dataset_loader._get_inputs(**simple_sample_params)
 
     # assert

@@ -1,4 +1,4 @@
-from functools import lru_cache
+from functools import cached_property
 from typing import Dict, List, Iterable, Any, Union, Type
 
 import numpy as np
@@ -21,7 +21,7 @@ class LeapLoader:
     def __init__(self, dataset_script: str):
         self.dataset_script: str = dataset_script
 
-    @lru_cache()
+    @cached_property
     def exec_script(self) -> None:
         try:
             global_variables: Dict[Any, Any] = {}
@@ -29,32 +29,32 @@ class LeapLoader:
         except Exception as e:
             raise DatasetScriptException(getattr(e, 'message', repr(e))) from e
 
-    @lru_cache()
+    @cached_property
     def visualizer_by_name(self) -> Dict[str, VisualizerHandler]:
-        self.exec_script()
+        _ = self.exec_script
         setup = global_leap_binder.setup_container
         return {
             visualizer_handler.name: visualizer_handler
             for visualizer_handler in setup.visualizers
         }
 
-    @lru_cache()
+    @cached_property
     def custom_loss_by_name(self) -> Dict[str, CustomLossHandler]:
-        self.exec_script()
+        _ = self.exec_script
         setup = global_leap_binder.setup_container
         return {
             custom_loss_handler.name: custom_loss_handler
             for custom_loss_handler in setup.custom_loss_handlers
         }
 
-    @lru_cache()
+    @cached_property
     def custom_layers(self) -> Dict[str, CustomLayerHandler]:
-        self.exec_script()
+        _ = self.exec_script
         return global_leap_binder.setup_container.custom_layers
 
-    @lru_cache()
+    @cached_property
     def prediction_type_by_name(self) -> Dict[str, PredictionTypeHandler]:
-        self.exec_script()
+        _ = self.exec_script
         setup = global_leap_binder.setup_container
         return {
             prediction_type.name: prediction_type
@@ -62,7 +62,7 @@ class LeapLoader:
         }
 
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
-        self.exec_script()
+        _ = self.exec_script
         sample = DatasetSample(inputs=self._get_inputs(state, idx),
                                gt=None if state == DataStateEnum.unlabeled else self._get_gt(state, idx),
                                metadata=self._get_metadata(state, idx),
@@ -75,7 +75,7 @@ class LeapLoader:
         setup_response = None
         general_error = None
         try:
-            self.exec_script()
+            _ = self.exec_script
             preprocess_test_payload = self._check_preprocess()
             test_payloads.append(preprocess_test_payload)
             handlers_test_payloads = self._check_handlers()
@@ -123,7 +123,7 @@ class LeapLoader:
         return test_result
 
     def _check_handlers(self) -> List[DatasetTestResultPayload]:
-        preprocess_result = self._preprocess_result()
+        preprocess_result = self._preprocess_result
         result_payloads: List[DatasetTestResultPayload] = []
         idx = 0
         dataset_base_handlers: List[Union[DatasetBaseHandler, MetadataHandler]] = self._get_all_dataset_base_handlers()
@@ -161,11 +161,11 @@ class LeapLoader:
 
     def run_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]],
                        ) -> VisualizerCallableReturnType:
-        return self.visualizer_by_name()[visualizer_name].function(**input_tensors_by_arg_name)
+        return self.visualizer_by_name[visualizer_name].function(**input_tensors_by_arg_name)
 
     def run_heatmap_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]
                                ) -> npt.NDArray[np.float32]:
-        heatmap_function = self.visualizer_by_name()[visualizer_name].heatmap_function
+        heatmap_function = self.visualizer_by_name[visualizer_name].heatmap_function
         if heatmap_function is None:
             assert len(input_tensors_by_arg_name) == 1
             return list(input_tensors_by_arg_name.values())[0]
@@ -230,7 +230,7 @@ class LeapLoader:
         ]
         return ModelSetup(custom_layer_instances)
 
-    @lru_cache()
+    @cached_property
     def _preprocess_result(self) -> Dict[DataStateEnum, PreprocessResponse]:
         preprocess = global_leap_binder.setup_container.preprocess
         # TODO: add caching of subset result
@@ -250,7 +250,7 @@ class LeapLoader:
     def _get_dataset_handlers(self, handlers: Iterable[DatasetBaseHandler],
                               state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         result_agg = {}
-        preprocess_result = self._preprocess_result()
+        preprocess_result = self._preprocess_result
         preprocess_state = preprocess_result[state]
         for handler in handlers:
             handler_result = handler.function(idx, preprocess_state)
@@ -266,7 +266,7 @@ class LeapLoader:
 
     def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, Union[str, int, bool, float]]:
         result_agg = {}
-        preprocess_result = self._preprocess_result()
+        preprocess_result = self._preprocess_result
         preprocess_state = preprocess_result[state]
         for handler in global_leap_binder.setup_container.metadata:
             handler_result = handler.function(idx, preprocess_state)
