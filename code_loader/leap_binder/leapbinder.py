@@ -11,7 +11,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
     ConfusionMatrixCallableInterface
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
 from code_loader.metrics.default_metrics import metrics_names_to_functions
 from code_loader.utils import to_numpy_return_wrapper
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
@@ -90,8 +90,10 @@ class LeapBinder:
         self.setup_container.metrics.append(MetricHandler(name, function, arg_names))
 
     @typechecked
-    def add_prediction(self, name: str, labels: List[str]) -> None:
-        self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels))
+    def add_prediction(self, name: str, labels: List[str], metrics: Optional[List[Metric]] = None,
+                       custom_metrics: Optional[
+                           List[Union[CustomCallableInterface, ConfusionMatrixCallableInterface]]] = None) -> None:
+        self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels, metrics, custom_metrics))
 
     @typechecked
     def set_ground_truth(self, function: SectionCallableInterface, name: str) -> None:
