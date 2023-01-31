@@ -19,7 +19,7 @@ class Grid:
         This returns anchors, located at (0,0) sized according to to box_sizes.
         :return: np.ndarray of cell_anchors  (len(FEATURE_MAPS), number of anchors, 4) 4: X,Y,W,H
         """
-        layer_anchors = []
+        layer_anchors: List[NDArray[float]] = []
         for layer_box_sizes in self.box_sizes:
             anchors = []
             for box_size in layer_box_sizes:
@@ -28,10 +28,11 @@ class Grid:
             layer_anchors.append(np.array(anchors))
         return np.stack(layer_anchors)
 
-    def _create_grid_offsets(self, size: Tuple[int, int], stride: Tuple[int, int, int, int, int]):
+    def _create_grid_offsets(self, size: Tuple[int, int], stride: int) -> \
+            Tuple[NDArray[float], NDArray[float]]:
         grid_height, grid_width = size
-        shifts_x = np.arange(- self.offset * stride, (grid_width - self.offset) * stride, step=stride, dtype=np.float32)
-        shifts_y = np.arange(- self.offset * stride, (grid_height - self.offset) * stride, step=stride,
+        shifts_x: NDArray[float] = np.arange(- self.offset * stride, (grid_width - self.offset) * stride, step=stride, dtype=np.float32)
+        shifts_y: NDArray[float] = np.arange(- self.offset * stride, (grid_height - self.offset) * stride, step=stride,
                              dtype=np.float32)
         shift_x, shift_y = np.meshgrid(shifts_x, shifts_y)
         shift_x = shift_x.reshape(-1)
@@ -48,7 +49,7 @@ class Grid:
         grid_sizes = self.feature_maps
         for size, stride, base_anchors in zip(grid_sizes, self.strides, buffers):
             shift_x, shift_y = self._create_grid_offsets(size, stride)
-            shifts = np.stack((shift_x, shift_y, np.zeros_like(shift_x), np.zeros_like(shift_y)), axis=1)
+            shifts: NDArray[float] = np.stack((shift_x, shift_y, np.zeros_like(shift_x), np.zeros_like(shift_y)), axis=1)
             absolute_anchors = (shifts.reshape(-1, 1, 4) + base_anchors.reshape(1, -1, 4)).reshape(-1, 4)
             normalized_anchors = absolute_anchors / np.array([self.image_size[1], self.image_size[0],
                                                               self.image_size[1], self.image_size[0]])
