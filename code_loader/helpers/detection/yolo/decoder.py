@@ -22,8 +22,8 @@ class Decoder:
         self.conf_thresh = conf_thresh
         self.nms_thresh = nms_thresh
 
-    def __call__(self, loc_data: List[tf.Tensor], conf_data: List[tf.Tensor], prior_data: [List[NDArray]],
-                 from_logits: bool = True, decoded: bool = False):
+    def __call__(self, loc_data: List[tf.Tensor], conf_data: List[tf.Tensor], prior_data: List[NDArray[float]],
+                 from_logits: bool = True, decoded: bool = False) -> List[NDArray[float]]:
         """
         Args:
             loc_data: (tensor) Location preds from loc layers
@@ -46,7 +46,7 @@ class Decoder:
             conf = [conf_e[i, ...] for conf_e in conf_preds]
             if from_logits:
                 conf = [tf.math.sigmoid(layer_conf) for layer_conf in conf]
-            class_selections = [[] for j in range(classes_num)]
+            class_selections: List[List[tf.Tensor]] = [[] for j in range(classes_num)]
             for l_loc, l_conf, l_prior in zip(loc, conf, prior_data):
                 object_conf = l_conf[0, ...]
                 if classes_num > 1:
@@ -80,7 +80,7 @@ class Decoder:
             final_preds = []
             for i in range(classes_num):
                 if len(class_selections[i]) > 0:
-                    np_selection = np.array(class_selections[i])
+                    np_selection: NDArray[float] = np.array(class_selections[i])
                     boxes = np_selection[:, 1:5]
                     scores = np_selection[:, 0]
                     selected_indices = tf.image.non_max_suppression(boxes=boxes,
@@ -98,17 +98,17 @@ class Decoder:
                     remains = final_preds[l][max_per_class:, ...]
                     if remains.shape[0] > 0:
                         remainder_list.append(remains)
-                predictions = np.concatenate(chosen_list, axis=0)
+                predictions: NDArray[float] = np.concatenate(chosen_list, axis=0)
                 predictions = predictions[:MAX_RETURNS, ...]                       # this selects top 20 objects
                 matched_obj = predictions.shape[0]
                 missing_amount = MAX_RETURNS-matched_obj
                 if len(remainder_list) > 0 and predictions.shape[0] < MAX_RETURNS:
-                    remainder_np = np.concatenate(remainder_list, axis=0)
+                    remainder_np: NDArray[float] = np.concatenate(remainder_list, axis=0)
                     if remainder_np.shape[0] > missing_amount:
                         top_indices = np.argpartition(remainder_np[:, 0], -missing_amount)[-missing_amount:]
                         remainder_np = remainder_np[top_indices, ...]
                     predictions = np.concatenate([predictions, remainder_np], axis=0)
                 outputs.append(predictions)
             else:
-                outputs.append(np.empty(0))
+                outputs.append(np.empty(0, dtype=float))
         return outputs

@@ -13,9 +13,9 @@ class YoloLoss:
     background_label - should be the last idx
     """
 
-    def __init__(self, num_classes: int, default_boxes: List[NDArray],
+    def __init__(self, num_classes: int, default_boxes: List[NDArray[int]],
                  overlap_thresh: float, background_label: int,
-                 from_logits=True):
+                 from_logits: bool = True):
         self.background_label = background_label
         self.default_boxes = [tf.convert_to_tensor(box_arr) for box_arr in default_boxes]
         self.num_classes = num_classes

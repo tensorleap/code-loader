@@ -1,6 +1,7 @@
 import tensorflow as tf
 from code_loader.helpers.detection.utils import xywh_to_xyxy_format, jaccard
-from typing import Tuple
+from typing import Tuple, List
+from numpy.typing import NDArray
 
 DEFAULT_FEATURE_MAPS = ((80, 80), (40, 40), (20, 20))
 DEFAULT_BOX_SIZES = (((10, 13), (16, 30), (33, 23)),
@@ -8,7 +9,7 @@ DEFAULT_BOX_SIZES = (((10, 13), (16, 30), (33, 23)),
                  ((116, 90), (156, 198), (373, 326))) #tiny fd
 
 
-def decode_bboxes(loc_pred: tf.Tensor, priors: tf.Tensor, variances=1):
+def decode_bboxes(loc_pred: tf.Tensor, priors: tf.Tensor, variances: int = 1) -> NDArray[float]:
     """Decode locations from predictions using priors to undo
     the encoding we did for offset regression at train time.
     Args:
@@ -48,7 +49,9 @@ def encode_bboxes(matched: tf.Tensor, priors: tf.Tensor, variances: Tuple[int, i
     return tf.concat([g_cxcy, g_wh], 1)
 
 
-def scale_loc_prediction(loc_pred, decoded=False, image_size=640., strides=(8, 16, 32)):
+def scale_loc_prediction(loc_pred: List[tf.Tensor], decoded: bool =False, image_size: float =640.,
+                         strides: Tuple[int, int, int] = (8, 16, 32)) -> \
+        List[tf.Tensor]:
     new_loc_pred = [None]*len(loc_pred)
     if decoded:
         new_loc_pred = [loc/image_size for loc in loc_pred]
@@ -59,15 +62,15 @@ def scale_loc_prediction(loc_pred, decoded=False, image_size=640., strides=(8, 1
     return new_loc_pred
 
 
-def reshape_output_list(keras_output: tf.Tensor, image_size: int, priors: int = 3, feature_maps=None, decoded=False):
+def reshape_output_list(keras_output: tf.Tensor, image_size: int, priors: int = 3,
+                        feature_maps: Tuple[Tuple[int, int], ...] = ((80, 80), (40, 40), (20, 20)),
+                        decoded:bool = False) ->\
+        Tuple[List[tf.Tensor], List[tf.Tensor]]:
     """
     reshape the mode's output to two lists sized [NUM_FEATURES] following detectron2 convention.
     class_list item: (BATCH_SIZE, NUM_ANCHORS, CLASSES)
     loc_list item:  (BATCH_SIZE, NUM_ANCHORS, 4)
     """
-    DEFAULT_FEATURE_MAPS = ((80, 80), (40, 40), (20, 20))
-    if feature_maps is None:
-        feature_maps = DEFAULT_FEATURE_MAPS
     num_features = len(feature_maps)
     j = 0
     loc_pred_list = []
@@ -83,7 +86,7 @@ def reshape_output_list(keras_output: tf.Tensor, image_size: int, priors: int = 
 
 
 def match(threshold: float, truths: tf.Tensor, priors: tf.Tensor
-          , labels: tf.Tensor, background_label) -> Tuple[tf.Tensor, tf.Tensor]:
+          , labels: tf.Tensor, background_label: int) -> Tuple[tf.Tensor, tf.Tensor]:
     """
     Matches between the GT and the anchors
     :param threshold:
@@ -97,8 +100,7 @@ def match(threshold: float, truths: tf.Tensor, priors: tf.Tensor
     # compute jaccard and best prior overlap and truth overlap
     if truths.shape[0] == 0: # NO GT
         matches = tf.zeros_like(priors)
-        return matches, tf.ones(priors.shape[0], dtype=tf.int32)*background_label\
-            , tf.zeros(priors.shape[0])
+        return matches, tf.ones(priors.shape[0], dtype=tf.int32)*background_label
     overlaps = jaccard(xywh_to_xyxy_format(truths), xywh_to_xyxy_format(priors))  # (N_TRUTHS, N_PRIORS)
     best_prior_idx = tf.math.argmax(overlaps, axis=1)  # (NTRUTHS,)
     best_truth_overlap = tf.math.reduce_max(overlaps, axis=0, keepdims=True)  # (1, N_PRIORS)
