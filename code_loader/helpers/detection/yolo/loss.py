@@ -1,8 +1,12 @@
 from typing import List, Tuple
-import tensorflow as tf
+
+import numpy as np
+import tensorflow as tf  # type: ignore
 from numpy.typing import NDArray
+
 from code_loader.helpers.detection.utils import true_coords_labels, ciou, xywh_to_xyxy_format
 from code_loader.helpers.detection.yolo.utils import match
+
 
 class YoloLoss:
     """
@@ -13,7 +17,7 @@ class YoloLoss:
     background_label - should be the last idx
     """
 
-    def __init__(self, num_classes: int, default_boxes: List[NDArray[int]],
+    def __init__(self, num_classes: int, default_boxes: List[NDArray[np.int32]],
                  overlap_thresh: float, background_label: int,
                  from_logits: bool = True):
         self.background_label = background_label
@@ -62,15 +66,15 @@ class YoloLoss:
                     background_label=self.background_label)  # encoded_gt_loc, label_pred, ciou between gt and pred
                 loc_t.append(loc)
                 conf_t.append(conf)
-            loc_t = tf.stack(values=loc_t, axis=0)  # this is the location predictions (relative and logged)
-            conf_t = tf.stack(values=conf_t, axis=0)  # these are the labels
-            pos = conf_t != self.background_label
+            loc_t_tensor: tf.Tensor = tf.stack(values=loc_t, axis=0)  # this is the location predictions (relative and logged)
+            conf_t_tensor = tf.stack(values=conf_t, axis=0)  # these are the labels
+            pos = conf_t_tensor != self.background_label
             num_pos = tf.reduce_sum(tf.cast(pos, dtype=tf.int32))
 
             # loss: Smooth L1 loss
             pos_idx = tf.expand_dims(pos, axis=-1)
             pos_idx = tf.broadcast_to(pos_idx, shape=loc_data_layer.shape)
-            ## apply per sample
+            # apply per sample
             loss_b_list = []
             loss_c_list = []
             loss_o_list = []
@@ -85,8 +89,9 @@ class YoloLoss:
 
                 if loc_p.shape[0] and num_pos:  # GT exists
                     ious = ciou(xywh_to_xyxy_format(loc_data_layer[j, ...]),
-                                   xywh_to_xyxy_format(loc_t[j, ...]))
-                    targets_iou = tf.where(pos_idx[j, :, 0], ious, tf.cast(tf.zeros_like(conf_t[j, ...]), tf.float32))
+                                xywh_to_xyxy_format(loc_t_tensor[j, ...]))
+                    targets_iou = tf.where(pos_idx[j, :, 0], ious,
+                                           tf.cast(tf.zeros_like(conf_t_tensor[j, ...]), tf.float32))
                     matched_iou = ious[pos_idx[j, :, 0]]
                     lbox = tf.reduce_mean(1. - matched_iou) * self.box_w
                     targets_iou = tf.convert_to_tensor(tf.maximum(targets_iou, 0).numpy())
@@ -97,7 +102,7 @@ class YoloLoss:
                         else:
                             sig_pos_conf = conf_data_layer[j]
 
-                        onehot_labels = tf.one_hot(conf_t[j], self.num_classes)
+                        onehot_labels = tf.one_hot(conf_t_tensor[j], self.num_classes)
                         single_loss_cls = tf.reduce_mean(self.ce(onehot_labels, sig_pos_conf), axis=-1) * self.cls_w
                     else:
                         single_loss_cls = tf.constant(0, dtype=tf.float32)

@@ -1,12 +1,13 @@
-from typing import Tuple
 import math
-import numpy as np
-from numpy.typing import NDArray
+from typing import Tuple
 from typing import Union
-import tensorflow as tf
+
+import numpy as np
+import tensorflow as tf  # type: ignore
+from numpy.typing import NDArray
 
 
-def xyxy_to_xywh_format(boxes: Union[NDArray[float], tf.Tensor]) -> Union[NDArray[float], tf.Tensor]:
+def xyxy_to_xywh_format(boxes: Union[NDArray[np.float32], tf.Tensor]) -> Union[NDArray[np.float32], tf.Tensor]:
     """
     This gets bb in a [X,Y,W,H] format and transforms them into an [Xmin, Ymin, Xmax, Ymax] format
     :param boxes: [Num_boxes, 4] of type ndarray or tensor
@@ -21,7 +22,7 @@ def xyxy_to_xywh_format(boxes: Union[NDArray[float], tf.Tensor]) -> Union[NDArra
     return result
 
 
-def xywh_to_xyxy_format(boxes: Union[NDArray[float], tf.Tensor]) -> Union[NDArray[float], tf.Tensor]:
+def xywh_to_xyxy_format(boxes: Union[NDArray[np.float32], tf.Tensor]) -> Union[NDArray[np.float32], tf.Tensor]:
     """
     This gets bb in a [X,Y,W,H] format and transforms them into an [Xmin, Ymin, Xmax, Ymax] format
     :param boxes: [Num_boxes, 4] of type ndarray or tensor
@@ -98,11 +99,12 @@ def ciou(box_a: tf.Tensor, box_b: tf.Tensor) -> tf.Tensor:
             tf.maximum((tf.minimum(box_a[:, 3], box_b[:, 3]) - tf.maximum(box_a[:, 1], box_b[:, 1])), 0)
     w1, h1 = box_a[:, 2] - box_a[:, 0], box_a[:, 3] - box_a[:, 1] + eps
     w2, h2 = box_b[:, 2] - box_b[:, 0], box_b[:, 3] - box_b[:, 1] + eps
-    area_a = w1*h1
-    area_b = w2*h2
+    area_a = w1 * h1
+    area_b = w2 * h2
     union = area_a + area_b - inter + eps
     iou = inter / union
-    cw = tf.maximum(box_a[:, 2], box_b[:, 2]) - tf.minimum(box_a[:, 0], box_b[:, 0])  # convex (smallest enclosing box) width
+    cw = tf.maximum(box_a[:, 2], box_b[:, 2]) - tf.minimum(box_a[:, 0],
+                                                           box_b[:, 0])  # convex (smallest enclosing box) width
     ch = tf.maximum(box_a[:, 3], box_b[:, 3]) - tf.minimum(box_a[:, 1], box_b[:, 1])  # convex height
     c2 = cw ** 2 + ch ** 2 + eps  # convex diagonal squared
     rho2 = ((box_b[:, 0] + box_b[:, 2] - box_a[:, 0] - box_a[:, 2]) ** 2 +
@@ -112,14 +114,13 @@ def ciou(box_a: tf.Tensor, box_b: tf.Tensor) -> tf.Tensor:
     return iou - (rho2 / c2 + v * alpha)  # CIoU
 
 
-def match(threshold: float, truths: tf.Tensor, priors: tf.Tensor,
-          variances: Tuple[int, int], labels: tf.Tensor, background_label) -> Tuple[tf.Tensor, tf.Tensor]:
+def match(threshold: float, truths: tf.Tensor, priors: tf.Tensor, labels: tf.Tensor, background_label: int) \
+        -> Tuple[tf.Tensor, tf.Tensor]:
     """
     Matches between the GT and the anchors
     :param threshold:
     :param truths: (N_truths,4) - (X,Y,W,H)
     :param priors: (N_priors,4) - (X,Y,W,H)
-    :param variances:
     :param labels: (N_truths) GT class
     :param background_label: int - the background label
     :return: loc (Tensor) [Npriors, 4], pred_label (Tensor) [Npriors]
