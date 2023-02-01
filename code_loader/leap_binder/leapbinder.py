@@ -10,7 +10,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
-    ConfusionMatrixCallableInterface
+    ConfusionMatrixCallableInterface, CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType, Metric
 from code_loader.metrics.default_metrics import metrics_names_to_functions
 from code_loader.utils import to_numpy_return_wrapper
@@ -84,7 +84,8 @@ class LeapBinder:
         self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function))
 
     @typechecked
-    def add_custom_metric(self, function: Union[CustomCallableInterface, ConfusionMatrixCallableInterface],
+    def add_custom_metric(self,
+                          function: Union[CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs],
                           name: str) -> None:
         arg_names = inspect.getfullargspec(function)[0]
         self.setup_container.metrics.append(MetricHandler(name, function, arg_names))
