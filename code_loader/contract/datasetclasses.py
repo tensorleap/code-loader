@@ -5,10 +5,10 @@ import numpy as np
 import numpy.typing as npt
 import tensorflow as tf  # type: ignore
 
-from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
-    LeapTextMask, LeapImageMask, LeapImageWithBBox
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
     DataStateEnum, LeapDataType, Metric, ConfusionMatrixValue
+from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
+    LeapTextMask, LeapImageMask, LeapImageWithBBox
 
 
 @dataclass
@@ -65,6 +65,10 @@ class ConfusionMatrixElement:
 
 ConfusionMatrixCallableInterface = Callable[[tf.Tensor, tf.Tensor], List[List[ConfusionMatrixElement]]]
 
+CustomCallableInterfaceMultiArgs = Callable[..., tf.Tensor]
+ConfusionMatrixCallableInterfaceMultiArgs = Callable[..., List[List[ConfusionMatrixElement]]]
+MetricCallableReturnType = Union[tf.Tensor, List[List[ConfusionMatrixElement]]]
+
 
 @dataclass
 class CustomLossHandler:
@@ -75,7 +79,7 @@ class CustomLossHandler:
 @dataclass
 class MetricHandler:
     name: str
-    function: CustomCallableInterface
+    function: Union[CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs]
     arg_names: List[str]
 
 
