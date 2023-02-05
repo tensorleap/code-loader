@@ -19,7 +19,7 @@ class YoloLoss:
 
     def __init__(self, num_classes: int, default_boxes: List[NDArray[np.int32]],
                  overlap_thresh: float, background_label: int,
-                 from_logits: bool = True):
+                 from_logits: bool = True, weights: List[float] = [4.0, 1.0, 0.4]):
         self.background_label = background_label
         self.default_boxes = [tf.convert_to_tensor(box_arr) for box_arr in default_boxes]
         self.num_classes = num_classes
@@ -28,7 +28,7 @@ class YoloLoss:
         self.ce = tf.keras.losses.CategoricalCrossentropy(from_logits=False, reduction='none')
         self.from_logits = from_logits
         # self.bce = tf.keras.losses.BinaryCrossentropy()
-        self.weights = [4.0, 1.0, 0.4]  # Following yolov7 weights
+        self.weights = weights  # Following yolov7 weights
         self.obj_w = 0.7
         self.cls_w = 0.00375
         self.box_w = 0.05
