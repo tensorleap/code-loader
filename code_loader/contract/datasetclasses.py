@@ -6,7 +6,7 @@ import numpy.typing as npt
 import tensorflow as tf  # type: ignore
 
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
-    DataStateEnum, LeapDataType, Metric, ConfusionMatrixValue
+    DataStateEnum, LeapDataType, MetricEnum, ConfusionMatrixValue
 from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask, LeapImageWithBBox
 
@@ -119,7 +119,7 @@ class MetadataHandler:
 class PredictionTypeHandler:
     name: str
     labels: List[str]
-    metrics: Optional[List[Metric]] = None
+    metrics: Optional[List[MetricEnum]] = None
     custom_metrics: Optional[List[Union[CustomCallableInterface, ConfusionMatrixCallableInterface]]] = None
 
 
