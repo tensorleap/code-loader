@@ -13,6 +13,10 @@ class MetricEnum(Enum):
     ConfusionMatrixBinaryClassification = 'ConfusionMatrixBinaryClassification'
 
 
+# backwards compatability: keeping it to not break old imports of Metric enum
+Metric = MetricEnum
+
+
 class LeapDataType(Enum):
     Image = 'Image'
     Text = 'Text'
