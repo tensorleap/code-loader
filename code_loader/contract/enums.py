@@ -1,7 +1,7 @@
 from enum import Enum, IntEnum
 
 
-class Metric(Enum):
+class MetricEnum(Enum):
     MeanSquaredError = 'MeanSquaredError'
     MeanSquaredLogarithmicError = 'MeanSquaredLogarithmicError'
     MeanAbsoluteError = 'MeanAbsoluteError'
