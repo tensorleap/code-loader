@@ -19,7 +19,8 @@ class YoloLoss:
 
     def __init__(self, num_classes: int, default_boxes: List[NDArray[np.int32]],
                  overlap_thresh: float, background_label: int,
-                 from_logits: bool = True, weights: List[float] = [4.0, 1.0, 0.4]):
+                 from_logits: bool = True, weights: List[float] = [4.0, 1.0, 0.4],
+                 max_match_per_gt: int = 10):
         self.background_label = background_label
         self.default_boxes = [tf.convert_to_tensor(box_arr) for box_arr in default_boxes]
         self.num_classes = num_classes
@@ -32,6 +33,7 @@ class YoloLoss:
         self.obj_w = 0.7
         self.cls_w = 0.00375
         self.box_w = 0.05
+        self.max_match_per_gt = max_match_per_gt
 
     def __call__(self, y_true: tf.Tensor, y_pred: Tuple[List[tf.Tensor], List[tf.Tensor]]) -> \
             Tuple[List[tf.Tensor], List[tf.Tensor], List[tf.Tensor]]:
@@ -63,7 +65,8 @@ class YoloLoss:
                 loc, conf = match(
                     threshold=self.threshold, truths=truths, priors=priors,
                     labels=labels,
-                    background_label=self.background_label)  # encoded_gt_loc, label_pred, ciou between gt and pred
+                    background_label=self.background_label,
+                    max_match_per_gt=self.max_match_per_gt)  # encoded_gt_loc, label_pred, ciou between gt and pred
                 loc_t.append(loc)
                 conf_t.append(conf)
             loc_t_tensor: tf.Tensor = tf.stack(values=loc_t, axis=0)  # this is the location predictions (relative and logged)
