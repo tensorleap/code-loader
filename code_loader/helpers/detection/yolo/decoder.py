@@ -17,10 +17,13 @@ class Decoder:
     Top-K Filtering.
     """
 
-    def __init__(self, num_classes: int, background_label: int, top_k: int, conf_thresh: float, nms_thresh: float):
+    def __init__(self, num_classes: int, background_label: int, top_k: int, conf_thresh: float, nms_thresh: float,
+                 max_bb_per_layer: int = 20, max_bb: int = 20):
         self.num_classes = num_classes
         self.background_label = background_label
         self.top_k = top_k
+        self.max_bb_per_layer = max_bb_per_layer
+        self.max_bb = max_bb
         # Parameters used in nms.
         self.conf_thresh = conf_thresh
         self.nms_thresh = nms_thresh
@@ -63,8 +66,8 @@ class Decoder:
                 non_zero_indices = tf.where(mask)[:, 0]
                 if len(non_zero_indices) != 0:
                     scores_masked = max_scores[mask]
-                    if len(scores_masked) > MAX_CANDIDATES_PER_LAYER:
-                        best_scores, best_indices = tf.math.top_k(scores_masked, k=MAX_CANDIDATES_PER_LAYER)
+                    if len(scores_masked) > self.max_bb_per_layer:
+                        best_scores, best_indices = tf.math.top_k(scores_masked, k=self.max_bb_per_layer)
                     else:
                         best_scores = scores_masked
                         best_indices = np.arange(len(scores_masked))
@@ -95,17 +98,17 @@ class Decoder:
                 # choose best MAX_RETURNS/#detected class
                 chosen_list = []
                 remainder_list = []
-                max_per_class = max(int(MAX_RETURNS/len(final_preds)), 1)
+                max_per_class = max(int(self.max_bb/len(final_preds)), 1)
                 for l in range(len(final_preds)):
                     chosen_list.append(final_preds[l][:max_per_class, ...])
                     remains = final_preds[l][max_per_class:, ...]
                     if remains.shape[0] > 0:
                         remainder_list.append(remains)
                 predictions: NDArray[np.float32] = np.concatenate(chosen_list, axis=0)
-                predictions = predictions[:MAX_RETURNS, ...]                       # this selects top 20 objects
+                predictions = predictions[:self.max_bb, ...]                       # this selects top 20 objects
                 matched_obj = predictions.shape[0]
-                missing_amount = MAX_RETURNS-matched_obj
-                if len(remainder_list) > 0 and predictions.shape[0] < MAX_RETURNS:
+                missing_amount = self.max_bb-matched_obj
+                if len(remainder_list) > 0 and predictions.shape[0] < self.max_bb:
                     remainder_np: NDArray[np.float32] = np.concatenate(remainder_list, axis=0)
                     if remainder_np.shape[0] > missing_amount:
                         top_indices = np.argpartition(remainder_np[:, 0], -missing_amount)[-missing_amount:]
