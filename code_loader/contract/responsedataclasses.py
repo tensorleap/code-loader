@@ -67,9 +67,9 @@ class DatasetSetup:
     metadata: List[DatasetMetadataInstance]
     outputs: List[DatasetOutputInstance]
     visualizers: List[VisualizerInstance]
-    metrics: List[MetricInstance]
     prediction_types: List[PredictionTypeInstance]
     custom_loss_names: List[str]
+    metrics: List[MetricInstance] = field(default_factory=list)
 
 
 @dataclass

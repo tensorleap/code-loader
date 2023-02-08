@@ -14,6 +14,7 @@ class MetricEnum(Enum):
 
 
 # backwards compatability: keeping it to not break old imports of Metric enum
+# should not be copied to engine contracts
 Metric = MetricEnum
 
 
