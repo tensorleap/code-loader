@@ -89,7 +89,8 @@ def reshape_output_list(keras_output: tf.Tensor, image_size: int, priors: int = 
 
 
 def match(threshold: float, truths: tf.Tensor, priors: tf.Tensor
-          , labels: tf.Tensor, background_label: int) -> Tuple[tf.Tensor, tf.Tensor]:
+          , labels: tf.Tensor, background_label: int,
+          max_match_per_gt: int) -> Tuple[tf.Tensor, tf.Tensor]:
     """
     Matches between the GT and the anchors
     :param threshold:
@@ -106,17 +107,23 @@ def match(threshold: float, truths: tf.Tensor, priors: tf.Tensor
         return matches, tf.ones(priors.shape[0], dtype=tf.int32) * background_label
     overlaps = jaccard(xywh_to_xyxy_format(truths), xywh_to_xyxy_format(priors))  # (N_TRUTHS, N_PRIORS)
     best_prior_idx = tf.math.argmax(overlaps, axis=1)  # (NTRUTHS,)
-    best_truth_overlap = tf.math.reduce_max(overlaps, axis=0, keepdims=True)  # (1, N_PRIORS)
+    best_truth_overlap = tf.math.reduce_max(overlaps, axis=0, keepdims=True) # (1, N_PRIORS)
     best_truth_idx = tf.math.argmax(overlaps, axis=0)  # (N_PRIORS,)
-    best_truth_idx = tf.tensor_scatter_nd_update(tensor=best_truth_idx,
-                                                 indices=tf.expand_dims(best_prior_idx, axis=1),
-                                                 updates=tf.range(start=0, limit=tf.shape(best_prior_idx)[0], delta=1,
-                                                                  dtype=tf.int64))
+    # keep only best k priors per GT
+    # create an overlap vector that only fits in the specific
+    # TODO fix the top_k in a way that will represent actual predictions
+    k_truth_value, k_truth_idx = tf.nn.top_k(overlaps, k=min(max_match_per_gt, overlaps.shape[1]))
+    unique_best_priors = tf.unique(tf.reshape(k_truth_idx, -1))[0]
+    unique_values_priors = tf.gather(best_truth_overlap[0, ...], unique_best_priors)
+    filtered_overlaps = tf.zeros_like(best_truth_overlap)[0,...]
+    filtered_overlaps = tf.expand_dims(tf.tensor_scatter_nd_update(tensor=filtered_overlaps,
+                                indices=tf.expand_dims(unique_best_priors, axis=1),
+                                updates=unique_values_priors), axis=0)
     # FOR EACH GT, replace the value of the best fitting prior with the GT INDEX
     # THIS RATES ALL GT ACCORDING TO WHICH RESULT IN HIGHEST JACACRD
     matches = tf.gather(params=truths, indices=best_truth_idx)  # GT for each PRIOR (N_PRIOR, 4)
     pred_label = tf.gather(params=labels, indices=best_truth_idx)  # THIS IS THE BEST LABELS
-    pred_label = tf.where(condition=best_truth_overlap < threshold, x=background_label, y=tf.cast(pred_label,
+    pred_label = tf.where(condition=filtered_overlaps < threshold, x=background_label, y=tf.cast(pred_label,
                                                                                                   tf.int32))  # eliminates low threshold
     pred_label = tf.squeeze(pred_label)  # (Nprior)
     return matches, pred_label  # decoded_gt, decoded_pred, ignore
