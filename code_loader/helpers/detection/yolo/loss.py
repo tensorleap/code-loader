@@ -105,8 +105,12 @@ class YoloLoss:
                         else:
                             sig_pos_conf = conf_data_layer[j]
 
-                        onehot_labels = tf.one_hot(conf_t_tensor[j], self.num_classes)
-                        single_loss_cls = tf.reduce_mean(self.ce(onehot_labels, sig_pos_conf), axis=-1) * self.cls_w
+                        one_hot_preds = tf.one_hot(tf.boolean_mask(conf_t_tensor[j], pos[j]), self.num_classes)
+                        matched_prediction = tf.boolean_mask(sig_pos_conf, pos[j, ...], axis=0)
+                        matched_prediction = tf.clip_by_value(matched_prediction, 1e-7, 1 - 1e-7)
+                        single_loss_cls = tf.reduce_mean(-(
+                                one_hot_preds * tf.math.log(matched_prediction) + (1 - one_hot_preds) * tf.math.log(
+                            1 - matched_prediction))) * self.cls_w
                     else:
                         single_loss_cls = tf.constant(0, dtype=tf.float32)
                 else:  # No GT
