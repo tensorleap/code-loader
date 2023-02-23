@@ -1,5 +1,5 @@
-from typing import Tuple, List
-
+from typing import Tuple, List, Union
+import collections.abc
 import numpy as np
 import tensorflow as tf  # type: ignore
 from numpy.typing import NDArray
@@ -52,15 +52,19 @@ def encode_bboxes(matched: tf.Tensor, priors: tf.Tensor, variances: Tuple[int, i
     return tf.concat([g_cxcy, g_wh], 1)
 
 
-def scale_loc_prediction(loc_pred: List[tf.Tensor], decoded: bool = False, image_size: float = 640.,
+def scale_loc_prediction(loc_pred: List[tf.Tensor], decoded: bool = False, image_size: Union[float, Tuple[float, float]] = 640.,
                          strides: Tuple[int, int, int] = (8, 16, 32)) -> \
         List[tf.Tensor]:
     new_loc_pred = [None] * len(loc_pred)
+    if not isinstance(image_size, collections.abc.Sequence):
+        scale_arr: NDArray[np.float32] = np.array([image_size, image_size, image_size, image_size])
+    else:
+        scale_arr = np.array([*image_size[::-1], *image_size[::-1]])         # type: ignore
     if decoded:
-        new_loc_pred = [loc / image_size for loc in loc_pred]
+        new_loc_pred = [loc / scale_arr for loc in loc_pred]
     else:
         for i in range(len(loc_pred)):
-            new_loc_pred[i] = tf.concat([(strides[i] * (2 * tf.sigmoid(loc_pred[i][..., :2]) - 0.5)) / image_size,
+            new_loc_pred[i] = tf.concat([(strides[i] * (2 * tf.sigmoid(loc_pred[i][..., :2]) - 0.5)) / scale_arr[:2],
                                          2 * tf.sigmoid(loc_pred[i][..., 2:])], axis=-1)
     return new_loc_pred
 
