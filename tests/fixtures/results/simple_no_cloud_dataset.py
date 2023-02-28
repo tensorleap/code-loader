@@ -39,7 +39,7 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
             MetricInstance(name='MeanIOU', arg_names=['ground_truth', 'prediction'])
         ],
         prediction_types=[],
-        custom_loss_names=[]
+        custom_losses=[]
     )
 
     expected_payloads = [

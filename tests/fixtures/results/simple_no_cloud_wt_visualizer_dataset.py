@@ -40,7 +40,7 @@ expected_setup = DatasetSetup(
     ],
     prediction_types=[
         PredictionTypeInstance('pred_type1', ['yes', 'no'])],
-    custom_loss_names=[]
+    custom_losses=[]
 )
 
 
