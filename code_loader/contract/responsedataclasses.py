@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict
 
 from dataclasses import dataclass, field
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType, MetricEnum
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 
 
 @dataclass
@@ -62,8 +62,6 @@ class CustomLayerInstance:
 class PredictionTypeInstance:
     name: str
     labels: List[str]
-    metrics: Optional[List[MetricEnum]] = None
-    custom_metrics: Optional[List[str]] = None
 
 
 @dataclass

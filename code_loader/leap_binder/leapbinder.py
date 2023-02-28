@@ -95,7 +95,10 @@ class LeapBinder:
     def add_prediction(self, name: str, labels: List[str], metrics: Optional[List[MetricEnum]] = None,
                        custom_metrics: Optional[
                            List[Union[CustomCallableInterface, ConfusionMatrixCallableInterface]]] = None) -> None:
-        self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels, metrics, custom_metrics))
+        if metrics or custom_metrics:
+            raise DeprecationWarning("Adding metrics on 'leap_binder.add_prediction' method is deprecated."
+                                     "Please update the leap script and use metric block instead.")
+        self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels))
 
     @typechecked
     def set_ground_truth(self, function: SectionCallableInterface, name: str) -> None:
