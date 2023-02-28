@@ -149,3 +149,4 @@ metrics_names_to_functions = {
     Metric.ConfusionMatrixClassification.name: confusion_matrix_classification_metric,
     Metric.MeanIOU.name: batch_mean_iou
 }
+

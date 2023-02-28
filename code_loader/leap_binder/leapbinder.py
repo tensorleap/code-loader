@@ -81,7 +81,8 @@ class LeapBinder:
 
     @typechecked
     def add_custom_loss(self, function: CustomCallableInterface, name: str) -> None:
-        self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function))
+        arg_names = inspect.getfullargspec(function)[0]
+        self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function, arg_names))
 
     @typechecked
     def add_custom_metric(self,

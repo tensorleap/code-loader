@@ -52,7 +52,7 @@ VisualizerCallableInterface = Union[
 VisualizerCallableReturnType = Union[LeapImage, LeapText, LeapGraph, LeapHorizontalBar,
                                      LeapImageMask, LeapTextMask, LeapImageWithBBox]
 
-CustomCallableInterface = Callable[[tf.Tensor, tf.Tensor], tf.Tensor]
+CustomCallableInterface = Callable[..., tf.Tensor]
 
 
 @dataclass
@@ -74,6 +74,7 @@ MetricCallableReturnType = Union[tf.Tensor, List[List[ConfusionMatrixElement]]]
 class CustomLossHandler:
     name: str
     function: CustomCallableInterface
+    arg_names: List[str]
 
 
 @dataclass
