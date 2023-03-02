@@ -20,19 +20,21 @@ class YoloLoss:
     def __init__(self, num_classes: int, default_boxes: List[NDArray[np.int32]],
                  overlap_thresh: float, background_label: int,
                  from_logits: bool = True, weights: List[float] = [4.0, 1.0, 0.4],
-                 max_match_per_gt: int = 10):
+                 max_match_per_gt: int = 10, image_size: int = 640,
+                 cls_w: float = 0.3, obj_w: float = 0.7, box_w: float = 0.05):
         self.background_label = background_label
         self.default_boxes = [tf.convert_to_tensor(box_arr) for box_arr in default_boxes]
         self.num_classes = num_classes
         self.threshold = overlap_thresh
         self.variance = (1, 1)
-        self.ce = tf.keras.losses.CategoricalCrossentropy(from_logits=False, reduction='none')
         self.from_logits = from_logits
-        # self.bce = tf.keras.losses.BinaryCrossentropy()
         self.weights = weights  # Following yolov7 weights
-        self.obj_w = 0.7
-        self.cls_w = 0.00375
-        self.box_w = 0.05
+        scale_factor = 3. / len(weights)
+        class_factor = self.num_classes / 80
+        image_factor = image_size / 640.
+        self.obj_w = obj_w * scale_factor
+        self.cls_w = cls_w * class_factor * scale_factor
+        self.box_w = box_w * image_factor ** 2 * scale_factor
         self.max_match_per_gt = max_match_per_gt
 
     def __call__(self, y_true: tf.Tensor, y_pred: Tuple[List[tf.Tensor], List[tf.Tensor]]) -> \
