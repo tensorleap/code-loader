@@ -1,5 +1,4 @@
 from typing import Tuple, List, Union
-import collections.abc
 import numpy as np
 import tensorflow as tf  # type: ignore
 from numpy.typing import NDArray
@@ -56,10 +55,10 @@ def scale_loc_prediction(loc_pred: List[tf.Tensor], decoded: bool = False, image
                          strides: Tuple[int, int, int] = (8, 16, 32)) -> \
         List[tf.Tensor]:
     new_loc_pred = [None] * len(loc_pred)
-    if not isinstance(image_size, collections.abc.Sequence):
-        scale_arr: NDArray[np.float32] = np.array([image_size, image_size, image_size, image_size])
+    if isinstance(image_size, int) or isinstance(image_size, float):
+        scale_arr: NDArray[np.float32] = np.array([image_size, image_size, image_size, image_size], dtype=np.float32)
     else:
-        scale_arr = np.array([*image_size[::-1], *image_size[::-1]])         # type: ignore
+        scale_arr = np.array([*image_size[::-1], *image_size[::-1]], dtype=np.float32)
     if decoded:
         new_loc_pred = [loc / scale_arr for loc in loc_pred]
     else:
