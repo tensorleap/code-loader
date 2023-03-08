@@ -6,7 +6,7 @@ import numpy.typing as npt
 import tensorflow as tf  # type: ignore
 
 from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
-    DataStateEnum, LeapDataType, MetricEnum, ConfusionMatrixValue
+    DataStateEnum, LeapDataType, ConfusionMatrixValue
 from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask, LeapImageWithBBox
 
@@ -52,7 +52,7 @@ VisualizerCallableInterface = Union[
 VisualizerCallableReturnType = Union[LeapImage, LeapText, LeapGraph, LeapHorizontalBar,
                                      LeapImageMask, LeapTextMask, LeapImageWithBBox]
 
-CustomCallableInterface = Callable[[tf.Tensor, tf.Tensor], tf.Tensor]
+CustomCallableInterface = Callable[..., tf.Tensor]
 
 
 @dataclass
@@ -74,6 +74,7 @@ MetricCallableReturnType = Union[tf.Tensor, List[List[ConfusionMatrixElement]]]
 class CustomLossHandler:
     name: str
     function: CustomCallableInterface
+    arg_names: List[str]
 
 
 @dataclass
@@ -119,8 +120,6 @@ class MetadataHandler:
 class PredictionTypeHandler:
     name: str
     labels: List[str]
-    metrics: Optional[List[MetricEnum]] = None
-    custom_metrics: Optional[List[Union[CustomCallableInterface, ConfusionMatrixCallableInterface]]] = None
 
 
 @dataclass

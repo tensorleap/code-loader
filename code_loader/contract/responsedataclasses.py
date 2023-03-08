@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict
 
 from dataclasses import dataclass, field
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType, MetricEnum
+from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 
 
 @dataclass
@@ -46,6 +46,12 @@ class MetricInstance:
 
 
 @dataclass
+class CustomLossInstance:
+    name: str
+    arg_names: List[str]
+
+
+@dataclass
 class CustomLayerInstance:
     name: str
     init_arg_names: List[str]
@@ -56,8 +62,6 @@ class CustomLayerInstance:
 class PredictionTypeInstance:
     name: str
     labels: List[str]
-    metrics: Optional[List[MetricEnum]] = None
-    custom_metrics: Optional[List[str]] = None
 
 
 @dataclass
@@ -68,7 +72,7 @@ class DatasetSetup:
     outputs: List[DatasetOutputInstance]
     visualizers: List[VisualizerInstance]
     prediction_types: List[PredictionTypeInstance]
-    custom_loss_names: List[str]
+    custom_losses: List[CustomLossInstance]
     metrics: List[MetricInstance] = field(default_factory=list)
 
 

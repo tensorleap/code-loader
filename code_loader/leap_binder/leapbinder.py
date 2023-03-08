@@ -81,7 +81,8 @@ class LeapBinder:
 
     @typechecked
     def add_custom_loss(self, function: CustomCallableInterface, name: str) -> None:
-        self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function))
+        arg_names = inspect.getfullargspec(function)[0]
+        self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function, arg_names))
 
     @typechecked
     def add_custom_metric(self,
@@ -94,7 +95,10 @@ class LeapBinder:
     def add_prediction(self, name: str, labels: List[str], metrics: Optional[List[MetricEnum]] = None,
                        custom_metrics: Optional[
                            List[Union[CustomCallableInterface, ConfusionMatrixCallableInterface]]] = None) -> None:
-        self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels, metrics, custom_metrics))
+        if metrics or custom_metrics:
+            raise DeprecationWarning("Adding metrics on 'leap_binder.add_prediction' method is deprecated."
+                                     "Please update the leap script and use metric block instead.")
+        self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels))
 
     @typechecked
     def set_ground_truth(self, function: SectionCallableInterface, name: str) -> None:
