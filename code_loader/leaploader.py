@@ -1,5 +1,8 @@
+import importlib.util
 from functools import lru_cache
+from pathlib import Path
 from typing import Dict, List, Iterable, Any, Union
+import sys
 
 import numpy as np
 import numpy.typing as npt
@@ -18,16 +21,48 @@ from code_loader.utils import get_root_exception_line_number, get_shape
 
 
 class LeapLoader:
-    def __init__(self, dataset_script: str):
+    def __init__(self, dataset_script: str, code_path: str = '', code_entry_name: str = ''):
         self.dataset_script: str = dataset_script
+        self.code_entry_name = code_entry_name
+        self.code_path = code_path
 
     @lru_cache()
     def exec_script(self) -> None:
         try:
-            global_variables: Dict[Any, Any] = {}
-            exec(self.dataset_script, global_variables)
+            # TODO: make these fields mandatory and delete load_script method
+            if self.code_path and self.code_entry_name:
+                self.evaluate_module()
+            else:
+                self.load_script()
+
         except Exception as e:
             raise DatasetScriptException(getattr(e, 'message', repr(e))) from e
+
+    def load_script(self) -> None:
+        global_variables: Dict[Any, Any] = {}
+        exec(self.dataset_script, global_variables)
+
+    def evaluate_module(self) -> None:
+        def append_path_recursively(full_path: str) -> None:
+            if '/' not in full_path or full_path == '/':
+                return
+
+            parent_path = str(Path(full_path).parent)
+            append_path_recursively(parent_path)
+            sys.path.append(parent_path)
+
+        append_path_recursively(self.code_path)
+
+        file_path = Path(self.code_path, self.code_entry_name)
+        spec = importlib.util.spec_from_file_location(self.code_path, file_path)
+        if spec is None or spec.loader is None:
+            raise DatasetScriptException(f'Something is went wrong with spec file from: {file_path}')
+
+        file = importlib.util.module_from_spec(spec)
+        if file is None:
+            raise DatasetScriptException(f'Something is went wrong with import module from: {file_path}')
+
+        spec.loader.exec_module(file)
 
     @lru_cache()
     def metric_by_name(self) -> Dict[str, MetricHandler]:
