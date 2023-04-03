@@ -53,6 +53,7 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
         DatasetTestResultPayload(name='y', display={}, is_passed=True, shape=[1])]
 
     expected_result = DatasetIntegParseResult(expected_payloads, is_valid=True, setup=expected_setup,
-                                              general_error=None, is_valid_for_model=False)
+                                              general_error=None, is_valid_for_model=False,
+                                              print_log="test\n")
 
     return expected_result

@@ -6,6 +6,7 @@ from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
 from code_loader.contract.enums import DatasetMetadataType
 
+print("test")
 
 def get_length(data):
     if data is None:
