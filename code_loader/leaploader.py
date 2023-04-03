@@ -23,26 +23,16 @@ from code_loader.utils import get_root_exception_line_number, get_shape
 
 
 class LeapLoader:
-    def __init__(self, dataset_script: str, code_path: str = '', code_entry_name: str = ''):
-        self.dataset_script: str = dataset_script
+    def __init__(self, code_path: str, code_entry_name: str):
         self.code_entry_name = code_entry_name
         self.code_path = code_path
 
     @lru_cache()
     def exec_script(self) -> None:
         try:
-            # TODO: make these fields mandatory and delete load_script method
-            if self.code_path and self.code_entry_name:
-                self.evaluate_module()
-            else:
-                self.load_script()
-
+            self.evaluate_module()
         except Exception as e:
             raise DatasetScriptException(getattr(e, 'message', repr(e))) from e
-
-    def load_script(self) -> None:
-        global_variables: Dict[Any, Any] = {}
-        exec(self.dataset_script, global_variables)
 
     def evaluate_module(self) -> None:
         def append_path_recursively(full_path: str) -> None:
