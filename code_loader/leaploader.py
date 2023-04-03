@@ -1,8 +1,10 @@
 import importlib.util
+import io
+import sys
+from contextlib import redirect_stdout
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Iterable, Any, Union
-import sys
+from typing import Dict, List, Iterable, Any, Union, Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -118,29 +120,33 @@ class LeapLoader:
         test_payloads: List[DatasetTestResultPayload] = []
         setup_response = None
         general_error = None
-        try:
-            self.exec_script()
-            preprocess_test_payload = self._check_preprocess()
-            test_payloads.append(preprocess_test_payload)
-            handlers_test_payloads = self._check_handlers()
-            test_payloads.extend(handlers_test_payloads)
-            is_valid = all([payload.is_passed for payload in test_payloads])
-            setup_response = self.get_dataset_setup_response()
-        except DatasetScriptException as e:
-            line_number = get_root_exception_line_number()
-            general_error = f"Something went wrong, {repr(e.__cause__)} line number: {line_number}"
-            is_valid = False
-        except Exception as e:
-            line_number = get_root_exception_line_number()
-            general_error = f"Something went wrong, {repr(e)} line number: {line_number}"
-            is_valid = False
+        stdout_steam = io.StringIO()
+        with redirect_stdout(stdout_steam):
+            try:
+                self.exec_script()
+                preprocess_test_payload = self._check_preprocess()
+                test_payloads.append(preprocess_test_payload)
+                handlers_test_payloads = self._check_handlers()
+                test_payloads.extend(handlers_test_payloads)
+                is_valid = all([payload.is_passed for payload in test_payloads])
+                setup_response = self.get_dataset_setup_response()
+            except DatasetScriptException as e:
+                line_number = get_root_exception_line_number()
+                general_error = f"Something went wrong, {repr(e.__cause__)} line number: {line_number}"
+                is_valid = False
+            except Exception as e:
+                line_number = get_root_exception_line_number()
+                general_error = f"Something went wrong, {repr(e)} line number: {line_number}"
+                is_valid = False
 
+        print_log = stdout_steam.getvalue()
         is_valid_for_model = bool(global_leap_binder.setup_container.custom_layers)
         model_setup = self.get_model_setup_response()
 
         return DatasetIntegParseResult(is_valid=is_valid, payloads=test_payloads,
                                        is_valid_for_model=is_valid_for_model, setup=setup_response,
-                                       model_setup=model_setup, general_error=general_error)
+                                       model_setup=model_setup, general_error=general_error,
+                                       print_log=print_log)
 
     @staticmethod
     def _check_preprocess() -> DatasetTestResultPayload:
