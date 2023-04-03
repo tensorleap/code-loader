@@ -109,3 +109,4 @@ class DatasetIntegParseResult:
     setup: Optional[DatasetSetup] = None
     model_setup: Optional[ModelSetup] = None
     general_error: Optional[str] = None
+    print_log: Optional[str] = None
