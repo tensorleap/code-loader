@@ -4,7 +4,7 @@ import sys
 from contextlib import redirect_stdout
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Iterable, Any, Union, Optional
+from typing import Dict, List, Iterable, Any, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -148,23 +148,21 @@ class LeapLoader:
                                        model_setup=model_setup, general_error=general_error,
                                        print_log=print_log)
 
-    @staticmethod
-    def _check_preprocess() -> DatasetTestResultPayload:
+    def _check_preprocess(self) -> DatasetTestResultPayload:
         preprocess_handler = global_leap_binder.setup_container.preprocess
+        unlabeled_preprocess_handler = global_leap_binder.setup_container.unlabeled_data_preprocess
         test_result = DatasetTestResultPayload('preprocess')
         try:
             if preprocess_handler is None:
                 raise Exception('None preprocess_handler')
-            preprocess_result_list = preprocess_handler.function()
-            for state, preprocess_result in zip(list(DataStateType), preprocess_result_list):
-                state_name = state.name
-                preprocess_handler.data_length[state] = preprocess_result.length
+            preprocess_result = self._preprocess_result()
+            for state, preprocess_response in preprocess_result.items():
+                if unlabeled_preprocess_handler is not None and state == DataStateEnum.unlabeled:
+                    unlabeled_preprocess_handler.data_length = preprocess_response.length
+                else:
+                    state_type = DataStateType(state.name)
+                    preprocess_handler.data_length[state_type] = preprocess_response.length
 
-            unlabeled_preprocess_handler = global_leap_binder.setup_container.unlabeled_data_preprocess
-            if unlabeled_preprocess_handler is not None:
-                unlabeled_preprocess_result = unlabeled_preprocess_handler.function()
-                unlabeled_preprocess_handler.data_length = unlabeled_preprocess_result.length
-                test_result.display[DataStateType.unlabeled.name] = ''
         except Exception as e:
             line_number = get_root_exception_line_number()
             error_string = f"{repr(e)} line number: {line_number}"
