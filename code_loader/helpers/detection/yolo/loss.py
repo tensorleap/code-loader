@@ -165,13 +165,13 @@ class YoloLoss:
                                 gj: List[torch.Tensor], gi: List[torch.Tensor],
                                 target: List[torch.Tensor]) -> Tuple[tf.Tensor, tf.Tensor]:
         # temp
+        assert self.anchors is not None
         gt_class = tf.ones((batch_size,
-                            len(self.feature_maps), *self.feature_maps[i]), dtype=tf.int32) * self.background_label
+                            self.anchors.shape[1], *self.feature_maps[i]), dtype=tf.int32) * self.background_label
         if len(b[i]) > 0:
             gt_class = tf.tensor_scatter_nd_update(gt_class, torch.stack([b[i], a[i], gj[i], gi[i]]).T.numpy(),
                                                    target[i][:, 1])
         conf_t_tensor = tf.reshape(gt_class, [gt_class.shape[0], -1])
-        assert self.anchors is not None
         gt_loc = tf.zeros((batch_size, len(self.anchors[i]), *self.feature_maps[i], 4), dtype=tf.float32)
         if len(b[i]) > 0:
             gt_loc = tf.tensor_scatter_nd_update(gt_loc, torch.stack([b[i], a[i], gj[i], gi[i]]).T.numpy(),
@@ -181,6 +181,7 @@ class YoloLoss:
 
     def get_yolo_match(self, batch_size: int, y_true: tf.Tensor, loc_data: List[tf.Tensor], conf_data: List[tf.Tensor]) \
             -> Tuple[List[torch.Tensor], ...]:
+        assert self.anchors is not None
         yolo_targets: List[NDArray[np.float32]] = []
         scales_num = len(loc_data)
         for i in range(batch_size):
@@ -189,7 +190,7 @@ class YoloLoss:
         yolo_targets_cat: NDArray[np.float32] = np.concatenate(yolo_targets, axis=0)
         orig_pred = [torch.from_numpy(tf.concat([loc_data[i], conf_data[i]], axis=-1).numpy()) for i in
                      range(scales_num)]
-        fin_pred = [pred.reshape([pred.shape[0], scales_num, *self.feature_maps[i], -1]) for i, pred in
+        fin_pred = [pred.reshape([pred.shape[0], self.anchors.shape[1], *self.feature_maps[i], -1]) for i, pred in
                     enumerate(orig_pred)]
         yolo_anchors = np.array(self.anchors) * np.swapaxes(np.array([*self.feature_maps])[..., None], 1, 2) / 640
         b, a, gj, gi, target, anch = build_targets(fin_pred, torch.from_numpy(yolo_targets_cat.astype(np.float32)),

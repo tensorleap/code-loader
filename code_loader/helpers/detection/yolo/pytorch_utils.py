@@ -12,7 +12,7 @@ def find_3_positive(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch
     # p.shape = [B,3, GX, GW, 5+CLASSES]
     # targers.shape = [B,6=[image, class, x, y, w, h,]]
     # targets=torch.from_numpy(truths.numpy())
-    na, nt = anchors.shape[0], targets.shape[0]  # number of anchors, targets
+    na, nt = anchors.shape[1], targets.shape[0]  # number of anchors, targets
     indices, anch = [], []
     gain = torch.ones(7, device=targets.device).long()  # normalized to gridspace gain
     ai = torch.arange(na, device=targets.device).float().view(na, 1).repeat(1, nt)  # same as .repeat_interleave(nt)
