@@ -43,9 +43,9 @@ class LeapLoader:
             append_path_recursively(parent_path)
             sys.path.append(parent_path)
 
-        append_path_recursively(self.code_path)
-
         file_path = Path(self.code_path, self.code_entry_name)
+        append_path_recursively(str(file_path))
+
         spec = importlib.util.spec_from_file_location(self.code_path, file_path)
         if spec is None or spec.loader is None:
             raise DatasetScriptException(f'Something is went wrong with spec file from: {file_path}')
