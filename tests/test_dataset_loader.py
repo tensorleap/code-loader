@@ -1,7 +1,9 @@
+from code_loader.contract.enums import DataStateEnum
 from tests.assertions.dataset_loader import assert_leap_binder_is_valid, \
     assert_encoder_is_valid, assert_sample_is_valid, assert_word_to_index_in_cache_container, assert_input_has_value
 from tests.fixtures.dataset_integ_scripts.scripts_metadata import word_idx_dataset_params
-from tests.fixtures.dataset_loaders import no_cloud_dataset_loader, word_idx_dataset_loader
+from tests.fixtures.dataset_loaders import no_cloud_dataset_loader, word_idx_dataset_loader, \
+    no_cloud_dataset_loader_parallelized
 from tests.fixtures.utils import refresh_setup_container
 from tests.fixtures.utils import use_fixture, simple_sample_params
 
@@ -64,6 +66,20 @@ def test_get_sample_dataset_loader_no_cloud(no_cloud_dataset_loader, refresh_set
 
     # assert
     assert_leap_binder_is_valid()
+    assert_sample_is_valid(sample)
+
+
+@use_fixture(no_cloud_dataset_loader_parallelized)
+@use_fixture(refresh_setup_container)
+@use_fixture(simple_sample_params)
+def test_get_sample_dataset_loader_no_cloud_parallelized(
+        no_cloud_dataset_loader_parallelized, refresh_setup_container, simple_sample_params):
+    samples_queue = no_cloud_dataset_loader_parallelized.generate_samples(
+        [(DataStateEnum.training, 0), (DataStateEnum.training, 1)])
+    sample = samples_queue.get()
+    # act
+    no_cloud_dataset_loader_parallelized.release()
+    # assert
     assert_sample_is_valid(sample)
 
 
