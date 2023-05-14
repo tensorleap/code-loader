@@ -1,5 +1,5 @@
 # mypy: ignore-errors
-
+import multiprocessing
 import traceback
 from dataclasses import dataclass
 from functools import lru_cache
@@ -7,7 +7,7 @@ from queue import Empty
 from threading import Thread
 from typing import List, Tuple, Optional
 from multiprocessing import Process, Queue
-
+import psutil
 from code_loader.leaploader import LeapLoader
 from code_loader.contract.enums import DataStateEnum
 
@@ -22,11 +22,11 @@ class SampleSerializableError:
 
 class SamplesGeneratorParallelized:
     def __init__(self, code_path: str, code_entry_name: str,
-                 n_workers: int = 2, max_samples_in_queue: int = 128) -> None:
+                 n_workers: Optional[int] = 2, max_samples_in_queue: int = 128) -> None:
         self.code_entry_name = code_entry_name
         self.code_path = code_path
 
-        if n_workers <= 0:
+        if n_workers is not None and n_workers <= 0:
             raise Exception("need at least one worker")
         self.n_workers = n_workers
         self.max_samples_in_queue = max_samples_in_queue
@@ -38,23 +38,44 @@ class SamplesGeneratorParallelized:
         self._generate_samples_thread: Optional[Thread] = None
         self._should_stop_thread = False
 
+    def _calculate_n_workers_by_hardware(self) -> int:
+        p = psutil.Process(self.processes[0].pid)
+        memory_usage_in_bytes = p.memory_info().rss
+        total_memory_in_bytes = psutil.virtual_memory().total
+
+        n_workers = min(int(multiprocessing.cpu_count()),
+                        int(total_memory_in_bytes * 0.7 / memory_usage_in_bytes))
+        n_workers = max(n_workers, 1)
+        return n_workers
+
+    def _create_and_start_process(self) -> Process:
+        process = Process(
+            target=SamplesGeneratorParallelized._process_func,
+            args=(self.code_path, self.code_entry_name, self._samples_to_process, self._ready_samples))
+        process.daemon = True
+        process.start()
+        return process
+
+    def _run_and_warm_first_process(self):
+        process = self._create_and_start_process()
+        self.processes = [process]
+
+        # needed in order to make sure the preprocess func runs once in nonparallel
+        self._generate_samples([(DataStateEnum.training, 0)])
+        self._get_next_sample()
+
     @lru_cache()
     def start(self) -> None:
         self._samples_to_process = Queue(5000)
         self._ready_samples = Queue(self.max_samples_in_queue)
 
-        self.processes = [
-            Process(target=SamplesGeneratorParallelized._process_func,
-                    args=(self.code_path, self.code_entry_name, self._samples_to_process, self._ready_samples))
-            for _ in range(self.n_workers)]
+        self._run_and_warm_first_process()
+        n_workers = self.n_workers
+        if self.n_workers is None:
+            n_workers = self._calculate_n_workers_by_hardware()
 
-        for proc in self.processes:
-            proc.daemon = True
-            proc.start()
-
-        # needed in order to make sure the preprocess func runs once in nonparallel
-        self._generate_samples([(DataStateEnum.training, 0)])
-        self._get_next_sample()
+        for _ in range(n_workers - 1):
+            self.processes.append(self._create_and_start_process())
 
     @staticmethod
     def _process_func(code_path: str, code_entry_name: str,
