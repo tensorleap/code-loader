@@ -36,4 +36,4 @@ def word_idx_dataset_loader() -> LeapLoader:
 @pytest.fixture
 def no_cloud_dataset_loader_parallelized() -> SamplesGeneratorParallelized:
     file_name = "simple_no_cloud_dataset_wt_word_idx.py"
-    return SamplesGeneratorParallelized(dataset_integ_scripts_path, file_name)
+    return SamplesGeneratorParallelized(dataset_integ_scripts_path, file_name, None)
