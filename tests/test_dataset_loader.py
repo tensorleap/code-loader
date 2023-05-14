@@ -74,9 +74,9 @@ def test_get_sample_dataset_loader_no_cloud(no_cloud_dataset_loader, refresh_set
 @use_fixture(simple_sample_params)
 def test_get_sample_dataset_loader_no_cloud_parallelized(
         no_cloud_dataset_loader_parallelized, refresh_setup_container, simple_sample_params):
-    samples_queue = no_cloud_dataset_loader_parallelized.generate_samples(
+    samples_callback = no_cloud_dataset_loader_parallelized.generate_samples(
         [(DataStateEnum.training, 0), (DataStateEnum.training, 1)])
-    sample = samples_queue.get()
+    sample = samples_callback()
     # act
     no_cloud_dataset_loader_parallelized.release()
     # assert

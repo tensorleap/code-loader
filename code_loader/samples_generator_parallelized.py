@@ -13,7 +13,7 @@ from code_loader.contract.enums import DataStateEnum
 
 
 @dataclass
-class GetSampleSerializableError:
+class SampleSerializableError:
     state: DataStateEnum
     index: int
     leap_script_trace: str
@@ -67,7 +67,7 @@ class SamplesGeneratorParallelized:
                 sample = leap_loader.get_sample(state, idx)
             except Exception as e:
                 leap_script_trace = traceback.format_exc().split('File "<string>"')[-1]
-                ready_samples.put(GetSampleSerializableError(state, idx, leap_script_trace, str(e)))
+                ready_samples.put(SampleSerializableError(state, idx, leap_script_trace, str(e)))
                 continue
 
             ready_samples.put(sample)
