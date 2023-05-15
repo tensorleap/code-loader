@@ -81,7 +81,6 @@ class SamplesGeneratorParallelized:
     def _process_func(code_path: str, code_entry_name: str,
                       samples_to_process: Queue, ready_samples: Queue) -> None:
         leap_loader = LeapLoader(code_path, code_entry_name)
-        leap_loader.exec_script()
         while True:
             state, idx = samples_to_process.get(block=True)
             try:
