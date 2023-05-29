@@ -7,14 +7,15 @@ from typing import List, Tuple
 
 
 def find_3_positive(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.Tensor) ->\
-        Tuple[List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]], List[torch.Tensor]]:
+        Tuple[List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]], List[torch.Tensor]]:
     # Build targets for compute_loss(), input targets(x,y,w,h)
     # p.shape = [B,3, GX, GW, 5+CLASSES]
     # targers.shape = [B,6=[image, class, x, y, w, h,]]
     # targets=torch.from_numpy(truths.numpy())
+    targets = torch.concat([torch.Tensor(np.arange(targets.shape[0]))[:, None], targets], axis=1)
     na, nt = anchors.shape[1], targets.shape[0]  # number of anchors, targets
     indices, anch = [], []
-    gain = torch.ones(7, device=targets.device).long()  # normalized to gridspace gain
+    gain = torch.ones(8, device=targets.device).long()  # normalized to gridspace gain
     ai = torch.arange(na, device=targets.device).float().view(na, 1).repeat(1, nt)  # same as .repeat_interleave(nt)
     targets = torch.cat((targets.repeat(na, 1, 1), ai[:, :, None]), 2)  # append anchor indices
 
@@ -24,21 +25,21 @@ def find_3_positive(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch
                         # [1, 1], [1, -1], [-1, 1], [-1, -1],  # jk,jm,lk,lm
                         ], device=targets.device).float() * g  # offsets
     for i in range(len(p)):
-        gain[2:6] = torch.tensor(p[i].shape)[[3, 2, 3, 2]]  # xyxy gain
+        gain[3:7] = torch.tensor(p[i].shape)[[3, 2, 3, 2]]  # xyxy gain
         layer_anchors = anchors[i]
 
         # Match targets to anchors
         t = targets * gain
         if nt:
             # Matches
-            r = t[:, :, 2:4] / layer_anchors[:, None]  # wh ratio
+            r = t[:, :, 3:5] / layer_anchors[:, None]  # wh ratio
             j = torch.max(r, 1. / r).max(2)[0] < 4  # compare
             # j = wh_iou(anchors, t[:, 4:6]) > model.hyp['iou_t']  # iou(3,n)=wh_iou(anchors(3,2), gwh(n,2))
             t = t[j]  # filter only relevant anchors
 
             # Offsets
-            gxy = t[:, 2:4]  # grid xy
-            gxi = gain[[2, 3]] - gxy  # inverse offset in the feature space
+            gxy = t[:, 3:5]  # grid xy
+            gxi = gain[[3, 4]] - gxy  # inverse offset in the feature space
             j, k = ((gxy % 1. < g) & (gxy > 1.)).T  # x closer to left, y closest to up
             l, m = ((gxi % 1. < g) & (gxi > 1.)).T  # x closer to right, y closet to down
             j = torch.stack((torch.ones_like(j), j, k, l, m))  # [True, x-left, y-up, x-right, y-down]
@@ -49,16 +50,17 @@ def find_3_positive(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch
             offsets = 0
 
             # Define
-        b, c = t[:, :2].long().T  # image, class
-        gxy = t[:, 2:4]  # grid xy
-        gwh = t[:, 4:6]  # grid wh
+        b, c = t[:, 1:3].long().T  # image, class
+        gxy = t[:, 3:5]  # grid xy
+        gwh = t[:, 5:7]  # grid wh
         gij = (gxy - offsets).long()
         gi, gj = gij.T  # grid xy indices
+        bb_index = t[:, 0]
 
         # Append
-        a = t[:, 6].long()  # anchor indices
+        a = t[:, 7].long()  # anchor indices
         indices.append(
-            (b, a, gj.clamp_(0, gain[3] - 1), gi.clamp_(0, gain[2] - 1)))  # image, anchor, grid indices [y,x]]
+            (bb_index, b, a, gj.clamp_(0, gain[4] - 1), gi.clamp_(0, gain[3] - 1)))  # image, anchor, grid indices [y,x]]
         anch.append(layer_anchors[a])  # anchors
 
     return indices, anch
@@ -106,6 +108,7 @@ def build_targets(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.T
     matching_as: List[torch.Tensor] = [[] for pp in p]
     matching_gjs: List[torch.Tensor] = [[] for pp in p]
     matching_gis: List[torch.Tensor] = [[] for pp in p]
+    matching_bb_index: List[torch.Tensor] = [[] for pp in p]
     matching_targets: List[torch.Tensor] = [[] for pp in p]
     matching_anchs: List[torch.Tensor] = [[] for pp in p]
 
@@ -130,16 +133,18 @@ def build_targets(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.T
         all_gj = []
         all_gi = []
         all_anch = []
+        all_bb_idx = []
 
         for i, pi in enumerate(p):
-            b, a, gj, gi = indices[i]
+            bb_idx, b, a, gj, gi = indices[i]
             idx = (b == batch_idx)
-            b, a, gj, gi = b[idx], a[idx], gj[idx], gi[idx]
+            bb_idx, b, a, gj, gi = bb_idx[idx], b[idx], a[idx], gj[idx], gi[idx]
             all_b.append(b)
             all_a.append(a)
             all_gj.append(gj)
             all_gi.append(gi)
             all_anch.append(anch[i][idx])
+            all_bb_idx.append(bb_idx)
             from_which_layer.append(torch.ones(size=(len(b),)) * i)
 
             fg_pred = pi[b, a, gj, gi]
@@ -164,6 +169,7 @@ def build_targets(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.T
         all_gj = torch.cat(all_gj, dim=0)
         all_gi = torch.cat(all_gi, dim=0)
         all_anch = torch.cat(all_anch, dim=0)
+        all_bb_idx = torch.cat(all_bb_idx, dim=0)
 
         pair_wise_iou = box_iou(txyxy, pxyxys_cat)  # (BB-matched,4), BB-matches(scale)=#anchors-matches*3
 
@@ -219,6 +225,7 @@ def build_targets(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.T
         all_gj = all_gj[fg_mask_inboxes]
         all_gi = all_gi[fg_mask_inboxes]
         all_anch = all_anch[fg_mask_inboxes]
+        all_bb_idx = all_bb_idx[fg_mask_inboxes]
 
         this_target = this_target[matched_gt_inds]
 
@@ -230,6 +237,7 @@ def build_targets(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.T
             matching_gis[i].append(all_gi[layer_idx])
             matching_targets[i].append(this_target[layer_idx])
             matching_anchs[i].append(all_anch[layer_idx])
+            matching_bb_index[i].append(all_bb_idx[layer_idx])
 
     for i in range(nl):
         if matching_targets[i] != []:
@@ -239,6 +247,8 @@ def build_targets(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.T
             matching_gis[i] = torch.cat(matching_gis[i], dim=0)
             matching_targets[i] = torch.cat(matching_targets[i], dim=0)
             matching_anchs[i] = torch.cat(matching_anchs[i], dim=0)
+            matching_bb_index[i] = torch.cat(matching_bb_index[i], dim=0)
+
         else:
             matching_bs[i] = torch.tensor([], dtype=torch.int64)
             matching_as[i] = torch.tensor([], dtype=torch.int64)
@@ -246,5 +256,6 @@ def build_targets(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.T
             matching_gis[i] = torch.tensor([], dtype=torch.int64)
             matching_targets[i] = torch.tensor([], dtype=torch.int64)
             matching_anchs[i] = torch.tensor([], dtype=torch.int64)
+            matching_bb_index[i] = torch.tensor([], dtype=torch.int64)
 
-    return matching_bs, matching_as, matching_gjs, matching_gis, matching_targets, matching_anchs  # SCALE*[B,anchor-idx, j, i,  GTs, anchors]
+    return matching_bb_index, matching_bs, matching_as, matching_gjs, matching_gis, matching_targets, matching_anchs  # SCALE*[bb_idx, B,anchor-idx, j, i,  GTs, anchors]
