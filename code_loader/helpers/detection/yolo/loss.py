@@ -196,7 +196,7 @@ class YoloLoss:
         fin_pred = [pred.reshape([pred.shape[0], self.anchors.shape[1], *self.feature_maps[i], -1]) for i, pred in
                     enumerate(orig_pred)]
         yolo_anchors = np.array(self.anchors) * np.swapaxes(np.array([*self.feature_maps])[..., None], 1, 2) / 640
-        b, a, gj, gi, target, anch = build_targets(fin_pred, torch.from_numpy(yolo_targets_cat.astype(np.float32)),
+        bb_idx, b, a, gj, gi, target, anch = build_targets(fin_pred, torch.from_numpy(yolo_targets_cat.astype(np.float32)),
                                                    torch.from_numpy(yolo_anchors.astype(np.float32)), self.image_size,
                                                    self.num_classes)
-        return b, a, gj, gi, target, anch
+        return bb_idx, b, a, gj, gi, target, anch
