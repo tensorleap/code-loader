@@ -50,8 +50,10 @@ class YoloLoss:
         self.semantic_instance = semantic_instance
         self.bce = tf.keras.losses.BinaryCrossentropy(from_logits=False, reduction='none')
 
-    def __call__(self, y_true: tf.Tensor, y_pred: Tuple[List[tf.Tensor], List[tf.Tensor]]) -> \
-            Tuple[List[tf.Tensor], List[tf.Tensor], List[tf.Tensor]]:
+    def __call__(self, y_true: tf.Tensor, y_pred: Tuple[List[tf.Tensor], List[tf.Tensor]],
+                 instance_true: Optional[tf.Tensor] = None, instance_seg: Optional[tf.Tensor] = None) -> \
+            Union[Tuple[List[tf.Tensor], List[tf.Tensor], List[tf.Tensor]],
+                  Tuple[List[tf.Tensor], List[tf.Tensor], List[tf.Tensor], List[tf.Tensor]]]:
 
         """
         Computes
@@ -65,18 +67,24 @@ class YoloLoss:
         l_losses = []
         c_losses = []
         o_losses = []
-        b, a, gj, gi, target = None, None, None, None, None
+        m_losses = []
+        bb_idx, b, a, gj, gi, target = None, None, None, None, None, None
         anchor_num = len(self.default_boxes)
+        if self.semantic_instance:
+            conf_no_masks = [conf_data[i][..., :self.num_classes + 1] for i in range(len(conf_data))]
+            masks_maps = [conf_data[i][..., self.num_classes + 1:] for i in range(len(conf_data))]
+        else:
+            conf_no_masks = conf_data
         if self.yolo_match:
-            b, a, gj, gi, target, _ = self.get_yolo_match(batch_size=num,
+            bb_idx, b, a, gj, gi, target, _ = self.get_yolo_match(batch_size=num,
                                                           y_true=y_true,
                                                           loc_data=loc_data,
-                                                          conf_data=conf_data,
+                                                          conf_data=conf_no_masks,
                                                           )
         for i in range(len(self.default_boxes)):
             default_box_layer = self.default_boxes[i]
             loc_data_layer = loc_data[i]
-            conf_data_layer = conf_data[i][..., 1:]  # remove the "object confidence"
+            conf_data_layer = conf_no_masks[i][..., 1:]  # remove the "object confidence"
             priors = default_box_layer[:loc_data_layer.shape[1], :]
             # GT boxes
             loc_t = []
@@ -111,9 +119,13 @@ class YoloLoss:
             loss_b_list = []
             loss_c_list = []
             loss_o_list = []
+            loss_m_list = []
+            if self.yolo_match:
+                assert b is not None and a is not None and gj is not None and gi is not None
+                match_indices = torch.stack([b[i], a[i], gj[i], gi[i]]).T.numpy()
             for j in range(num):
                 loc_p = tf.boolean_mask(tensor=loc_data_layer[j, ...], mask=pos_idx[j, ...])
-                object_p = conf_data[i][j, :, 0]  # object confidence
+                object_p = conf_no_masks[i][j, :, 0]  # object confidence
                 targets_iou = tf.zeros_like(object_p)
                 if self.from_logits:
                     sigmoid_obj = tf.sigmoid(object_p)
@@ -143,9 +155,43 @@ class YoloLoss:
                             1 - matched_prediction))) * self.cls_w
                     else:
                         single_loss_cls = tf.constant(0, dtype=tf.float32)
+                    if self.semantic_instance:
+                        assert self.yolo_match and self.anchors is not None and bb_idx\
+                               is not None and target is not None
+                        dedup_matched: NDArray[np.int64]
+                        dedup_matched, dedup_indice = \
+                            np.unique(match_indices[match_indices[...,0] == j], return_index=True,axis=0)
+                        unsqueezed_shape = (
+                            masks_maps[i].shape[0], self.anchors.shape[1], *self.feature_maps[i],
+                            masks_maps[i].shape[-1])
+                        masks_coeffs = tf.gather_nd(tf.reshape(masks_maps[i], unsqueezed_shape),
+                                                  dedup_matched)
+                        predicted_maps = tf.linalg.matmul(instance_seg, masks_coeffs, transpose_b=True)
+                        permuted_predicted = tf.transpose(predicted_maps[j], [2, 0, 1]) # instance,map
+                        gt_maps = tf.gather_nd(instance_true, np.stack([ np.ones(len(bb_idx[i][dedup_indice]),
+                                                                                 dtype=int)*j,
+                                                                         bb_idx[i][dedup_indice].numpy().astype(int)]).T)
+                        if gt_maps.shape[1] != predicted_maps.shape[1] or gt_maps.shape[2] != predicted_maps.shape[2]:
+                            gt_maps = tf.image.resize(tf.transpose(gt_maps,[1, 2, 0]), (permuted_predicted.shape[1:]),
+                                                      method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+                            print("reshaping gt")
+                            gt_maps = tf.transpose(gt_maps, [2, 0, 1])
+                        gt_maps = gt_maps[None, :]
+                        unmasked_loss = self.bce(gt_maps[0, ...][..., None], tf.sigmoid(permuted_predicted)[..., None])
+                        gt_box_loc = target[i][:, -4:][dedup_indice, :]
+                        mask_area = gt_box_loc[:,2:].prod(1)
+                        gt_box_loc[:, [0, 2]] = gt_box_loc[:, [0, 2]] * gt_maps.shape[3]
+                        gt_box_loc[:, [1, 3]] = gt_box_loc[:, [1, 3]] * gt_maps.shape[2]
+                        xyxy_gt: NDArray[np.float32] = xywh_to_xyxy_format(gt_box_loc)
+                        masked_loss = crop_mask(unmasked_loss, xyxy_gt)
+                        masks_loss_reduced = tf.reduce_mean(tf.reduce_mean(masked_loss, axis=1), axis=1)/mask_area
+                        mask_loss = tf.reduce_mean(masks_loss_reduced)*self.box_w
+                        print(1)
+                        #TODO mask prediction if needed
                 else:  # No GT
                     lbox = tf.zeros(1, dtype=tf.float32)
                     single_loss_cls = tf.constant(0, dtype=tf.float32)
+                    mask_loss = tf.constant(0, dtype=tf.float32)
 
                 sigmoid_obj = tf.clip_by_value(sigmoid_obj, 1e-7, 1 - 1e-7)
 
@@ -155,6 +201,7 @@ class YoloLoss:
                 loss_o_list.append(tf.expand_dims(mean_obj_loss, axis=0))
                 loss_c_list.append(tf.expand_dims(single_loss_cls, axis=0))
                 loss_b_list.append(tf.reshape(lbox, loss_c_list[-1].shape))
+                loss_m_list.append(tf.expand_dims(mask_loss, axis=0))
 
             loss_b_tensor = tf.stack(values=loss_b_list, axis=0)
             loss_o_tensor = tf.stack(values=loss_o_list, axis=0)
@@ -162,7 +209,13 @@ class YoloLoss:
             l_losses.append(loss_b_tensor)
             c_losses.append(loss_c_tensor)
             o_losses.append(loss_o_tensor)
-        return l_losses, c_losses, o_losses
+            if self.semantic_instance:
+                loss_m_tensor = tf.stack(values=loss_m_list, axis=0)
+                m_losses.append(loss_m_tensor)
+        if not self.semantic_instance:
+            return l_losses, c_losses, o_losses
+        else:
+            return l_losses, c_losses, o_losses, m_losses
 
     def get_scale_matched_gt_tf(self, i: int, batch_size: int, b: List[torch.Tensor], a: List[torch.Tensor],
                                 gj: List[torch.Tensor], gi: List[torch.Tensor],
