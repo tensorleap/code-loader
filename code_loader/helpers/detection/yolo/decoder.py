@@ -18,7 +18,7 @@ class Decoder:
     """
 
     def __init__(self, num_classes: int, background_label: int, top_k: int, conf_thresh: float, nms_thresh: float,
-                 max_bb_per_layer: int = 20, max_bb: int = 20):
+                 max_bb_per_layer: int = 20, max_bb: int = 20, semantic_instance: bool=False):
         self.num_classes = num_classes
         self.background_label = background_label
         self.top_k = top_k
@@ -27,6 +27,7 @@ class Decoder:
         # Parameters used in nms.
         self.conf_thresh = conf_thresh
         self.nms_thresh = nms_thresh
+        self.semantic_instance = semantic_instance
 
     def __call__(self, loc_data: List[tf.Tensor], conf_data: List[tf.Tensor], prior_data: List[NDArray[np.float32]],
                  from_logits: bool = True, decoded: bool = False) -> List[NDArray[np.float32]]:
@@ -41,19 +42,23 @@ class Decoder:
         """
         # loc_data: (batch_size, num_priors, 4)
         # conf_data: (batch_size, num_priors, num_classes)
+        
         MAX_RETURNS = 20
         MAX_CANDIDATES_PER_LAYER = 20
-        classes_num = conf_data[0].shape[-1]-1
+        if not self.semantic_instance:
+            classes_num = conf_data[0].shape[-1]-1
+        else:
+            classes_num = self.num_classes
         conf_preds = [tf.transpose(a=layer_conf, perm=[0, 2, 1]) for layer_conf in
                       conf_data]  # (batch_size, num_classes, num_priors)
         outputs = []
         for i in range(tf.shape(loc_data[0])[0]):
             loc = [loc_e[i, ...] for loc_e in loc_data]
-            conf = [conf_e[i, ...] for conf_e in conf_preds]
+            conf = [conf_e[i, :self.num_classes+1, :] for conf_e in conf_preds]
             if from_logits:
                 conf = [tf.math.sigmoid(layer_conf) for layer_conf in conf]
             class_selections: List[List[tf.Tensor]] = [[] for j in range(classes_num)]
-            for l_loc, l_conf, l_prior in zip(loc, conf, prior_data):
+            for m, (l_loc, l_conf, l_prior) in enumerate(zip(loc, conf, prior_data)):
                 object_conf = l_conf[0, ...]
                 if classes_num > 1:
                     l_conf = l_conf[1:, ...]*object_conf
@@ -74,6 +79,9 @@ class Decoder:
                     topk_indices = tf.gather(non_zero_indices, best_indices)
                     selected_loc = tf.gather(l_loc, topk_indices, 1)
                     selected_scores = best_scores
+                    if self.semantic_instance:
+                        selected_mask_indices = tf.gather(conf_data[m][0, :, self.num_classes + 1:],
+                                                          topk_indices, 1)
                     if not decoded:
                         selected_prior = tf.gather(l_prior, topk_indices, 1)
                         selected_decoded = decode_bboxes(selected_loc.numpy(), selected_prior.numpy())  # (num_priors, 4)  (xmin, ymin, xmax, ymax) - THIS WORKS
@@ -81,12 +89,16 @@ class Decoder:
                         selected_decoded = xywh_to_xyxy_format(selected_loc.numpy())
                     selected_classes = tf.gather(classes, topk_indices)
                     for k in range(len(selected_classes)):
-                        class_selections[selected_classes[k]].append(
-                            (selected_scores[k], *selected_decoded[k, :], selected_classes[k]))
+                        if not self.semantic_instance:
+                            class_selections[selected_classes[k]].append(
+                                (selected_scores[k], *selected_decoded[k, :], selected_classes[k]))
+                        else:
+                            class_selections[selected_classes[k]].append(
+                                (selected_scores[k], *selected_decoded[k, :], selected_classes[k], *selected_mask_indices[k,:]))
             final_preds = []
-            for i in range(classes_num):
-                if len(class_selections[i]) > 0:
-                    np_selection: NDArray[np.float32] = np.array(class_selections[i])
+            for j in range(classes_num):
+                if len(class_selections[j]) > 0:
+                    np_selection: NDArray[np.float32] = np.array(class_selections[j])
                     boxes = np_selection[:, 1:5]
                     scores = np_selection[:, 0]
                     selected_indices = tf.image.non_max_suppression(boxes=boxes,
