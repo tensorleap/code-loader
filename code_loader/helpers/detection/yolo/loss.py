@@ -7,6 +7,7 @@ from numpy.typing import NDArray
 from code_loader.helpers.detection.utils import true_coords_labels, ciou, xywh_to_xyxy_format
 from code_loader.helpers.detection.yolo.utils import match
 from code_loader.helpers.detection.yolo.pytorch_utils import build_targets
+from code_loader.helpers.instancesegmentation.utils import crop_mask
 import collections.abc
 
 
@@ -25,7 +26,7 @@ class YoloLoss:
                  from_logits: bool = True, weights: List[float] = [4.0, 1.0, 0.4],
                  max_match_per_gt: int = 10, image_size: Union[Tuple[int, int], int] = (640, 640),
                  cls_w: float = 0.3, obj_w: float = 0.7, box_w: float = 0.05,
-                 yolo_match: bool = False):
+                 yolo_match: bool = False, semantic_instance: bool = False):
         self.background_label = background_label
         self.default_boxes = [tf.convert_to_tensor(box_arr) for box_arr in default_boxes]
         self.num_classes = num_classes
@@ -46,6 +47,8 @@ class YoloLoss:
         self.anchors = anchors
         self.image_size = image_size
         self.yolo_match = yolo_match
+        self.semantic_instance = semantic_instance
+        self.bce = tf.keras.losses.BinaryCrossentropy(from_logits=False, reduction='none')
 
     def __call__(self, y_true: tf.Tensor, y_pred: Tuple[List[tf.Tensor], List[tf.Tensor]]) -> \
             Tuple[List[tf.Tensor], List[tf.Tensor], List[tf.Tensor]]:
