@@ -1,7 +1,8 @@
-#Taken from Yolov7 https://github.com/WongKinYiu/yolov7
+# Taken from Yolov7 https://github.com/WongKinYiu/yolov7
+# mypy: ignore-errors
 import numpy as np
-import torch # type: ignore
-import torch.nn.functional as F # type: ignore
+import torch  # type: ignore
+import torch.nn.functional as F  # type: ignore
 from code_loader.helpers.detection.utils import xywh_to_xyxy_format
 from typing import List, Tuple
 
@@ -63,7 +64,8 @@ def find_3_positive(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch
         # Append
         a = t[:, 7].long()  # anchor indices
         indices.append(
-            (bb_index, b, a, gj.clamp_(0, gain[4] - 1), gi.clamp_(0, gain[3] - 1)))  # image, anchor, grid indices [y,x]]
+            (
+            bb_index, b, a, gj.clamp_(0, gain[4] - 1), gi.clamp_(0, gain[3] - 1)))  # image, anchor, grid indices [y,x]]
         anch.append(layer_anchors[a])  # anchors
 
     return indices, anch
@@ -184,9 +186,9 @@ def build_targets(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.T
 
         gt_cls_per_image = (
             F.one_hot(this_target[:, 1].to(torch.int64), num_classes)
-                .float()
-                .unsqueeze(1)
-                .repeat(1, pxyxys_cat.shape[0], 1)
+            .float()
+            .unsqueeze(1)
+            .repeat(1, pxyxys_cat.shape[0], 1)
         )
 
         num_gt = this_target.shape[0]
