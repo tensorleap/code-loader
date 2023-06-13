@@ -6,7 +6,8 @@ from code_loader.helpers.detection.utils import xywh_to_xyxy_format
 from typing import List, Tuple
 
 
-def find_3_positive(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.Tensor) ->\
+def find_3_positive(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.Tensor,
+                    filter_ratio_match: bool) ->\
         Tuple[List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]], List[torch.Tensor]]:
     # Build targets for compute_loss(), input targets(x,y,w,h)
     # p.shape = [B,3, GX, GW, 5+CLASSES]
@@ -32,11 +33,13 @@ def find_3_positive(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch
         t = targets * gain
         if nt:
             # Matches
-            r = t[:, :, 3:5] / layer_anchors[:, None]  # wh ratio
-            j = torch.max(r, 1. / r).max(2)[0] < 4  # compare
-            # j = wh_iou(anchors, t[:, 4:6]) > model.hyp['iou_t']  # iou(3,n)=wh_iou(anchors(3,2), gwh(n,2))
+            if filter_ratio_match:
+                r = t[:, :, 3:5] / layer_anchors[:, None]  # wh ratio
+                j = torch.max(r, 1. / r).max(2)[0] < 4  # compare
+            else:
+                j = torch.ones(t.shape[:-1], dtype=bool)
+                # j = wh_iou(anchors, t[:, 4:6]) > model.hyp['iou_t']  # iou(3,n)=wh_iou(anchors(3,2), gwh(n,2))
             t = t[j]  # filter only relevant anchors
-
             # Offsets
             gxy = t[:, 3:5]  # grid xy
             gxi = gain[[3, 4]] - gxy  # inverse offset in the feature space
@@ -92,14 +95,15 @@ def box_iou(box1: torch.Tensor, box2: torch.Tensor) -> torch.Tensor:
 
 
 def build_targets(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch.Tensor,
-                  image_size: Tuple[int, int], num_classes: int) -> Tuple[List[torch.Tensor], ...]:
+                  image_size: Tuple[int, int], num_classes: int,
+                  filter_ratio_match: bool) -> Tuple[List[torch.Tensor], ...]:
     # targets [Image, class, x, y, w, h]
     # anchors [scale x anchor-per-scale]
     # P == LIST[[B,ANCHORS,H_scale_i,W_scale_i,CLASSES+5]...]
     # len(p) == scales
 
     # indices, anch = self.find_positive(p, targets)
-    indices, anch = find_3_positive(p, targets, anchors)
+    indices, anch = find_3_positive(p, targets, anchors, filter_ratio_match)
     # indices, anch = self.find_4_positive(p, targets)
     # indices, anch = self.find_5_positive(p, targets)
     # indices, anch = self.find_9_positive(p, targets)
