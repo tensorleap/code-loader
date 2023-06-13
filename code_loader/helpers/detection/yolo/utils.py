@@ -87,6 +87,11 @@ def reshape_output_list(keras_output: tf.Tensor, image_size: int, priors: int = 
         loc_pred_list.append(keras_output[:, j:j + num_elements, :4])
         class_pred_list.append(keras_output[:, j:j + num_elements, 4:])
         j += num_elements
+    if j != keras_output.shape[1]:
+        raise Exception("There was an error in reshaping Yolo output.\n"
+                        "Make that you call 'reshape_output_list' with the correct feature_maps and priors:"
+                        "The sum of feature_maps[k][0]*feature_maps[k][1]*priors should equal #BB, which is"
+                        "model_output.shape[1]")
     loc_pred_list = scale_loc_prediction(loc_pred_list, decoded, image_size=image_size)
     return class_pred_list, loc_pred_list
 

@@ -51,6 +51,21 @@ class YoloLoss:
         self.semantic_instance = semantic_instance
         self.filter_ratio_match = filter_ratio_match
         self.bce = tf.keras.losses.BinaryCrossentropy(from_logits=False, reduction='none')
+        if self.semantic_instance:
+            if self.yolo_match is False:
+                raise Exception("YoloLoss: For instance segmentation tasks, the 'yolo_match' paramater "
+                                 "must be set to true creating the loss object")
+        if self.yolo_match:
+            if self.anchors is None:
+                raise Exception("YoloLoss: When yolo_match flag is set to true, the anchors shape has to be "
+                                "supplied by setting the anchors paramater when creating the loss object")
+            if self.feature_maps is None:
+                raise Exception("YoloLoss: When yolo_match flag is set to true, feature maps has to be "
+                                "supplied by setting the feature_maps paramater when creating the loss object")
+            if not len(self.weights) == len(self.feature_maps) == self.anchors.shape[0]:
+                raise Exception("YoloLoss: there is a mismatched configuration. Number of weights supplied must"
+                                 "equal feature_maps length, and the first channel of the anchors when creating"
+                                "the loss object")
 
     def __call__(self, y_true: tf.Tensor, y_pred: Tuple[List[tf.Tensor], List[tf.Tensor]],
                  instance_true: Optional[tf.Tensor] = None, instance_seg: Optional[tf.Tensor] = None) -> \
@@ -65,6 +80,33 @@ class YoloLoss:
         :return: c_loss a list of NUM_FEATURES, each item a tensor with BATCH_SIZE legth
         """
         loc_data, conf_data = y_pred
+        non_bg_gt = y_true[..., -1] != self.background_label
+        if not tf.math.reduce_all((y_true[..., -1][non_bg_gt] < self.num_classes)):
+            raise Exception("YoloLoss: Some class values in the provided GT are not smaller than number"
+                            "of samples. Make sure all of your GT class values are less than your defined"
+                            f"num classes: {self.num_classes}")
+        if self.semantic_instance:
+            if instance_seg is None:
+                raise Exception("YoloLoss: For instance segmentation tasks, the 'instace_seg' parameter "
+                                 "that contains mask predictions must be set")
+            if instance_true is None:
+                raise Exception("YoloLoss: For instance segmentation tasks, the 'instace_true' parameter "
+                                 "that contains mask GTs must be set in each loss call")
+        else:
+            conf_channels = conf_data[0].shape[-1] - 1
+            if self.num_classes != conf_channels:
+                raise Exception("YoloLoss: Number of classes set for OD loss does not correspond to the predicted channels."
+                                f"num_classes in YoloLoss: {self.num_classes}, number of classes prediction from model:"
+                                f" {conf_channels}")
+        if not self.yolo_match:
+            for i in range(len(self.default_boxes)):
+                if self.default_boxes[i].shape != loc_data[i].shape[1:]:
+                    raise Exception(
+                        "YoloLoss: Number of predictions does not match to the grid configured in YoloLoss."
+                        f"Fix self.default_boxes configured in YoloLoss such that"
+                        f" its shape(self.default_boxes[i]).shape[0] would equal shape(prediction)[1]"
+                        f" {conf_channels}")
+            raise Exception("")
         num = y_true.shape[0]
         l_losses = []
         c_losses = []
