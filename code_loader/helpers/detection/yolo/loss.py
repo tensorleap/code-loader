@@ -131,8 +131,8 @@ class YoloLoss:
             conf_data_layer = conf_no_masks[i][..., 1:]  # remove the "object confidence"
             priors = default_box_layer[:loc_data_layer.shape[1], :]
             # GT boxes
-            loc_t = []
-            conf_t = []
+            loc_t: List[tf.Tensor] = []
+            conf_t: List[tf.Tensor] = []
             priors = tf.cast(priors, dtype=tf.float32)  #
             y_true = tf.cast(y_true, dtype=tf.float32)
             if not self.yolo_match:
