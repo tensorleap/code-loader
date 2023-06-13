@@ -2,8 +2,8 @@ from typing import Tuple, List, Union
 import numpy as np
 import tensorflow as tf  # type: ignore
 from numpy.typing import NDArray
-
 from code_loader.helpers.detection.utils import xywh_to_xyxy_format, jaccard
+from code_loader.helpers.detection.yolo.enums import YoloDecodingType
 
 DEFAULT_FEATURE_MAPS = ((80, 80), (40, 40), (20, 20))
 DEFAULT_BOX_SIZES = (((10, 13), (16, 30), (33, 23)),
@@ -52,7 +52,9 @@ def encode_bboxes(matched: tf.Tensor, priors: tf.Tensor, variances: Tuple[int, i
 
 
 def scale_loc_prediction(loc_pred: List[tf.Tensor], decoded: bool = False, image_size: Union[float, Tuple[float, float]] = 640.,
-                         strides: Tuple[int, int, int] = (8, 16, 32)) -> \
+                         strides: Tuple[int, int, int] = (8, 16, 32),
+                         decode_type: YoloDecodingType = YoloDecodingType.YOLOV7,
+                         feature_maps: Tuple[Tuple[int, int], ...] = ((80, 80), (40, 40), (20, 20))) -> \
         List[tf.Tensor]:
     new_loc_pred = [None] * len(loc_pred)
     if isinstance(image_size, int) or isinstance(image_size, float):
@@ -62,15 +64,24 @@ def scale_loc_prediction(loc_pred: List[tf.Tensor], decoded: bool = False, image
     if decoded:
         new_loc_pred = [loc / scale_arr for loc in loc_pred]
     else:
-        for i in range(len(loc_pred)):
-            new_loc_pred[i] = tf.concat([(strides[i] * (2 * tf.sigmoid(loc_pred[i][..., :2]) - 0.5)) / scale_arr[:2],
-                                         2 * tf.sigmoid(loc_pred[i][..., 2:])], axis=-1)
+        if decode_type == YoloDecodingType.YOLOV7:
+            for i in range(len(loc_pred)):
+                new_loc_pred[i] = tf.concat([(strides[i] * (2 * tf.sigmoid(loc_pred[i][..., :2]) - 0.5)) / scale_arr[:2],
+                                             2 * tf.sigmoid(loc_pred[i][..., 2:])], axis=-1)
+        elif decode_type == YoloDecodingType.YOLOX:
+            for i, loc in enumerate(loc_pred):
+                x, y = tf.meshgrid(tf.range(feature_maps[i][1], dtype=float), tf.range(feature_maps[i][0], dtype=float))
+                mesh = tf.stack([x, y], axis=-1)[None, :]
+                new_loc_pred[i] = tf.concat(
+                    [tf.reshape((tf.reshape(loc[..., :2], (1, *feature_maps[i], -1)) + mesh) * np.array(strides[i])
+                                , (1, feature_maps[i][0] * feature_maps[i][1], -1)),
+                     tf.exp(loc[..., 2:4]) * np.array(strides[i])], axis=2) / scale_arr
     return new_loc_pred
 
 
 def reshape_output_list(keras_output: tf.Tensor, image_size: int, priors: int = 3,
                         feature_maps: Tuple[Tuple[int, int], ...] = ((80, 80), (40, 40), (20, 20)),
-                        decoded: bool = False) -> \
+                        decoded: bool = False, decode_type: YoloDecodingType = YoloDecodingType.YOLOV7) -> \
         Tuple[List[tf.Tensor], List[tf.Tensor]]:
     """
     reshape the mode's output to two lists sized [NUM_FEATURES] following detectron2 convention.
@@ -92,7 +103,8 @@ def reshape_output_list(keras_output: tf.Tensor, image_size: int, priors: int = 
                         "Make that you call 'reshape_output_list' with the correct feature_maps and priors:"
                         "The sum of feature_maps[k][0]*feature_maps[k][1]*priors should equal #BB, which is"
                         "model_output.shape[1]")
-    loc_pred_list = scale_loc_prediction(loc_pred_list, decoded, image_size=image_size)
+    loc_pred_list = scale_loc_prediction(loc_pred_list, decoded, image_size=image_size,
+                                         decode_type=decode_type, feature_maps=feature_maps)
     return class_pred_list, loc_pred_list
 
 
