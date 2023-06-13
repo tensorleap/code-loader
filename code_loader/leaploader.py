@@ -10,7 +10,14 @@ from typing import Dict, List, Iterable, Union
 import numpy as np
 import numpy.typing as npt
 import tensorflow as tf  # type: ignore
-import torch  # type: ignore
+
+torch_imported = False
+try:
+    import torch  # type: ignore
+
+    torch_imported = True
+except Exception as e:
+    print(f"importing torch failed with exception: {repr(e)}")
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
     GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
@@ -32,8 +39,9 @@ class LeapLoader:
     @lru_cache()
     def exec_script(self) -> None:
         try:
-            # disable GPU on torch module
-            torch.cuda.is_available = lambda: False
+            if torch_imported:
+                # disable GPU on torch module
+                torch.cuda.is_available = lambda: False
 
             self.evaluate_module()
         except Exception as e:
