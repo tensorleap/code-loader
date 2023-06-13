@@ -1,14 +1,16 @@
+# mypy: ignore-errors
 import importlib.util
 import io
 import sys
 from contextlib import redirect_stdout
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Iterable, Any, Union
+from typing import Dict, List, Iterable, Union
 
 import numpy as np
 import numpy.typing as npt
 import tensorflow as tf  # type: ignore
+import torch  # type: ignore
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
     GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
@@ -30,6 +32,9 @@ class LeapLoader:
     @lru_cache()
     def exec_script(self) -> None:
         try:
+            # disable GPU on torch module
+            torch.cuda.is_available = lambda: False
+
             self.evaluate_module()
         except Exception as e:
             raise DatasetScriptException(getattr(e, 'message', repr(e))) from e

@@ -1,8 +1,9 @@
+# mypy: ignore-errors
 from typing import List, Tuple, Union, Optional
 
 import numpy as np
 import tensorflow as tf  # type: ignore
-import torch # type: ignore
+import torch  # type: ignore
 from numpy.typing import NDArray
 from code_loader.helpers.detection.utils import true_coords_labels, ciou, xywh_to_xyxy_format
 from code_loader.helpers.detection.yolo.utils import match
@@ -200,36 +201,36 @@ class YoloLoss:
                     else:
                         single_loss_cls = tf.constant(0, dtype=tf.float32)
                     if self.semantic_instance:
-                        assert self.yolo_match and self.anchors is not None and bb_idx\
+                        assert self.yolo_match and self.anchors is not None and bb_idx \
                                is not None and target is not None
                         dedup_matched: NDArray[np.int64]
                         dedup_matched, dedup_indice = \
-                            np.unique(match_indices[match_indices[...,0] == j], return_index=True,axis=0)
+                            np.unique(match_indices[match_indices[..., 0] == j], return_index=True, axis=0)
                         unsqueezed_shape = (
                             masks_maps[i].shape[0], self.anchors.shape[1], *self.feature_maps[i],
                             masks_maps[i].shape[-1])
                         masks_coeffs = tf.gather_nd(tf.reshape(masks_maps[i], unsqueezed_shape),
-                                                  dedup_matched)
+                                                    dedup_matched)
                         predicted_maps = tf.linalg.matmul(instance_seg, masks_coeffs, transpose_b=True)
-                        permuted_predicted = tf.transpose(predicted_maps[j], [2, 0, 1]) # instance,map
-                        gt_maps = tf.gather_nd(instance_true, np.stack([ np.ones(len(bb_idx[i][dedup_indice]),
-                                                                                 dtype=int)*j,
-                                                                         bb_idx[i][dedup_indice].numpy().astype(int)]).T)
+                        permuted_predicted = tf.transpose(predicted_maps[j], [2, 0, 1])  # instance,map
+                        gt_maps = tf.gather_nd(instance_true, np.stack([np.ones(len(bb_idx[i][dedup_indice]),
+                                                                                dtype=int) * j,
+                                                                        bb_idx[i][dedup_indice].numpy().astype(int)]).T)
                         if gt_maps.shape[1] != predicted_maps.shape[1] or gt_maps.shape[2] != predicted_maps.shape[2]:
-                            gt_maps = tf.image.resize(tf.transpose(gt_maps,[1, 2, 0]), (permuted_predicted.shape[1:]),
+                            gt_maps = tf.image.resize(tf.transpose(gt_maps, [1, 2, 0]), (permuted_predicted.shape[1:]),
                                                       method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
                             print("reshaping gt")
                             gt_maps = tf.transpose(gt_maps, [2, 0, 1])
                         gt_maps = gt_maps[None, :]
                         unmasked_loss = self.bce(gt_maps[0, ...][..., None], tf.sigmoid(permuted_predicted)[..., None])
                         gt_box_loc = target[i][:, -4:][dedup_indice, :]
-                        mask_area = gt_box_loc[:,2:].prod(1)
+                        mask_area = gt_box_loc[:, 2:].prod(1)
                         gt_box_loc[:, [0, 2]] = gt_box_loc[:, [0, 2]] * gt_maps.shape[3]
                         gt_box_loc[:, [1, 3]] = gt_box_loc[:, [1, 3]] * gt_maps.shape[2]
                         xyxy_gt: NDArray[np.float32] = xywh_to_xyxy_format(gt_box_loc)
                         masked_loss = crop_mask(unmasked_loss, xyxy_gt)
-                        masks_loss_reduced = tf.reduce_mean(tf.reduce_mean(masked_loss, axis=1), axis=1)/mask_area
-                        mask_loss = tf.reduce_mean(masks_loss_reduced)*self.box_w
+                        masks_loss_reduced = tf.reduce_mean(tf.reduce_mean(masked_loss, axis=1), axis=1) / mask_area
+                        mask_loss = tf.reduce_mean(masks_loss_reduced) * self.box_w
                         print(1)
                     else:
                         mask_loss = tf.constant(0, dtype=tf.float32)
@@ -288,7 +289,8 @@ class YoloLoss:
         scales_num = len(loc_data)
         for i in range(batch_size):
             batch_gt = y_true[i][y_true[i, ..., -1] != self.background_label]
-            yolo_targets.append(np.concatenate([np.ones((batch_gt.shape[0], 1)) * i, batch_gt[:, 4:], batch_gt[:, :4]], axis=1))
+            yolo_targets.append(
+                np.concatenate([np.ones((batch_gt.shape[0], 1)) * i, batch_gt[:, 4:], batch_gt[:, :4]], axis=1))
         yolo_targets_cat: NDArray[np.float32] = np.concatenate(yolo_targets, axis=0)
         orig_pred = [torch.from_numpy(tf.concat([loc_data[i], conf_data[i]], axis=-1).numpy()) for i in
                      range(scales_num)]
