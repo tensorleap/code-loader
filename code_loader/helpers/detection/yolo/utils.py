@@ -73,8 +73,8 @@ def scale_loc_prediction(loc_pred: List[tf.Tensor], decoded: bool = False, image
                 x, y = tf.meshgrid(tf.range(feature_maps[i][1], dtype=float), tf.range(feature_maps[i][0], dtype=float))
                 mesh = tf.stack([x, y], axis=-1)[None, :]
                 new_loc_pred[i] = tf.concat(
-                    [tf.reshape((tf.reshape(loc[..., :2], (1, *feature_maps[i], -1)) + mesh) * np.array(strides[i])
-                                , (1, feature_maps[i][0] * feature_maps[i][1], -1)),
+                    [tf.reshape((tf.reshape(loc[..., :2], (loc.shape[0], *feature_maps[i], -1)) + mesh) * np.array(strides[i])
+                                , (loc.shape[0], feature_maps[i][0] * feature_maps[i][1], -1)),
                      tf.exp(loc[..., 2:4]) * np.array(strides[i])], axis=2) / scale_arr
     return new_loc_pred
 
