@@ -133,7 +133,7 @@ class Decoder:
                     all_selection += class_selections[j]
                 np_all_selected: NDArray[np.float32] = np.array(all_selection)
                 selected_indices = self.nms(np_all_selected)
-                outputs.append(np_selection[selected_indices, :])
+                outputs.append(np_all_selected[selected_indices, :])
         return outputs
 
     def nms(self, np_selection: NDArray[np.float32]) -> tf.Tensor:
