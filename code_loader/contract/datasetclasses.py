@@ -65,9 +65,9 @@ class ConfusionMatrixElement:
 
 ConfusionMatrixCallableInterface = Callable[[tf.Tensor, tf.Tensor], List[List[ConfusionMatrixElement]]]
 
-CustomCallableInterfaceMultiArgs = Callable[..., tf.Tensor]
+CustomCallableInterfaceMultiArgs = Callable[..., Union[List[float], np.array, tf.Tensor]]
 ConfusionMatrixCallableInterfaceMultiArgs = Callable[..., List[List[ConfusionMatrixElement]]]
-MetricCallableReturnType = Union[tf.Tensor, List[List[ConfusionMatrixElement]]]
+MetricCallableReturnType = Union[List[float], np.array, tf.Tensor, List[List[ConfusionMatrixElement]]]
 
 
 @dataclass
