@@ -231,7 +231,6 @@ class YoloLoss:
                         masked_loss = crop_mask(unmasked_loss, xyxy_gt)
                         masks_loss_reduced = tf.reduce_mean(tf.reduce_mean(masked_loss, axis=1), axis=1) / mask_area
                         mask_loss = tf.reduce_mean(masks_loss_reduced) * self.box_w
-                        print(1)
                     else:
                         mask_loss = tf.constant(0, dtype=tf.float32)
                 else:  # No GT
