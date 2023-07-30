@@ -100,6 +100,7 @@ def reshape_output_list(keras_output: tf.Tensor, image_size: int, priors: int = 
         j += num_elements
     if j != keras_output.shape[1]:
         raise Exception("There was an error in reshaping Yolo output.\n"
+                        f"j = {j}, keras_output.shape[1] = {keras_output.shape[1]}"
                         "Make that you call 'reshape_output_list' with the correct feature_maps and priors:"
                         "The sum of feature_maps[k][0]*feature_maps[k][1]*priors should equal #BB, which is"
                         "model_output.shape[1]")
