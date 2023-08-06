@@ -87,6 +87,8 @@ class DatasetTestResultPayload:
     display: Dict[str, str] = field(default_factory=dict)
     is_passed: bool = True
     shape: Optional[List[int]] = None
+    raw_result = None
+    handler_type = None
 
 
 @dataclass

@@ -9,7 +9,7 @@ expected_setup = DatasetSetup(
     inputs=[
         DatasetInputInstance(name='normal_input_subset_1_10', shape=[1])],
     metadata=[
-        DatasetMetadataInstance(name='x', type=DatasetMetadataType.int),
+        DatasetMetadataInstance(name='x', type=DatasetMetadataType.float),
         DatasetMetadataInstance(name='y', type=DatasetMetadataType.string)],
     outputs=[
         DatasetOutputInstance(name='output_times_20', shape=[1])
