@@ -10,8 +10,9 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
-    ConfusionMatrixCallableInterface, CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType, MetricEnum
+    CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, \
+    CustomMultipleReturnCallableInterfaceMultiArgs
+from code_loader.contract.enums import LeapDataType
 from code_loader.metrics.default_metrics import metrics_names_to_functions
 from code_loader.utils import to_numpy_return_wrapper
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
@@ -86,18 +87,15 @@ class LeapBinder:
 
     @typechecked
     def add_custom_metric(self,
-                          function: Union[CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs],
+                          function: Union[CustomCallableInterfaceMultiArgs,
+                                          CustomMultipleReturnCallableInterfaceMultiArgs,
+                                          ConfusionMatrixCallableInterfaceMultiArgs],
                           name: str) -> None:
         arg_names = inspect.getfullargspec(function)[0]
         self.setup_container.metrics.append(MetricHandler(name, function, arg_names))
 
     @typechecked
-    def add_prediction(self, name: str, labels: List[str], metrics: Optional[List[MetricEnum]] = None,
-                       custom_metrics: Optional[
-                           List[Union[CustomCallableInterface, ConfusionMatrixCallableInterface]]] = None) -> None:
-        if metrics or custom_metrics:
-            raise DeprecationWarning("Adding metrics on 'leap_binder.add_prediction' method is deprecated."
-                                     "Please update the leap script and use metric block instead.")
+    def add_prediction(self, name: str, labels: List[str]) -> None:
         self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels))
 
     @typechecked
@@ -108,9 +106,8 @@ class LeapBinder:
         self._encoder_names.append(name)
 
     @typechecked
-    def set_metadata(self, function: MetadataSectionCallableInterface, metadata_type: DatasetMetadataType,
-                     name: str) -> None:
-        self.setup_container.metadata.append(MetadataHandler(name, function, metadata_type))
+    def set_metadata(self, function: MetadataSectionCallableInterface, name: str) -> None:
+        self.setup_container.metadata.append(MetadataHandler(name, function))
 
     @typechecked
     def set_custom_layer(self, custom_layer: Type[tf.keras.layers.Layer], name: str) -> None:
