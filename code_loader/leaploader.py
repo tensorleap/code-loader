@@ -22,7 +22,7 @@ except Exception as e:
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
     GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
     PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler
-from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType
+from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType, DatasetMetadataType
 from code_loader.contract.exceptions import DatasetScriptException
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
@@ -44,6 +44,12 @@ class LeapLoader:
                 torch.cuda.is_available = lambda: False
 
             self.evaluate_module()
+        except TypeError as e:
+            import traceback
+            if "leap_binder.set_metadata(" in traceback.format_exc(5):
+                raise DeprecationWarning(
+                    "Please remove the metadata_type on leap_binder.set_metadata in your dataset script")
+            raise DatasetScriptException(getattr(e, 'message', repr(e))) from e
         except Exception as e:
             raise DatasetScriptException(getattr(e, 'message', repr(e))) from e
 
@@ -133,7 +139,7 @@ class LeapLoader:
                 handlers_test_payloads = self._check_handlers()
                 test_payloads.extend(handlers_test_payloads)
                 is_valid = all([payload.is_passed for payload in test_payloads])
-                setup_response = self.get_dataset_setup_response()
+                setup_response = self.get_dataset_setup_response(handlers_test_payloads)
             except DatasetScriptException as e:
                 line_number = get_root_exception_line_number()
                 general_error = f"Something went wrong, {repr(e.__cause__)} line number: {line_number}"
@@ -180,26 +186,42 @@ class LeapLoader:
         idx = 0
         dataset_base_handlers: List[Union[DatasetBaseHandler, MetadataHandler]] = self._get_all_dataset_base_handlers()
         for dataset_base_handler in dataset_base_handlers:
-            test_result = DatasetTestResultPayload(dataset_base_handler.name)
+            test_result = [DatasetTestResultPayload(dataset_base_handler.name)]
             for state, preprocess_response in preprocess_result.items():
                 if state == DataStateEnum.unlabeled and isinstance(dataset_base_handler, GroundTruthHandler):
                     continue
                 state_name = state.name
                 try:
                     raw_result = dataset_base_handler.function(idx, preprocess_response)
-                    result_shape = get_shape(raw_result)
-                    test_result.shape = result_shape
+                    handler_type = 'metadata' if isinstance(dataset_base_handler, MetadataHandler) else None
+                    if isinstance(dataset_base_handler, MetadataHandler) and isinstance(raw_result, dict):
+                        metadata_test_result_payloads = [
+                            DatasetTestResultPayload(f'{dataset_base_handler.name}_{single_metadata_name}')
+                            for single_metadata_name, single_metadata_result in raw_result.items()
+                        ]
+                        for i, (single_metadata_name, single_metadata_result) in enumerate(raw_result.items()):
+                            metadata_test_result = metadata_test_result_payloads[i]
+                            result_shape = get_shape(single_metadata_result)
+                            metadata_test_result.shape = result_shape
+                            metadata_test_result.raw_result = single_metadata_result
+                            metadata_test_result.handler_type = handler_type
+                        test_result = metadata_test_result_payloads
+                    else:
+                        result_shape = get_shape(raw_result)
+                        test_result[0].shape = result_shape
+                        test_result[0].raw_result = raw_result
+                        test_result[0].handler_type = handler_type
 
-                    # setting shape in setup for all encoders
-                    if isinstance(dataset_base_handler, (InputHandler, GroundTruthHandler)):
-                        dataset_base_handler.shape = result_shape
+                        # setting shape in setup for all encoders
+                        if isinstance(dataset_base_handler, (InputHandler, GroundTruthHandler)):
+                            dataset_base_handler.shape = result_shape
 
                 except Exception as e:
                     line_number = get_root_exception_line_number()
-                    test_result.display[state_name] = f"{repr(e)} line number: {line_number}"
-                    test_result.is_passed = False
+                    test_result[0].display[state_name] = f"{repr(e)} line number: {line_number}"
+                    test_result[0].is_passed = False
 
-            result_payloads.append(test_result)
+            result_payloads.extend(test_result)
 
         return result_payloads
 
@@ -224,7 +246,7 @@ class LeapLoader:
         return heatmap_function(**input_tensors_by_arg_name)
 
     @staticmethod
-    def get_dataset_setup_response() -> DatasetSetup:
+    def get_dataset_setup_response(handlers_test_payloads: List[DatasetTestResultPayload]) -> DatasetSetup:
         setup = global_leap_binder.setup_container
         assert setup.preprocess is not None
 
@@ -251,8 +273,26 @@ class LeapLoader:
             ground_truths.append(
                 DatasetOutputInstance(name=gt.name, shape=gt.shape))
 
-        metadata = [DatasetMetadataInstance(name=metadata.name, type=metadata.type)
-                    for metadata in setup.metadata]
+        metadata_instances = []
+        for handler_test_payload in handlers_test_payloads:
+            if handler_test_payload.handler_type != 'metadata':
+                continue
+            if hasattr(handler_test_payload.raw_result, 'tolist'):
+                handler_test_payload.raw_result = handler_test_payload.raw_result.tolist()
+            metadata_type = type(handler_test_payload.raw_result)
+            if metadata_type == int:
+                metadata_type = float
+            if metadata_type == str:
+                dataset_metadata_type = DatasetMetadataType.string
+            elif metadata_type == bool:
+                dataset_metadata_type = DatasetMetadataType.boolean
+            elif metadata_type == float:
+                dataset_metadata_type = DatasetMetadataType.float
+            else:
+                raise Exception(f"Unsupported return type of metadata {handler_test_payload.name}."
+                                f"The return type should be one of [int, float, str, bool]. Got {metadata_type}")
+            metadata_instances.append(DatasetMetadataInstance(name=handler_test_payload.name,
+                                                              type=dataset_metadata_type))
 
         visualizers = [
             VisualizerInstance(visualizer_handler.name, visualizer_handler.type, visualizer_handler.arg_names)
@@ -271,8 +311,8 @@ class LeapLoader:
             metric_inst = MetricInstance(metric.name, metric.arg_names)
             metrics.append(metric_inst)
 
-        return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths, metadata=metadata,
-                            visualizers=visualizers, prediction_types=prediction_types,
+        return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths,
+                            metadata=metadata_instances, visualizers=visualizers, prediction_types=prediction_types,
                             custom_losses=custom_losses, metrics=metrics)
 
     @staticmethod
@@ -287,6 +327,7 @@ class LeapLoader:
 
     @lru_cache()
     def _preprocess_result(self) -> Dict[DataStateEnum, PreprocessResponse]:
+        self.exec_script()
         preprocess = global_leap_binder.setup_container.preprocess
         # TODO: add caching of subset result
         assert preprocess is not None
@@ -325,7 +366,12 @@ class LeapLoader:
         preprocess_state = preprocess_result[state]
         for handler in global_leap_binder.setup_container.metadata:
             handler_result = handler.function(idx, preprocess_state)
-            handler_name = handler.name
-            result_agg[handler_name] = handler_result
+            if isinstance(handler_result, dict):
+                for single_metadata_name, single_metadata_result in handler_result.items():
+                    handler_name = f'{handler.name}_{single_metadata_name}'
+                    result_agg[handler_name] = single_metadata_result
+            else:
+                handler_name = handler.name
+                result_agg[handler_name] = handler_result
 
         return result_agg

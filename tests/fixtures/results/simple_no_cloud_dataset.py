@@ -13,8 +13,8 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
             DatasetInputInstance(name='normal_input_subset_1_10', shape=[1])
         ],
         metadata=[
-            DatasetMetadataInstance(name='x', type=DatasetMetadataType.int),
-            DatasetMetadataInstance(name='y', type=DatasetMetadataType.string)],
+            DatasetMetadataInstance(name='z_x', type=DatasetMetadataType.float),
+            DatasetMetadataInstance(name='z_y', type=DatasetMetadataType.string)],
         outputs=[
             DatasetOutputInstance(name='output_times_20', shape=[1])
         ],
@@ -48,9 +48,9 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
                                  display={}, is_passed=True, shape=[1]),
         DatasetTestResultPayload(name='output_times_20',
                                  display={}, is_passed=True, shape=[1]),
-        DatasetTestResultPayload(name='x', display={}, is_passed=True,
+        DatasetTestResultPayload(name='z_x', display={}, is_passed=True,
                                  shape=[1]),
-        DatasetTestResultPayload(name='y', display={}, is_passed=True, shape=[1])]
+        DatasetTestResultPayload(name='z_y', display={}, is_passed=True, shape=[1])]
 
     expected_result = DatasetIntegParseResult(expected_payloads, is_valid=True, setup=expected_setup,
                                               general_error=None, is_valid_for_model=False,

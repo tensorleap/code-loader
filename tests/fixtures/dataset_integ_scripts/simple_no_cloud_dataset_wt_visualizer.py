@@ -81,9 +81,9 @@ leap_binder.set_input(function=input_normal_input_subset_1_10, name='normal_inpu
 
 leap_binder.set_ground_truth(function=ground_truth_output_times_20, name='output_times_20')
 
-leap_binder.set_metadata(function=metadata_x, metadata_type=DatasetMetadataType.int, name='x')
+leap_binder.set_metadata(function=metadata_x, name='x')
 
-leap_binder.set_metadata(function=metadata_y, metadata_type=DatasetMetadataType.string, name='y')
+leap_binder.set_metadata(function=metadata_y, name='y')
 
 
 def custom_metric(pred, gt):

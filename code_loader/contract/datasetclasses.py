@@ -21,9 +21,13 @@ SectionCallableInterface = Callable[[int, PreprocessResponse], npt.NDArray[np.fl
 
 MetadataSectionCallableInterface = Union[
     Callable[[int, PreprocessResponse], int],
+    Callable[[int, PreprocessResponse], Dict[str, int]],
     Callable[[int, PreprocessResponse], str],
+    Callable[[int, PreprocessResponse], Dict[str, str]],
     Callable[[int, PreprocessResponse], bool],
-    Callable[[int, PreprocessResponse], float]
+    Callable[[int, PreprocessResponse], Dict[str, bool]],
+    Callable[[int, PreprocessResponse], float],
+    Callable[[int, PreprocessResponse], Dict[str, float]]
 ]
 
 
@@ -66,6 +70,7 @@ class ConfusionMatrixElement:
 ConfusionMatrixCallableInterface = Callable[[tf.Tensor, tf.Tensor], List[List[ConfusionMatrixElement]]]
 
 CustomCallableInterfaceMultiArgs = Callable[..., tf.Tensor]
+CustomMultipleReturnCallableInterfaceMultiArgs = Callable[..., Dict[str, tf.Tensor]]
 ConfusionMatrixCallableInterfaceMultiArgs = Callable[..., List[List[ConfusionMatrixElement]]]
 MetricCallableReturnType = Union[tf.Tensor, List[List[ConfusionMatrixElement]]]
 
@@ -113,7 +118,6 @@ class GroundTruthHandler(DatasetBaseHandler):
 class MetadataHandler:
     name: str
     function: MetadataSectionCallableInterface
-    type: DatasetMetadataType
 
 
 @dataclass

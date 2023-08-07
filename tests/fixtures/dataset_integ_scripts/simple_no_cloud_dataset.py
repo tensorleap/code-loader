@@ -67,12 +67,20 @@ def metadata_y(idx, samples):
     return batch_metadata[0]
 
 
+def metadata_z(idx, samples):
+    x = metadata_x(idx, samples)
+    y = metadata_y(idx, samples)
+
+    return {
+        'x': x,
+        'y': y
+    }
+
+
 leap_binder.set_preprocess(function=prepare_data)
 
 leap_binder.set_input(function=input_normal_input_subset_1_10, name='normal_input_subset_1_10')
 
 leap_binder.set_ground_truth(function=ground_truth_output_times_20, name='output_times_20')
 
-leap_binder.set_metadata(function=metadata_x, metadata_type=DatasetMetadataType.int, name='x')
-
-leap_binder.set_metadata(function=metadata_y, metadata_type=DatasetMetadataType.string, name='y')
+leap_binder.set_metadata(function=metadata_z, name='z')
