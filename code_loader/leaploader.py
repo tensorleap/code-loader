@@ -327,6 +327,7 @@ class LeapLoader:
 
     @lru_cache()
     def _preprocess_result(self) -> Dict[DataStateEnum, PreprocessResponse]:
+        self.exec_script()
         preprocess = global_leap_binder.setup_container.preprocess
         # TODO: add caching of subset result
         assert preprocess is not None

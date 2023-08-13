@@ -38,7 +38,7 @@ class LeapLoaderParallelizedBase(ABC):
         total_memory_in_bytes = psutil.virtual_memory().total
 
         n_workers = min(int(multiprocessing.cpu_count()),
-                        int(total_memory_in_bytes * 0.7 / memory_usage_in_bytes))
+                        int(total_memory_in_bytes * 0.5 / memory_usage_in_bytes))
         n_workers = max(n_workers, 1)
         return n_workers
 
