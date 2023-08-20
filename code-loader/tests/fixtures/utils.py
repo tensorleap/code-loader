@@ -4,7 +4,7 @@ import pytest
 
 from code_loader import leap_binder
 from code_loader.contract.enums import DataStateEnum
-from code_loader.leap_binder import LeapBinder
+from code_loader.inner_leap_binder import LeapBinder
 
 
 def use_fixture(fixture_func):

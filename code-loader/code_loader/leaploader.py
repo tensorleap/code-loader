@@ -27,7 +27,7 @@ from code_loader.contract.exceptions import DatasetScriptException
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
     VisualizerInstance, PredictionTypeInstance, ModelSetup, CustomLayerInstance, MetricInstance, CustomLossInstance
-from code_loader.leap_binder import global_leap_binder
+from code_loader.inner_leap_binder import global_leap_binder
 from code_loader.utils import get_root_exception_line_number, get_shape
 
 
