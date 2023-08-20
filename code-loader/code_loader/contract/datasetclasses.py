@@ -5,8 +5,7 @@ import numpy as np
 import numpy.typing as npt
 import tensorflow as tf  # type: ignore
 
-from code_loader.contract.enums import DataStateType, DatasetMetadataType, \
-    DataStateEnum, LeapDataType, ConfusionMatrixValue
+from code_loader.contract.enums import DataStateType, DataStateEnum, LeapDataType, ConfusionMatrixValue
 from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask, LeapImageWithBBox
 
