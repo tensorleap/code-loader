@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "code-loader.helpers"
-version = "1.0.0.dev6"
+version = "1.0.0.dev7"
 description = ""
 authors = ["dorhar <doron.harnoy@tensorleap.ai>"]
 readme = "README.md"
