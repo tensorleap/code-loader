@@ -1,13 +1,13 @@
+import os
 from typing import List
 
 import numpy as np  # type: ignore
 
 from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
-from code_loader.contract.enums import DatasetMetadataType
 
-input_name = 'normal_input_subset_1_10'
-word_to_index_value = "mock word_to_index"
+SECRET = os.getenv("SECRET")
+print(SECRET)
 
 
 def get_length(data):
@@ -23,11 +23,10 @@ def get_length(data):
     return length
 
 
-def subset_test_subset_1_10() -> List[PreprocessResponse]:
-    a = [0] * 4
-    b = [0] * 2
-    c = [0]
-    leap_binder.cache_container["word_to_index"][input_name] = word_to_index_value
+def prepare_data() -> List[PreprocessResponse]:
+    a = [1] * 8
+    b = [1] * 2
+    c = [1]
     return [PreprocessResponse(length=get_length(a), data=np.array(a)),
             PreprocessResponse(length=get_length(b), data=np.array(b)),
             PreprocessResponse(length=get_length(c), data=np.array(c))]
@@ -39,7 +38,7 @@ def input_normal_input_subset_1_10(idx, samples):
     batch_images = []
     for x in batch_x:
         batch_images.append(x)
-    return leap_binder.cache_container["word_to_index"][input_name]
+    return batch_images[0]
 
 
 def ground_truth_output_times_20(idx, samples):
@@ -69,9 +68,9 @@ def metadata_y(idx, samples):
     return batch_metadata[0]
 
 
-leap_binder.set_preprocess(function=subset_test_subset_1_10)
+leap_binder.set_preprocess(function=prepare_data)
 
-leap_binder.set_input(function=input_normal_input_subset_1_10, name=input_name)
+leap_binder.set_input(function=input_normal_input_subset_1_10, name='normal_input_subset_1_10')
 
 leap_binder.set_ground_truth(function=ground_truth_output_times_20, name='output_times_20')
 

@@ -1,14 +1,11 @@
-import os
 from typing import List
 
 import numpy as np  # type: ignore
 
 from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse
-from code_loader.contract.enums import DatasetMetadataType
 
-SECRET = os.getenv("SECRET")
-print(SECRET)
+print("test")
 
 
 def get_length(data):
@@ -25,9 +22,9 @@ def get_length(data):
 
 
 def prepare_data() -> List[PreprocessResponse]:
-    a = [1] * 8
-    b = [1] * 2
-    c = [1]
+    a = [0] * 4
+    b = [0] * 2
+    c = [0]
     return [PreprocessResponse(length=get_length(a), data=np.array(a)),
             PreprocessResponse(length=get_length(b), data=np.array(b)),
             PreprocessResponse(length=get_length(c), data=np.array(c))]
@@ -69,12 +66,20 @@ def metadata_y(idx, samples):
     return batch_metadata[0]
 
 
+def metadata_z(idx, samples):
+    x = metadata_x(idx, samples)
+    y = metadata_y(idx, samples)
+
+    return {
+        'x': x,
+        'y': y
+    }
+
+
 leap_binder.set_preprocess(function=prepare_data)
 
 leap_binder.set_input(function=input_normal_input_subset_1_10, name='normal_input_subset_1_10')
 
 leap_binder.set_ground_truth(function=ground_truth_output_times_20, name='output_times_20')
 
-leap_binder.set_metadata(function=metadata_x, name='x')
-
-leap_binder.set_metadata(function=metadata_y, name='y')
+leap_binder.set_metadata(function=metadata_z, name='z')

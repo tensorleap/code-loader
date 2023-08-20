@@ -6,7 +6,7 @@ import tensorflow as tf  # type: ignore
 
 from code_loader import leap_binder
 from code_loader.contract.datasetclasses import PreprocessResponse, ConfusionMatrixElement
-from code_loader.contract.enums import DatasetMetadataType, LeapDataType, ConfusionMatrixValue
+from code_loader.contract.enums import LeapDataType, ConfusionMatrixValue
 from code_loader.contract.visualizer_classes import LeapText
 
 
