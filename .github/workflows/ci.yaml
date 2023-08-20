@@ -13,11 +13,13 @@ jobs:
         python-version: '3.8'
     - run: pip install poetry
     - name: install dependencies
-      run: poetry install
+      run: make install_code_loader_dependencies
     - name: Lint strict code files - run mypy static types analysis in strict mode
       run: make lint_strict_code_loader
     - name: Lint tests files - run mypy static types analysis
       run: make lint_tests
+    - name: install dependencies
+      run: make install_helpers_dependencies
     - name: Lint helpers files - run mypy static types analysis
       run: make lint_strict_helpers
 
@@ -33,6 +35,6 @@ jobs:
         python-version: '3.8'
     - run: pip install poetry
     - name: install dependencies
-      run: poetry install
+      run: make install_code_loader_dependencies
     - run: make test_with_coverage
       name: test
