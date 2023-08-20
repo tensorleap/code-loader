@@ -138,19 +138,17 @@ version = "1.0.0.dev4"
 description = ""
 optional = false
 python-versions = ">=3.8,<3.11"
-files = []
-develop = false
+files = [
+    {file = "code_loader-1.0.0.dev4-py3-none-any.whl", hash = "sha256:316b3431e84064a3db483dba27be3be45da0c6d7ad67806d2202524e70b751db"},
+    {file = "code_loader-1.0.0.dev4.tar.gz", hash = "sha256:77ccfd9f20b78b05189b60b48f282e8355f51ffd8ca231c2bed200acb00d3a20"},
+]
 
 [package.dependencies]
-numpy = "^1.22.3"
-psutil = "^5.9.5"
-tensorflow = {version = "^2.0", markers = "platform_machine == \"x86_64\""}
-tensorflow-macos = {version = "^2.5", markers = "platform_machine == \"arm64\""}
-typeguard = "^2.13.3"
-
-[package.source]
-type = "directory"
-url = "../code-loader"
+numpy = ">=1.22.3,<2.0.0"
+psutil = ">=5.9.5,<6.0.0"
+tensorflow = {version = ">=2.0,<3.0", markers = "platform_machine == \"x86_64\""}
+tensorflow-macos = {version = ">=2.5,<3.0", markers = "platform_machine == \"arm64\""}
+typeguard = ">=2.13.3,<3.0.0"
 
 [[package]]
 name = "filelock"
@@ -1250,4 +1248,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8,<3.11"
-content-hash = "72273908777d2bf8897104464267a46f32bc6646de75ca451f5536b06320c9ea"
+content-hash = "793056243a1e91c242d7c70d8a4fd063d18054d5aab4608d13ff6db7e8a3cf61"
