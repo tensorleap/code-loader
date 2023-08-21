@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "code-loader.helpers"
-version = "1.0.0.dev7"
+version = "1.0.3"
 description = ""
 authors = ["dorhar <doron.harnoy@tensorleap.ai>"]
 readme = "README.md"
@@ -11,7 +11,7 @@ python = "^3.8,<3.11"
 tensorflow = {version = "^2.0", markers = "platform_machine  == 'x86_64'"}
 tensorflow-macos = {version = "^2.5", markers = "platform_machine  == 'arm64'"}
 torch = ">= 1.4.0, < 3.0"
-code-loader = "1.0.0.dev4"
+code-loader = "1.0.3"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.5.1"
