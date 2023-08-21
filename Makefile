@@ -17,8 +17,9 @@ lint_code_loader:
 lint_strict_code_loader:
 	(cd code-loader && $(POETRY_MODULE) mypy --install-types --non-interactive --strict code_loader)
 
+.PHONY: lint_strict_helpers
 lint_strict_helpers:
-	(cd code-loader.helpers && $(POETRY_MODULE) mypy --install-types --non-interactive --strict code_loader)
+	(cd code-loader.helpers && $(POETRY_MODULE) mypy --install-types --non-interactive --strict code_loader --explicit-package-bases)
 
 .PHONY: lint_tests
 lint_tests:
