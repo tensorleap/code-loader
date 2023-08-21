@@ -59,7 +59,7 @@ def find_3_positive(p: List[torch.Tensor], targets: torch.Tensor, anchors: torch
         gwh = t[:, 5:7]  # grid wh
         gij = (gxy - offsets).long()
         gi, gj = gij.T  # grid xy indices
-        bb_index = t[:, 0]
+        bb_index = t[:, 1]
 
         # Append
         a = t[:, 7].long()  # anchor indices
