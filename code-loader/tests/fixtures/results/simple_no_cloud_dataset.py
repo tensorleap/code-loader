@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
@@ -45,12 +46,13 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
     expected_payloads = [
         DatasetTestResultPayload(name='preprocess', display={}, is_passed=True, shape=None),
         DatasetTestResultPayload(name='normal_input_subset_1_10',
-                                 display={}, is_passed=True, shape=[1]),
+                                 display={}, is_passed=True, shape=[1], raw_result=np.array(0)),
         DatasetTestResultPayload(name='output_times_20',
-                                 display={}, is_passed=True, shape=[1]),
+                                 display={}, is_passed=True, shape=[1], raw_result=np.array(0)),
         DatasetTestResultPayload(name='z_x', display={}, is_passed=True,
-                                 shape=[1]),
-        DatasetTestResultPayload(name='z_y', display={}, is_passed=True, shape=[1])]
+                                 shape=[1], raw_result=0, handler_type='metadata'),
+        DatasetTestResultPayload(name='z_y', display={}, is_passed=True, shape=[1], raw_result='fake_string',
+                                 handler_type='metadata')]
 
     expected_result = DatasetIntegParseResult(expected_payloads, is_valid=True, setup=expected_setup,
                                               general_error=None, is_valid_for_model=False,

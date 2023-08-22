@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 from dataclasses import dataclass, field
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
@@ -87,8 +87,8 @@ class DatasetTestResultPayload:
     display: Dict[str, str] = field(default_factory=dict)
     is_passed: bool = True
     shape: Optional[List[int]] = None
-    raw_result = None
-    handler_type = None
+    raw_result: Optional[Any] = None
+    handler_type: Optional[str] = None
 
 
 @dataclass
