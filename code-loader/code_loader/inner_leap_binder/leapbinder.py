@@ -66,7 +66,7 @@ class LeapBinder:
 
         if visualizer_type.value not in map_leap_data_type_to_visualizer_class:
             raise Exception(
-                f'The visualizer_type is invalid. current visualizer_type: {visualizer_type}, '
+                f'The visualizer_type is invalid. current visualizer_type: {visualizer_type}, '  # type: ignore[attr-defined]
                 f'should be one of : {", ".join([arg.__name__ for arg in VisualizerCallableReturnType.__args__])}')
 
         func_annotations = function.__annotations__
@@ -77,9 +77,9 @@ class LeapBinder:
                   f"https://docs.python.org/3/library/typing.html")
         else:
             return_type = func_annotations["return"]
-            if return_type not in VisualizerCallableReturnType.__args__:
+            if return_type not in VisualizerCallableReturnType.__args__:  # type: ignore[attr-defined]
                 raise Exception(
-                    f'The return type of function {function.__name__} is invalid. current return type: {return_type}, '
+                    f'The return type of function {function.__name__} is invalid. current return type: {return_type}, '  # type: ignore[attr-defined]
                     f'should be one of : {", ".join([arg.__name__ for arg in VisualizerCallableReturnType.__args__])}')
 
             expected_return_type = map_leap_data_type_to_visualizer_class[visualizer_type.value]
@@ -115,8 +115,8 @@ class LeapBinder:
     @typechecked
     def add_custom_metric(self,
                           function: Union[CustomCallableInterfaceMultiArgs,
-                                          CustomMultipleReturnCallableInterfaceMultiArgs,
-                                          ConfusionMatrixCallableInterfaceMultiArgs],
+                          CustomMultipleReturnCallableInterfaceMultiArgs,
+                          ConfusionMatrixCallableInterfaceMultiArgs],
                           name: str) -> None:
         arg_names = inspect.getfullargspec(function)[0]
         self.setup_container.metrics.append(MetricHandler(name, function, arg_names))
