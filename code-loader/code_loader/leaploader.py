@@ -11,16 +11,8 @@ import numpy as np
 import numpy.typing as npt
 import tensorflow as tf  # type: ignore
 
-torch_imported = False
-try:
-    import torch  # type: ignore
-
-    torch_imported = True
-except Exception as e:
-    print(f"importing torch failed with exception: {repr(e)}")
-
-from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, \
-    GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
+from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, GroundTruthHandler, \
+    PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
     PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType, DatasetMetadataType
 from code_loader.contract.exceptions import DatasetScriptException
@@ -39,10 +31,6 @@ class LeapLoader:
     @lru_cache()
     def exec_script(self) -> None:
         try:
-            if torch_imported:
-                # disable GPU on torch module
-                torch.cuda.is_available = lambda: False
-
             self.evaluate_module()
         except TypeError as e:
             import traceback
