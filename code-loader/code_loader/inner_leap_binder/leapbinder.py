@@ -1,7 +1,8 @@
 import inspect
-from functools import lru_cache
 from typing import Callable, List, Optional, Dict, Any, Type, Union
 
+import numpy as np
+import numpy.typing as npt
 import tensorflow as tf  # type: ignore
 from typeguard import typechecked
 
@@ -9,19 +10,17 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
-    CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, \
+    CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, VisualizerCallableReturnType, \
     CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler
 from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
+from code_loader.contract.visualizer_classes import map_leap_data_type_to_visualizer_class
 from code_loader.metrics.default_metrics import metrics_names_to_functions
 from code_loader.utils import to_numpy_return_wrapper, get_shape
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
     default_image_visualizer, default_horizontal_bar_visualizer, default_word_visualizer, \
     default_image_mask_visualizer, default_text_mask_visualizer, default_raw_data_visualizer
-
-import numpy as np
-import numpy.typing as npt
 
 
 class LeapBinder:
@@ -64,6 +63,31 @@ class LeapBinder:
                 raise Exception(
                     f'The argument names of the heatmap visualizer callback must match the visualizer callback '
                     f'{str(arg_names)}')
+
+        if visualizer_type.value not in map_leap_data_type_to_visualizer_class:
+            raise Exception(
+                f'The visualizer_type is invalid. current visualizer_type: {visualizer_type}, '
+                f'should be one of : {", ".join([arg.__name__ for arg in VisualizerCallableReturnType.__args__])}')
+
+        func_annotations = function.__annotations__
+        if "return" not in func_annotations:
+            print(f"Tensorleap Warning: no return type hint for function {function.__name__}. Please configure the "
+                  f"right return type. for more info on python type"
+                  f" hints: "
+                  f"https://docs.python.org/3/library/typing.html")
+        else:
+            return_type = func_annotations["return"]
+            if return_type not in VisualizerCallableReturnType.__args__:
+                raise Exception(
+                    f'The return type of function {function.__name__} is invalid. current return type: {return_type}, '
+                    f'should be one of : {", ".join([arg.__name__ for arg in VisualizerCallableReturnType.__args__])}')
+
+            expected_return_type = map_leap_data_type_to_visualizer_class[visualizer_type.value]
+            if not issubclass(return_type, expected_return_type):
+                raise Exception(
+                    f'The return type of function {function.__name__} is invalid. current return type: {return_type}, '
+                    f'should be {expected_return_type}')
+
         self.setup_container.visualizers.append(
             VisualizerHandler(name, function, visualizer_type, arg_names, heatmap_visualizer))
         self._visualizer_names.append(name)
