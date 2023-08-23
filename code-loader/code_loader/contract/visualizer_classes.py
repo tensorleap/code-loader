@@ -133,3 +133,14 @@ class LeapTextMask:
         validate_type(type(self.labels), list)
         for label in self.labels:
             validate_type(type(label), str)
+
+
+map_leap_data_type_to_visualizer_class = {
+    LeapDataType.Image.value: LeapImage,
+    LeapDataType.Graph.value: LeapGraph,
+    LeapDataType.Text.value: LeapText,
+    LeapDataType.HorizontalBar.value: LeapHorizontalBar,
+    LeapDataType.ImageMask.value: LeapImageMask,
+    LeapDataType.TextMask.value: LeapTextMask,
+    LeapDataType.ImageWithBBox.value: LeapImageWithBBox
+}
