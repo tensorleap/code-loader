@@ -19,7 +19,7 @@ try:
 except Exception as e:
     print(f"importing torch failed with exception: {repr(e)}")
 
-from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, InputHandler, \
+from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, \
     GroundTruthHandler, PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
     PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType, DatasetMetadataType
@@ -28,7 +28,7 @@ from code_loader.contract.responsedataclasses import DatasetIntegParseResult, Da
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
     VisualizerInstance, PredictionTypeInstance, ModelSetup, CustomLayerInstance, MetricInstance, CustomLossInstance
 from code_loader.inner_leap_binder import global_leap_binder
-from code_loader.utils import get_root_exception_line_number, get_shape
+from code_loader.utils import get_root_exception_line_number
 
 
 class LeapLoader:
@@ -159,20 +159,10 @@ class LeapLoader:
                                        print_log=print_log)
 
     def _check_preprocess(self) -> DatasetTestResultPayload:
-        preprocess_handler = global_leap_binder.setup_container.preprocess
-        unlabeled_preprocess_handler = global_leap_binder.setup_container.unlabeled_data_preprocess
         test_result = DatasetTestResultPayload('preprocess')
         try:
-            if preprocess_handler is None:
-                raise Exception('None preprocess_handler')
             preprocess_result = self._preprocess_result()
-            for state, preprocess_response in preprocess_result.items():
-                if unlabeled_preprocess_handler is not None and state == DataStateEnum.unlabeled:
-                    unlabeled_preprocess_handler.data_length = preprocess_response.length
-                else:
-                    state_type = DataStateType(state.name)
-                    preprocess_handler.data_length[state_type] = preprocess_response.length
-
+            global_leap_binder.check_preprocess(preprocess_result)
         except Exception as e:
             line_number = get_root_exception_line_number()
             error_string = f"{repr(e)} line number: {line_number}"
@@ -183,7 +173,6 @@ class LeapLoader:
     def _check_handlers(self) -> List[DatasetTestResultPayload]:
         preprocess_result = self._preprocess_result()
         result_payloads: List[DatasetTestResultPayload] = []
-        idx = 0
         dataset_base_handlers: List[Union[DatasetBaseHandler, MetadataHandler]] = self._get_all_dataset_base_handlers()
         for dataset_base_handler in dataset_base_handlers:
             test_result = [DatasetTestResultPayload(dataset_base_handler.name)]
@@ -192,30 +181,8 @@ class LeapLoader:
                     continue
                 state_name = state.name
                 try:
-                    raw_result = dataset_base_handler.function(idx, preprocess_response)
-                    handler_type = 'metadata' if isinstance(dataset_base_handler, MetadataHandler) else None
-                    if isinstance(dataset_base_handler, MetadataHandler) and isinstance(raw_result, dict):
-                        metadata_test_result_payloads = [
-                            DatasetTestResultPayload(f'{dataset_base_handler.name}_{single_metadata_name}')
-                            for single_metadata_name, single_metadata_result in raw_result.items()
-                        ]
-                        for i, (single_metadata_name, single_metadata_result) in enumerate(raw_result.items()):
-                            metadata_test_result = metadata_test_result_payloads[i]
-                            result_shape = get_shape(single_metadata_result)
-                            metadata_test_result.shape = result_shape
-                            metadata_test_result.raw_result = single_metadata_result
-                            metadata_test_result.handler_type = handler_type
-                        test_result = metadata_test_result_payloads
-                    else:
-                        result_shape = get_shape(raw_result)
-                        test_result[0].shape = result_shape
-                        test_result[0].raw_result = raw_result
-                        test_result[0].handler_type = handler_type
-
-                        # setting shape in setup for all encoders
-                        if isinstance(dataset_base_handler, (InputHandler, GroundTruthHandler)):
-                            dataset_base_handler.shape = result_shape
-
+                    test_result = global_leap_binder.check_handler(
+                        preprocess_response, test_result, dataset_base_handler)
                 except Exception as e:
                     line_number = get_root_exception_line_number()
                     test_result[0].display[state_name] = f"{repr(e)} line number: {line_number}"
@@ -328,20 +295,7 @@ class LeapLoader:
     @lru_cache()
     def _preprocess_result(self) -> Dict[DataStateEnum, PreprocessResponse]:
         self.exec_script()
-        preprocess = global_leap_binder.setup_container.preprocess
-        # TODO: add caching of subset result
-        assert preprocess is not None
-        preprocess_results = preprocess.function()
-        preprocess_result_dict = {
-            DataStateEnum(i): preprocess_result
-            for i, preprocess_result in enumerate(preprocess_results)
-        }
-
-        unlabeled_preprocess = global_leap_binder.setup_container.unlabeled_data_preprocess
-        if unlabeled_preprocess is not None:
-            preprocess_result_dict[DataStateEnum.unlabeled] = unlabeled_preprocess.function()
-
-        return preprocess_result_dict
+        return global_leap_binder.get_preprocess_result()
 
     def _get_dataset_handlers(self, handlers: Iterable[DatasetBaseHandler],
                               state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:

@@ -134,13 +134,13 @@ files = [
 
 [[package]]
 name = "code-loader"
-version = "1.0.3"
+version = "1.0.4"
 description = ""
 optional = false
 python-versions = ">=3.8,<3.11"
 files = [
-    {file = "code_loader-1.0.3-py3-none-any.whl", hash = "sha256:1c70f8c7fbc6bf514b3b6e0f32405860b3d85c911c6eb95eea1ffa2be8a8735c"},
-    {file = "code_loader-1.0.3.tar.gz", hash = "sha256:68c6344139d3d8dbad0a8f253f2ba80dc7fde26e33aad96b2b37feac1b808dfa"},
+    {file = "code_loader-1.0.4-py3-none-any.whl", hash = "sha256:fb75daf14f4b5e82ec8508bcfbc712cc755a4dd996cdfc5c5b456cb16878fbca"},
+    {file = "code_loader-1.0.4.tar.gz", hash = "sha256:ed1989264c56e8407dc3ecef65c23aa733c2349fcfccee6e8d2592aaa3aca374"},
 ]
 
 [package.dependencies]
@@ -1250,4 +1250,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8,<3.11"
-content-hash = "7e9d6d156586ca27ed1376d6f219aadadff9e46890fadfe50eddd1835bbde06b"
+content-hash = "4ad7c84a5151a067140fa0a1c5330980ac3082a59eb91e6aac3c846fd70684e7"
