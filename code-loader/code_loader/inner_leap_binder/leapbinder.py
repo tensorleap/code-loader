@@ -225,3 +225,5 @@ class LeapBinder:
         preprocess_result = self.get_preprocess_result()
         self.check_preprocess(preprocess_result)
         self.check_handlers(preprocess_result)
+        print("Successful!")
+
