@@ -61,16 +61,17 @@ class Decoder:
                 conf = [tf.math.sigmoid(layer_conf) for layer_conf in conf]
             class_selections: List[List[tf.Tensor]] = [[] for j in range(classes_num)]
             for m, (l_loc, l_conf, l_prior) in enumerate(zip(loc, conf, prior_data)):
+                l_conf = l_conf.numpy()
                 object_conf = l_conf[0, ...]
                 if classes_num > 1:
                     l_conf = l_conf[1:, ...]*object_conf
                 else:
                     l_conf = object_conf[np.newaxis, ...]
                 mask = object_conf > self.conf_thresh
-                classes = tf.argmax(l_conf, axis=0)
-                max_scores = tf.reduce_max(l_conf, axis=0)
+                classes = np.argmax(l_conf, axis=0)
+                max_scores = np.max(l_conf, axis=0)
                 # mask = max_scores > self.conf_thresh
-                non_zero_indices = tf.where(mask)[:, 0]
+                non_zero_indices = np.where(mask)[0]
                 if len(non_zero_indices) != 0:
                     scores_masked = max_scores[mask]
                     if len(scores_masked) > self.max_bb_per_layer:
@@ -78,18 +79,18 @@ class Decoder:
                     else:
                         best_scores = scores_masked
                         best_indices = np.arange(len(scores_masked))
-                    topk_indices = tf.gather(non_zero_indices, best_indices)
-                    selected_loc = tf.gather(l_loc, topk_indices, 1)
+                    topk_indices = np.take(non_zero_indices, best_indices)
+                    selected_loc = tf.gather(l_loc, topk_indices, 1).numpy()
                     selected_scores = best_scores
                     if self.semantic_instance:
                         selected_mask_indices = tf.gather(conf_data[m][0, :, self.num_classes + 1:],
-                                                          topk_indices, 1)
+                                                          topk_indices, 1).numpy()
                     if not decoded:
-                        selected_prior = tf.gather(l_prior, topk_indices, 1)
-                        selected_decoded = decode_bboxes(selected_loc.numpy(), selected_prior.numpy())  # (num_priors, 4)  (xmin, ymin, xmax, ymax) - THIS WORKS
+                        selected_prior = tf.gather(l_prior, topk_indices, 1).numpy()
+                        selected_decoded = decode_bboxes(selected_loc, selected_prior)  # (num_priors, 4)  (xmin, ymin, xmax, ymax) - THIS WORKS
                     else:
-                        selected_decoded = xywh_to_xyxy_format(selected_loc.numpy())
-                    selected_classes = tf.gather(classes, topk_indices)
+                        selected_decoded = xywh_to_xyxy_format(selected_loc)
+                    selected_classes = tf.gather(classes, topk_indices).numpy()
                     for k in range(len(selected_classes)):
                         if not self.semantic_instance:
                             class_selections[selected_classes[k]].append(
