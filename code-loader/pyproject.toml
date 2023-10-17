@@ -14,8 +14,6 @@ include = [
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
 numpy = "^1.22.3"
-tensorflow = {version = "^2.0", markers = "platform_machine  == 'x86_64'"}
-tensorflow-macos = {version = "^2.5", markers = "platform_machine  == 'arm64'"}
 typeguard = "^2.13.3"
 psutil = "^5.9.5"
 
@@ -25,6 +23,8 @@ grappa = "^1.0.1"
 pytest-cov = "^3.0.0"
 pytest-watch = "^4.2.0"
 mypy = "1.3.0"
+tensorflow = {version = "^2.0", markers = "platform_machine  == 'x86_64'"}
+tensorflow-macos = {version = "^2.5", markers = "platform_machine  == 'arm64'"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
