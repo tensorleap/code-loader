@@ -14,7 +14,6 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
 from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
 from code_loader.contract.visualizer_classes import map_leap_data_type_to_visualizer_class
-from code_loader.metrics.default_metrics import metrics_names_to_functions
 from code_loader.utils import to_numpy_return_wrapper, get_shape
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
@@ -29,11 +28,6 @@ class LeapBinder:
         self._visualizer_names: List[str] = list()
         self._encoder_names: List[str] = list()
         self._extend_with_default_visualizers()
-        self._add_default_metrics()
-
-    def _add_default_metrics(self) -> None:
-        for metric_name, metric_function in metrics_names_to_functions.items():
-            self.add_custom_metric(function=metric_function, name=metric_name)
 
     def _extend_with_default_visualizers(self) -> None:
         self.set_visualizer(function=default_image_visualizer, name=DefaultVisualizer.Image.value,
