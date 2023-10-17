@@ -1,9 +1,8 @@
 import inspect
-from typing import Callable, List, Optional, Dict, Any, Type, Union
+from typing import Callable, List, Optional, Dict, Any, Union
 
 import numpy as np
 import numpy.typing as npt
-import tensorflow as tf  # type: ignore
 from typeguard import typechecked
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
@@ -137,7 +136,7 @@ class LeapBinder:
         self.setup_container.metadata.append(MetadataHandler(name, function))
 
     @typechecked
-    def set_custom_layer(self, custom_layer: Type[tf.keras.layers.Layer], name: str) -> None:
+    def set_custom_layer(self, custom_layer, name: str) -> None:
         init_args = inspect.getfullargspec(custom_layer.__init__)[0][1:]
         call_args = inspect.getfullargspec(custom_layer.call)[0][1:]
         self.setup_container.custom_layers[name] = CustomLayerHandler(name, custom_layer, init_args, call_args)
