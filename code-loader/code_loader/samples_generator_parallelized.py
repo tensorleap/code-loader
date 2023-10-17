@@ -45,6 +45,7 @@ class SamplesGeneratorParallelized(LeapLoaderParallelizedBase):
     def _process_func(code_path: str, code_entry_name: str,
                       samples_to_process: Queue, ready_samples: Queue) -> None:
         import os
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
         os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
         leap_loader = LeapLoader(code_path, code_entry_name)
