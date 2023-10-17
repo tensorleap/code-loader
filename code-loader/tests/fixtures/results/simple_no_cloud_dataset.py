@@ -30,14 +30,6 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
             VisualizerInstance(name='TextMask', type=LeapDataType.TextMask, arg_names=['mask', 'text_data'])
         ],
         metrics=[
-            MetricInstance(name='MeanSquaredError', arg_names=['ground_truth', 'prediction']),
-            MetricInstance(name='MeanSquaredLogarithmicError', arg_names=['ground_truth', 'prediction']),
-            MetricInstance(name='MeanAbsoluteError', arg_names=['ground_truth', 'prediction']),
-            MetricInstance(name='MeanAbsolutePercentageError', arg_names=['ground_truth', 'prediction']),
-            MetricInstance(name='Accuracy', arg_names=['ground_truth', 'prediction']),
-            MetricInstance(name='BinaryAccuracy', arg_names=['ground_truth', 'prediction']),
-            MetricInstance(name='ConfusionMatrixClassification', arg_names=['ground_truth', 'prediction']),
-            MetricInstance(name='MeanIOU', arg_names=['ground_truth', 'prediction'])
         ],
         prediction_types=[],
         custom_losses=[]

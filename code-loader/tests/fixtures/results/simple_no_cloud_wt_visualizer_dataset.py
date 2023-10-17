@@ -28,14 +28,6 @@ expected_setup = DatasetSetup(
 
     ],
     metrics=[
-        MetricInstance(name='MeanSquaredError', arg_names=['ground_truth', 'prediction']),
-        MetricInstance(name='MeanSquaredLogarithmicError', arg_names=['ground_truth', 'prediction']),
-        MetricInstance(name='MeanAbsoluteError', arg_names=['ground_truth', 'prediction']),
-        MetricInstance(name='MeanAbsolutePercentageError', arg_names=['ground_truth', 'prediction']),
-        MetricInstance(name='Accuracy', arg_names=['ground_truth', 'prediction']),
-        MetricInstance(name='BinaryAccuracy', arg_names=['ground_truth', 'prediction']),
-        MetricInstance(name='ConfusionMatrixClassification', arg_names=['ground_truth', 'prediction']),
-        MetricInstance(name='MeanIOU', arg_names=['ground_truth', 'prediction']),
         MetricInstance(name='custom_metric', arg_names=['pred', 'gt']),
         MetricInstance(name='custom_confusion_metric', arg_names=['gt_one_hot_encoding', 'pred_probabilities']),
     ],
