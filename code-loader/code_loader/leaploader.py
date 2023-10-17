@@ -105,14 +105,13 @@ class LeapLoader:
         }
 
     def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
-        with tf.device('/cpu:0'):
-            self.exec_script()
-            sample = DatasetSample(inputs=self._get_inputs(state, idx),
-                                   gt=None if state == DataStateEnum.unlabeled else self._get_gt(state, idx),
-                                   metadata=self._get_metadata(state, idx),
-                                   index=idx,
-                                   state=state)
-            return sample
+        self.exec_script()
+        sample = DatasetSample(inputs=self._get_inputs(state, idx),
+                               gt=None if state == DataStateEnum.unlabeled else self._get_gt(state, idx),
+                               metadata=self._get_metadata(state, idx),
+                               index=idx,
+                               state=state)
+        return sample
 
     def check_dataset(self) -> DatasetIntegParseResult:
         test_payloads: List[DatasetTestResultPayload] = []
