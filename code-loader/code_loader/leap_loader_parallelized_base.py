@@ -133,3 +133,8 @@ class LeapLoaderParallelizedBase(ABC):
 
     def __del__(self) -> None:
         self.release()
+
+    def check_processes(self) -> None:
+        for process in self.processes:
+            if not process.is_alive():
+                raise Exception(f'Sub process unexpected failure. Exit code: {process.exitcode}')
