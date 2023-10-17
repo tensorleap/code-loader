@@ -8,8 +8,8 @@ from keras.metrics import mean_squared_logarithmic_error, categorical_accuracy
 from keras import metrics
 from tensorflow.python.ops import array_ops, confusion_matrix, math_ops  # type: ignore
 
-from code_loader.contract.datasetclasses import ConfusionMatrixElement
-from code_loader.contract.enums import ConfusionMatrixValue
+from code_loader.contract.datasetclasses import ConfusionMatrixElement # type: ignore
+from code_loader.contract.enums import ConfusionMatrixValue # type: ignore
 
 
 class Metric(Enum):
