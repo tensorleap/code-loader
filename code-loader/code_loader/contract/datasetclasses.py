@@ -3,7 +3,6 @@ from typing import Any, Callable, List, Optional, Dict, Union, Type
 
 import numpy as np
 import numpy.typing as npt
-import tensorflow as tf  # type: ignore
 
 from code_loader.contract.enums import DataStateType, DataStateEnum, LeapDataType, ConfusionMatrixValue
 from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
@@ -55,7 +54,7 @@ VisualizerCallableInterface = Union[
 VisualizerCallableReturnType = Union[LeapImage, LeapText, LeapGraph, LeapHorizontalBar,
                                      LeapImageMask, LeapTextMask, LeapImageWithBBox]
 
-CustomCallableInterface = Callable[..., tf.Tensor]
+CustomCallableInterface = Callable[..., Any]
 
 
 @dataclass
@@ -66,12 +65,12 @@ class ConfusionMatrixElement:
     id: str = ''
 
 
-ConfusionMatrixCallableInterface = Callable[[tf.Tensor, tf.Tensor], List[List[ConfusionMatrixElement]]]
+ConfusionMatrixCallableInterface = Callable[[Any, Any], List[List[ConfusionMatrixElement]]]
 
-CustomCallableInterfaceMultiArgs = Callable[..., tf.Tensor]
-CustomMultipleReturnCallableInterfaceMultiArgs = Callable[..., Dict[str, tf.Tensor]]
+CustomCallableInterfaceMultiArgs = Callable[..., Any]
+CustomMultipleReturnCallableInterfaceMultiArgs = Callable[..., Dict[str, Any]]
 ConfusionMatrixCallableInterfaceMultiArgs = Callable[..., List[List[ConfusionMatrixElement]]]
-MetricCallableReturnType = Union[tf.Tensor, List[List[ConfusionMatrixElement]]]
+MetricCallableReturnType = Union[Any, List[List[ConfusionMatrixElement]]]
 
 
 @dataclass
@@ -128,7 +127,7 @@ class PredictionTypeHandler:
 @dataclass
 class CustomLayerHandler:
     name: str
-    layer: Type[tf.keras.layers.Layer]
+    layer: Type[Any]
     init_arg_names: List[str]
     call_arg_names: List[str]
 
