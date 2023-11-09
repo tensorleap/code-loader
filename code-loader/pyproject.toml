@@ -23,8 +23,6 @@ grappa = "^1.0.1"
 pytest-cov = "^3.0.0"
 pytest-watch = "^4.2.0"
 mypy = "1.3.0"
-tensorflow = {version = "^2.0", markers = "platform_machine  == 'x86_64'"}
-tensorflow-macos = {version = "^2.5", markers = "platform_machine  == 'arm64'"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
