@@ -28,8 +28,7 @@ expected_setup = DatasetSetup(
 
     ],
     metrics=[
-        MetricInstance(name='custom_metric', arg_names=['pred', 'gt']),
-        MetricInstance(name='custom_confusion_metric', arg_names=['gt_one_hot_encoding', 'pred_probabilities']),
+        MetricInstance(name='custom_metric', arg_names=['pred', 'gt'])
     ],
     prediction_types=[
         PredictionTypeInstance('pred_type1', ['yes', 'no'])],

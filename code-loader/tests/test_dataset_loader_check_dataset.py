@@ -27,7 +27,6 @@ def test_check_dataset_no_cloud_wt_visualizer(no_cloud_wt_visualizer_dataset_loa
                                               no_cloud_wt_visualizer_dataset_loader_expected_result):
     # act
     parse_result: DatasetIntegParseResult = no_cloud_wt_visualizer_dataset_loader.check_dataset()
-
     # assert
     assert_leap_binder_is_valid()
     assert_dataset_integ_parse_result_is_valid(parse_result, no_cloud_wt_visualizer_dataset_loader_expected_result)
