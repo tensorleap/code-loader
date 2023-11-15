@@ -19,7 +19,9 @@ class Decoder:
 
     def __init__(self, num_classes: int, background_label: int, top_k: int, conf_thresh: float, nms_thresh: float,
                  max_bb_per_layer: int = 20, max_bb: int = 20, semantic_instance: bool=False,
-                 class_agnostic_nms: bool=False):
+                 class_agnostic_nms: bool=False, has_object_logit: bool=True):
+        if not has_object_logit and semantic_instance:
+            raise NotImplementedError("Semantic Instance Segmentation without an object logit needs not implemented")
         self.num_classes = num_classes
         self.background_label = background_label
         self.top_k = top_k
@@ -30,6 +32,7 @@ class Decoder:
         self.nms_thresh = nms_thresh
         self.semantic_instance = semantic_instance
         self.class_agnostic_nms = class_agnostic_nms
+        self.has_object_logit = has_object_logit
 
     def __call__(self, loc_data: List[tf.Tensor], conf_data: List[tf.Tensor], prior_data: List[NDArray[np.float32]],
                  from_logits: bool = True, decoded: bool = False) -> List[NDArray[np.float32]]:
@@ -38,17 +41,16 @@ class Decoder:
             loc_data: (tensor) Location preds from loc layers
                 Shape: [batch, num_priors*4]
             conf_data: (tensor) Shape: Confidence preds from confidence layers
-                Shape: [batch*num_priors, num_classes]
+                Shape: [batch, num_priors, num_classes]
             prior_data: (tensor) Prior boxes and variances? from priorbox layers
                 Shape: [1, num_priors, 4]
         """
         # loc_data: (batch_size, num_priors, 4)
         # conf_data: (batch_size, num_priors, num_classes)
-        
-        MAX_RETURNS = 20
-        MAX_CANDIDATES_PER_LAYER = 20
         if not self.semantic_instance:
-            classes_num = conf_data[0].shape[-1]-1
+            classes_num = conf_data[0].shape[-1]
+            if self.has_object_logit:
+                classes_num -= 1
         else:
             classes_num = self.num_classes
         conf_preds = [tf.transpose(a=layer_conf, perm=[0, 2, 1]) for layer_conf in
@@ -62,12 +64,15 @@ class Decoder:
             class_selections: List[List[tf.Tensor]] = [[] for j in range(classes_num)]
             for m, (l_loc, l_conf, l_prior) in enumerate(zip(loc, conf, prior_data)):
                 l_conf = l_conf.numpy()
-                object_conf = l_conf[0, ...]
-                if classes_num > 1:
-                    l_conf = l_conf[1:, ...]*object_conf
+                if self.has_object_logit:
+                    mask_confidence = l_conf[0, ...]
+                    if classes_num > 1:
+                        l_conf = l_conf[1:, ...]*mask_confidence
+                    else:
+                        l_conf = mask_confidence[np.newaxis, ...]
                 else:
-                    l_conf = object_conf[np.newaxis, ...]
-                mask = object_conf > self.conf_thresh
+                    mask_confidence = np.max(l_conf, axis=0)
+                mask = mask_confidence > self.conf_thresh
                 classes = np.argmax(l_conf, axis=0)
                 max_scores = np.max(l_conf, axis=0)
                 # mask = max_scores > self.conf_thresh
