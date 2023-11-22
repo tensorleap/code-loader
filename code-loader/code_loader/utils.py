@@ -25,10 +25,15 @@ def get_root_traceback(exc_tb: TracebackType) -> TracebackType:
 
 
 def get_root_exception_line_number() -> int:
-    exc_tb = sys.exc_info()[2]
+    root_exception = sys.exc_info()[1]
+    assert root_exception is not None
+    if root_exception.__context__ is not None:
+        root_exception = root_exception.__context__
+    traceback = root_exception.__traceback__
+
     root_exception_line_number = -1
-    if exc_tb is not None:
-        root_traceback = get_root_traceback(exc_tb)
+    if traceback is not None:
+        root_traceback = get_root_traceback(traceback)
         root_exception_line_number = root_traceback.tb_lineno
     return root_exception_line_number
 
