@@ -119,7 +119,11 @@ class LeapBinder:
     def set_metadata(self, function: MetadataSectionCallableInterface, name: str) -> None:
         self.setup_container.metadata.append(MetadataHandler(name, function))
 
-    def set_custom_layer(self, custom_layer: Type[Any], name: str) -> None:
+    def set_custom_layer(self, custom_layer: Type[Any], name: str, inspect_layer: bool = False,
+                         kernel_index: Optional[int] = None) -> None:
+        if inspect_layer and kernel_index is not None:
+            custom_layer.kernel_index = kernel_index
+
         init_args = inspect.getfullargspec(custom_layer.__init__)[0][1:]
         call_args = inspect.getfullargspec(custom_layer.call)[0][1:]
         self.setup_container.custom_layers[name] = CustomLayerHandler(name, custom_layer, init_args, call_args)
