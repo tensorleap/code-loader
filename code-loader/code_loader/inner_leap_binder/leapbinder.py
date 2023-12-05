@@ -3,7 +3,6 @@ from typing import Callable, List, Optional, Dict, Any, Type, Union
 
 import numpy as np
 import numpy.typing as npt
-from typeguard import typechecked
 
 from code_loader.contract.datasetclasses import SectionCallableInterface, InputHandler, \
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
@@ -45,7 +44,6 @@ class LeapBinder:
         self.set_visualizer(function=default_text_mask_visualizer, name=DefaultVisualizer.TextMask.value,
                             visualizer_type=LeapDataType.TextMask)
 
-    @typechecked
     def set_visualizer(self, function: VisualizerCallableInterface,
                        name: str,
                        visualizer_type: LeapDataType,
@@ -85,27 +83,22 @@ class LeapBinder:
             VisualizerHandler(name, function, visualizer_type, arg_names, heatmap_visualizer))
         self._visualizer_names.append(name)
 
-    @typechecked
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
         self.setup_container.preprocess = PreprocessHandler(function)
 
-    @typechecked
     def set_unlabeled_data_preprocess(self, function: Callable[[], PreprocessResponse]) -> None:
         self.setup_container.unlabeled_data_preprocess = UnlabeledDataPreprocessHandler(function)
 
-    @typechecked
     def set_input(self, function: SectionCallableInterface, name: str) -> None:
         function = to_numpy_return_wrapper(function)
         self.setup_container.inputs.append(InputHandler(name, function))
 
         self._encoder_names.append(name)
 
-    @typechecked
     def add_custom_loss(self, function: CustomCallableInterface, name: str) -> None:
         arg_names = inspect.getfullargspec(function)[0]
         self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function, arg_names))
 
-    @typechecked
     def add_custom_metric(self,
                           function: Union[CustomCallableInterfaceMultiArgs,
                           CustomMultipleReturnCallableInterfaceMultiArgs,
@@ -114,22 +107,18 @@ class LeapBinder:
         arg_names = inspect.getfullargspec(function)[0]
         self.setup_container.metrics.append(MetricHandler(name, function, arg_names))
 
-    @typechecked
     def add_prediction(self, name: str, labels: List[str]) -> None:
         self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels))
 
-    @typechecked
     def set_ground_truth(self, function: SectionCallableInterface, name: str) -> None:
         function = to_numpy_return_wrapper(function)
         self.setup_container.ground_truths.append(GroundTruthHandler(name, function))
 
         self._encoder_names.append(name)
 
-    @typechecked
     def set_metadata(self, function: MetadataSectionCallableInterface, name: str) -> None:
         self.setup_container.metadata.append(MetadataHandler(name, function))
 
-    @typechecked
     def set_custom_layer(self, custom_layer: Type[Any], name: str) -> None:
         init_args = inspect.getfullargspec(custom_layer.__init__)[0][1:]
         call_args = inspect.getfullargspec(custom_layer.call)[0][1:]
@@ -219,4 +208,3 @@ class LeapBinder:
         self.check_preprocess(preprocess_result)
         self.check_handlers(preprocess_result)
         print("Successful!")
-
