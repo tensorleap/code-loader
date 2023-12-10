@@ -62,6 +62,7 @@ class CustomLayerInstance:
 class PredictionTypeInstance:
     name: str
     labels: List[str]
+    channel_dim: int
 
 
 @dataclass

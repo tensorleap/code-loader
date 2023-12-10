@@ -31,7 +31,7 @@ expected_setup = DatasetSetup(
         MetricInstance(name='custom_metric', arg_names=['pred', 'gt'])
     ],
     prediction_types=[
-        PredictionTypeInstance('pred_type1', ['yes', 'no'])],
+        PredictionTypeInstance('pred_type1', ['yes', 'no'], -1)],
     custom_losses=[]
 )
 

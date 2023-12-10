@@ -256,7 +256,8 @@ class LeapLoader:
 
         prediction_types = []
         for prediction_type in setup.prediction_types:
-            pred_type_inst = PredictionTypeInstance(prediction_type.name, prediction_type.labels)
+            pred_type_inst = PredictionTypeInstance(prediction_type.name, prediction_type.labels,
+                                                    prediction_type.channel_dim)
             prediction_types.append(pred_type_inst)
 
         metrics = []
