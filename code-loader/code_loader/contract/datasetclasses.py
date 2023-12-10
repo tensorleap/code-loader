@@ -122,6 +122,7 @@ class MetadataHandler:
 class PredictionTypeHandler:
     name: str
     labels: List[str]
+    channel_dim: int
 
 
 @dataclass
