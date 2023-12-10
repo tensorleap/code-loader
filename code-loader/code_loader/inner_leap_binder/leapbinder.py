@@ -107,7 +107,7 @@ class LeapBinder:
         arg_names = inspect.getfullargspec(function)[0]
         self.setup_container.metrics.append(MetricHandler(name, function, arg_names))
 
-    def add_prediction(self, name: str, labels: List[str], channel_dim=-1) -> None:
+    def add_prediction(self, name: str, labels: List[str], channel_dim: int = -1) -> None:
         self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels, channel_dim))
 
     def set_ground_truth(self, function: SectionCallableInterface, name: str) -> None:
