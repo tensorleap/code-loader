@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 from types import TracebackType
 from typing import List, Union, Tuple
-
+import traceback
 import numpy as np
 import numpy.typing as npt
 
@@ -25,20 +25,22 @@ def get_root_traceback(exc_tb: TracebackType) -> TracebackType:
     return return_traceback
 
 
-def get_root_exception_file_and_line_number() -> Tuple[int, str]:
+def get_root_exception_file_and_line_number() -> Tuple[int, str, str]:
+    traceback_as_string = traceback.format_exc()
+
     root_exception = sys.exc_info()[1]
     assert root_exception is not None
     if root_exception.__context__ is not None:
         root_exception = root_exception.__context__
-    traceback = root_exception.__traceback__
+    _traceback = root_exception.__traceback__
 
     root_exception_line_number = -1
     root_exception_file_name = ''
-    if traceback is not None:
-        root_traceback = get_root_traceback(traceback)
+    if _traceback is not None:
+        root_traceback = get_root_traceback(_traceback)
         root_exception_line_number = root_traceback.tb_lineno
         root_exception_file_name = Path(root_traceback.tb_frame.f_code.co_filename).name
-    return root_exception_line_number, root_exception_file_name
+    return root_exception_line_number, root_exception_file_name, traceback_as_string
 
 
 def get_shape(result: Union[npt.NDArray[np.float32], str, float, int, bool]) -> List[int]:

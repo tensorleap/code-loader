@@ -127,12 +127,12 @@ class LeapLoader:
                 is_valid = all([payload.is_passed for payload in test_payloads])
                 setup_response = self.get_dataset_setup_response(handlers_test_payloads)
             except DatasetScriptException as e:
-                line_number, file_name = get_root_exception_file_and_line_number()
-                general_error = f"Something went wrong. {repr(e.__cause__)} in file {file_name}, line_number:  {line_number}"
+                line_number, file_name, stacktrace = get_root_exception_file_and_line_number()
+                general_error = f"Something went wrong. {repr(e.__cause__)} in file {file_name}, line_number:  {line_number}\nStacktrace:\n{stacktrace}"
                 is_valid = False
             except Exception as e:
-                line_number, file_name = get_root_exception_file_and_line_number()
-                general_error = f"Something went wrong. {repr(e.__cause__)} in file {file_name}, line_number:  {line_number}"
+                line_number, file_name, stacktrace = get_root_exception_file_and_line_number()
+                general_error = f"Something went wrong. {repr(e.__cause__)} in file {file_name}, line_number:  {line_number}\nStacktrace:\n{stacktrace}"
                 is_valid = False
 
         print_log = stdout_steam.getvalue()
@@ -150,8 +150,8 @@ class LeapLoader:
             preprocess_result = self._preprocess_result()
             global_leap_binder.check_preprocess(preprocess_result)
         except Exception as e:
-            line_number, file_name = get_root_exception_file_and_line_number()
-            error_string = f"{repr(e)} in file {file_name}, line_number:  {line_number}"
+            line_number, file_name, stacktrace = get_root_exception_file_and_line_number()
+            error_string = f"{repr(e)} in file {file_name}, line_number:  {line_number}\nStacktrace:\n{stacktrace}"
             test_result.display[TestingSectionEnum.Errors.name] = error_string
             test_result.is_passed = False
         return test_result
@@ -170,8 +170,8 @@ class LeapLoader:
                     test_result = global_leap_binder.check_handler(
                         preprocess_response, test_result, dataset_base_handler)
                 except Exception as e:
-                    line_number, file_name = get_root_exception_file_and_line_number()
-                    test_result[0].display[state_name] = f"{repr(e)} in file {file_name}, line_number:  {line_number}"
+                    line_number, file_name, stacktrace = get_root_exception_file_and_line_number()
+                    test_result[0].display[state_name] = f"{repr(e)} in file {file_name}, line_number:  {line_number}\nStacktrace:\n{stacktrace}"
                     test_result[0].is_passed = False
 
             result_payloads.extend(test_result)
