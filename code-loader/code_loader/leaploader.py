@@ -312,29 +312,29 @@ class LeapLoader:
         }
         return metadata_name_to_type
 
+    def _convert_metadata_to_correct_type(self, metadata_name: str, value: Any) -> Any:
+        metadata_name_to_type = self._metadata_name_to_type()
+        metadata_type_to_python_type = {
+            DatasetMetadataType.float: float,
+            DatasetMetadataType.string: str,
+            DatasetMetadataType.boolean: bool,
+            DatasetMetadataType.int: int
+        }
+        metadata_type_to_default_value = {
+            DatasetMetadataType.float: -1,
+            DatasetMetadataType.string: "",
+            DatasetMetadataType.boolean: False,
+            DatasetMetadataType.int: -1
+        }
+
+        try:
+            converted_value = metadata_type_to_python_type[metadata_name_to_type[metadata_name]](value)
+        except ValueError:
+            converted_value = metadata_type_to_default_value[metadata_name_to_type[metadata_name]]
+
+        return converted_value
+
     def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, Union[str, int, bool, float]]:
-        def _convert_metadata_to_correct_type(metadata_name: str, value: Any) -> Any:
-            metadata_name_to_type = self._metadata_name_to_type()
-            metadata_type_to_python_type = {
-                DatasetMetadataType.float: float,
-                DatasetMetadataType.string: str,
-                DatasetMetadataType.boolean: bool,
-                DatasetMetadataType.int: int
-            }
-            metadata_type_to_default_value = {
-                DatasetMetadataType.float: -1,
-                DatasetMetadataType.string: "",
-                DatasetMetadataType.boolean: False,
-                DatasetMetadataType.int: -1
-            }
-
-            try:
-                converted_value = metadata_type_to_python_type[metadata_name_to_type[metadata_name]](value)
-            except ValueError:
-                converted_value = metadata_type_to_default_value[metadata_name_to_type[metadata_name]]
-
-            return converted_value
-
         result_agg = {}
         preprocess_result = self._preprocess_result()
         preprocess_state = preprocess_result[state]
@@ -343,9 +343,9 @@ class LeapLoader:
             if isinstance(handler_result, dict):
                 for single_metadata_name, single_metadata_result in handler_result.items():
                     handler_name = f'{handler.name}_{single_metadata_name}'
-                    result_agg[handler_name] = _convert_metadata_to_correct_type(handler_name, single_metadata_result)
+                    result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name, single_metadata_result)
             else:
                 handler_name = handler.name
-                result_agg[handler_name] = _convert_metadata_to_correct_type(handler_name, handler_result)
+                result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name, handler_result)
 
         return result_agg
