@@ -120,9 +120,12 @@ class LeapBinder:
         self.setup_container.metadata.append(MetadataHandler(name, function))
 
     def set_custom_layer(self, custom_layer: Type[Any], name: str, inspect_layer: bool = False,
-                         kernel_index: Optional[int] = None) -> None:
+                         kernel_index: Optional[int] = None, use_custom_latent_space: bool = False) -> None:
         if inspect_layer and kernel_index is not None:
             custom_layer.kernel_index = kernel_index
+
+        if use_custom_latent_space and not hasattr(custom_layer, "custom_latent_space"):
+            raise Exception(f"custom_latent_space function has not been set for custom layer: {custom_layer.__name__}")
 
         init_args = inspect.getfullargspec(custom_layer.__init__)[0][1:]
         call_args = inspect.getfullargspec(custom_layer.call)[0][1:]
