@@ -8,6 +8,8 @@ from code_loader.contract.enums import DataStateType, DataStateEnum, LeapDataTyp
 from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask, LeapImageWithBBox
 
+custom_latent_space_attribute = "custom_latent_space"
+
 
 @dataclass
 class PreprocessResponse:
@@ -52,7 +54,7 @@ VisualizerCallableInterface = Union[
 ]
 
 VisualizerCallableReturnType = Union[LeapImage, LeapText, LeapGraph, LeapHorizontalBar,
-                                     LeapImageMask, LeapTextMask, LeapImageWithBBox]
+LeapImageMask, LeapTextMask, LeapImageWithBBox]
 
 CustomCallableInterface = Callable[..., Any]
 

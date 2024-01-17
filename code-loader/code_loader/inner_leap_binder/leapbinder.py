@@ -9,7 +9,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
     CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, VisualizerCallableReturnType, \
-    CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler
+    CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute
 from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
 from code_loader.contract.visualizer_classes import map_leap_data_type_to_visualizer_class
@@ -124,8 +124,8 @@ class LeapBinder:
         if inspect_layer and kernel_index is not None:
             custom_layer.kernel_index = kernel_index
 
-        if use_custom_latent_space and not hasattr(custom_layer, "custom_latent_space"):
-            raise Exception(f"custom_latent_space function has not been set for custom layer: {custom_layer.__name__}")
+        if use_custom_latent_space and not hasattr(custom_layer, custom_latent_space_attribute):
+            raise Exception(f"{custom_latent_space_attribute} function has not been set for custom layer: {custom_layer.__name__}")
 
         init_args = inspect.getfullargspec(custom_layer.__init__)[0][1:]
         call_args = inspect.getfullargspec(custom_layer.call)[0][1:]
