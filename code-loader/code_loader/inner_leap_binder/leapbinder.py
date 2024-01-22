@@ -129,7 +129,8 @@ class LeapBinder:
 
         init_args = inspect.getfullargspec(custom_layer.__init__)[0][1:]
         call_args = inspect.getfullargspec(custom_layer.call)[0][1:]
-        self.setup_container.custom_layers[name] = CustomLayerHandler(name, custom_layer, init_args, call_args)
+        self.setup_container.custom_layers[name] = CustomLayerHandler(name, custom_layer, init_args, call_args,
+                                                                      use_custom_latent_space=use_custom_latent_space)
 
     def check_preprocess(self, preprocess_result: Dict[DataStateEnum, PreprocessResponse]) -> None:
         preprocess_handler = self.setup_container.preprocess
