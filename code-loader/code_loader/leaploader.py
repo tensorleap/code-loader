@@ -274,7 +274,7 @@ class LeapLoader:
         setup = global_leap_binder.setup_container
         custom_layer_instances = [
             CustomLayerInstance(custom_layer_handler.name, custom_layer_handler.init_arg_names,
-                                custom_layer_handler.call_arg_names)
+                                custom_layer_handler.call_arg_names, custom_layer_handler.use_custom_latent_space)
             for custom_layer_handler in setup.custom_layers.values()
         ]
         return ModelSetup(custom_layer_instances)

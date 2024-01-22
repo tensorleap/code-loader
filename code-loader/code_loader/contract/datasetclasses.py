@@ -133,6 +133,7 @@ class CustomLayerHandler:
     layer: Type[Any]
     init_arg_names: List[str]
     call_arg_names: List[str]
+    use_custom_latent_space: bool = False
 
 
 @dataclass
