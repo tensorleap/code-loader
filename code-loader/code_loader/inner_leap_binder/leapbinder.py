@@ -10,7 +10,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
     CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, VisualizerCallableReturnType, \
     CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute
-from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType
+from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType, MetricDirection
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
 from code_loader.contract.visualizer_classes import map_leap_data_type_to_visualizer_class
 from code_loader.utils import to_numpy_return_wrapper, get_shape
@@ -103,9 +103,10 @@ class LeapBinder:
                           function: Union[CustomCallableInterfaceMultiArgs,
                           CustomMultipleReturnCallableInterfaceMultiArgs,
                           ConfusionMatrixCallableInterfaceMultiArgs],
-                          name: str) -> None:
+                          name: str,
+                          direction: Optional[MetricDirection] = MetricDirection.Downward) -> None:
         arg_names = inspect.getfullargspec(function)[0]
-        self.setup_container.metrics.append(MetricHandler(name, function, arg_names))
+        self.setup_container.metrics.append(MetricHandler(name, function, arg_names, direction))
 
     def add_prediction(self, name: str, labels: List[str], channel_dim: int = -1) -> None:
         self.setup_container.prediction_types.append(PredictionTypeHandler(name, labels, channel_dim))

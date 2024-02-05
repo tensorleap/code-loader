@@ -28,6 +28,11 @@ class LeapDataType(Enum):
     ImageWithBBox = 'ImageWithBBox'
 
 
+class MetricDirection(Enum):
+    Upward = "Upward"
+    Downward = "Downward"
+
+
 class DatasetMetadataType(Enum):
     float = "float"
     string = "string"
