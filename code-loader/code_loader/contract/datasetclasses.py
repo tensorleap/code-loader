@@ -4,7 +4,7 @@ from typing import Any, Callable, List, Optional, Dict, Union, Type
 import numpy as np
 import numpy.typing as npt
 
-from code_loader.contract.enums import DataStateType, DataStateEnum, LeapDataType, ConfusionMatrixValue
+from code_loader.contract.enums import DataStateType, DataStateEnum, LeapDataType, ConfusionMatrixValue, MetricDirection
 from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask, LeapImageWithBBox
 
@@ -87,6 +87,7 @@ class MetricHandler:
     name: str
     function: Union[CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs]
     arg_names: List[str]
+    direction: Optional[MetricDirection] = MetricDirection.Downward
 
 
 @dataclass
