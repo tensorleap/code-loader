@@ -103,6 +103,7 @@ class BoundingBox:
     height: float  # value between [0, 1], represent the percentage according to the image size.
     confidence: float
     label: str
+    rotation: float = 0.0  # value between [0, 360], represent the degree of rotation.
 
 
 @dataclass
