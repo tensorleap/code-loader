@@ -9,7 +9,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
     CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, VisualizerCallableReturnType, \
-    CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute
+    CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute, RawInputsForHeatmap
 from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType, MetricDirection
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
 from code_loader.contract.visualizer_classes import map_leap_data_type_to_visualizer_class
@@ -50,10 +50,16 @@ class LeapBinder:
                        heatmap_visualizer: Optional[Callable[..., npt.NDArray[np.float32]]] = None) -> None:
         arg_names = inspect.getfullargspec(function)[0]
         if heatmap_visualizer:
-            if arg_names != inspect.getfullargspec(heatmap_visualizer)[0]:
-                raise Exception(
-                    f'The argument names of the heatmap visualizer callback must match the visualizer callback '
-                    f'{str(arg_names)}')
+            visualizer_arg_names_set = set(arg_names)
+            heatmap_visualizer_inspection = inspect.getfullargspec(heatmap_visualizer)
+            heatmap_arg_names_set = set(heatmap_visualizer_inspection[0])
+            if visualizer_arg_names_set != heatmap_arg_names_set:
+                arg_names_difference = set(inspect.getfullargspec(heatmap_visualizer)[0]).difference(set(arg_names))
+                if len(arg_names_difference) != 1 or \
+                        heatmap_visualizer_inspection.annotations[list(arg_names_difference)[0]] != RawInputsForHeatmap:
+                    raise Exception(
+                        f'The argument names of the heatmap visualizer callback must match the visualizer callback '
+                        f'{str(arg_names)}')
 
         if visualizer_type.value not in map_leap_data_type_to_visualizer_class:
             raise Exception(

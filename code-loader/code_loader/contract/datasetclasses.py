@@ -89,6 +89,10 @@ class MetricHandler:
     arg_names: List[str]
     direction: Optional[MetricDirection] = MetricDirection.Downward
 
+@dataclass
+class RawInputsForHeatmap:
+    raw_input_by_vizualizer_arg_name: Dict[str, npt.NDArray[np.float32]]
+
 
 @dataclass
 class VisualizerHandler:
