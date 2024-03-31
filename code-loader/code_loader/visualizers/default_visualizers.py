@@ -17,7 +17,6 @@ class DefaultVisualizer(Enum):
     ImageMask = 'ImageMask'
     TextMask = 'TextMask'
     RawData = 'RawData'
-    ImageHeatmap = 'ImageHeatmap'
     
 
 def default_image_visualizer(data: npt.NDArray[np.float32]) -> LeapImage:
