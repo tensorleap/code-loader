@@ -6,7 +6,7 @@ import numpy.typing as npt
 
 from code_loader.contract.enums import DataStateType, DataStateEnum, LeapDataType, ConfusionMatrixValue, MetricDirection
 from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
-    LeapTextMask, LeapImageMask, LeapImageWithBBox
+    LeapTextMask, LeapImageMask, LeapImageWithBBox, LeapImageWithHeatmap
 
 custom_latent_space_attribute = "custom_latent_space"
 
@@ -50,11 +50,12 @@ VisualizerCallableInterface = Union[
     Callable[..., LeapHorizontalBar],
     Callable[..., LeapImageMask],
     Callable[..., LeapTextMask],
-    Callable[..., LeapImageWithBBox]
+    Callable[..., LeapImageWithBBox],
+    Callable[..., LeapImageWithHeatmap]
 ]
 
 VisualizerCallableReturnType = Union[LeapImage, LeapText, LeapGraph, LeapHorizontalBar,
-LeapImageMask, LeapTextMask, LeapImageWithBBox]
+LeapImageMask, LeapTextMask, LeapImageWithBBox, LeapImageWithHeatmap]
 
 CustomCallableInterface = Callable[..., Any]
 
