@@ -135,6 +135,27 @@ class LeapTextMask:
             validate_type(type(label), str)
 
 
+@dataclass
+class LeapImageWithHeatmap:
+    image: npt.NDArray[np.float32]
+    heatmaps: npt.NDArray[np.float32]
+    labels: List[str]
+    type: LeapDataType = LeapDataType.ImageWithHeatmap
+
+    def __post_init__(self) -> None:
+        validate_type(self.type, LeapDataType.ImageWithHeatmap)
+        validate_type(type(self.heatmaps), np.ndarray)
+        validate_type(self.heatmaps.dtype, np.float32)
+        validate_type(type(self.image), np.ndarray)
+        validate_type(self.image.dtype, np.float32)
+        validate_type(type(self.labels), list)
+        for label in self.labels:
+            validate_type(type(label), str)
+        if self.heatmaps.shape[0] != len(self.labels):
+            raise LeapValidationError(
+                'Number of heatmaps and labels must be equal')
+
+
 map_leap_data_type_to_visualizer_class = {
     LeapDataType.Image.value: LeapImage,
     LeapDataType.Graph.value: LeapGraph,
@@ -142,5 +163,6 @@ map_leap_data_type_to_visualizer_class = {
     LeapDataType.HorizontalBar.value: LeapHorizontalBar,
     LeapDataType.ImageMask.value: LeapImageMask,
     LeapDataType.TextMask.value: LeapTextMask,
-    LeapDataType.ImageWithBBox.value: LeapImageWithBBox
+    LeapDataType.ImageWithBBox.value: LeapImageWithBBox,
+    LeapDataType.ImageWithHeatmap.value: LeapImageWithHeatmap
 }

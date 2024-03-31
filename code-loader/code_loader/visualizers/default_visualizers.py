@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List
 
 import numpy as np
 import numpy.typing as npt
@@ -16,7 +17,8 @@ class DefaultVisualizer(Enum):
     ImageMask = 'ImageMask'
     TextMask = 'TextMask'
     RawData = 'RawData'
-
+    ImageHeatmap = 'ImageHeatmap'
+    
 
 def default_image_visualizer(data: npt.NDArray[np.float32]) -> LeapImage:
     rescaled_data = rescale_min_max(data)

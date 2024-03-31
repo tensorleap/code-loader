@@ -26,6 +26,7 @@ class LeapDataType(Enum):
     ImageMask = 'ImageMask'
     TextMask = 'TextMask'
     ImageWithBBox = 'ImageWithBBox'
+    ImageWithHeatmap = 'ImageWithHeatmap'
 
 
 class MetricDirection(Enum):
