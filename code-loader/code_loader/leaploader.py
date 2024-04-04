@@ -5,14 +5,14 @@ import sys
 from contextlib import redirect_stdout
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Iterable, Union, Any
+from typing import Dict, List, Iterable, Union, Any, Optional
 
 import numpy as np
 import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, GroundTruthHandler, \
     PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
-    PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler
+    PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler, ElementInstance
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType, DatasetMetadataType
 from code_loader.contract.exceptions import DatasetScriptException
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
@@ -297,6 +297,17 @@ class LeapLoader:
 
     def _get_inputs(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         return self._get_dataset_handlers(global_leap_binder.setup_container.inputs, state, idx)
+
+    def get_instance_elements(self, state: DataStateEnum, idx: int, input_name: str) \
+            -> Tuple[Optional[List[ElementInstance]], Optional[InstanceAnalysisType]]:
+        preprocess_result = self._preprocess_result()
+        preprocess_state = preprocess_result[state]
+        for element_instance in global_leap_binder.setup_container.element_instances:
+            if element_instance.input_name == input_name:
+                return element_instance.instance_function(idx, preprocess_state), element_instance.analysis_type
+
+        return None, None
+
 
     def _get_gt(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
         return self._get_dataset_handlers(global_leap_binder.setup_container.ground_truths, state, idx)
