@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 
 from dataclasses import dataclass, field
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
@@ -104,6 +104,7 @@ class BoundingBox:
     confidence: float
     label: str
     rotation: float = 0.0  # value between [0, 360], represent the degree of rotation.
+    metadata: Optional[Dict[str, Union[str, int, float]]] = None
 
 
 @dataclass
