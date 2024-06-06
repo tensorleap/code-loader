@@ -1,7 +1,8 @@
 import tensorflow as tf
 from typing import Dict
 import numpy as np
-from utils import calculate_iou
+
+from code_loader.helpers.detection.metrics.utils import calculate_iou
 
 
 def detection_metrics(
