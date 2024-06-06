@@ -1,8 +1,12 @@
+from typing import Union
 import numpy as np
+import tensorflow as tf
 
 
 # Helper function to calculate IOU
-def calculate_iou(box1, box2):
+def calculate_iou(
+    box1: Union[np.ndarray, tf.Tensor], box2: Union[np.ndarray, tf.Tensor]
+) -> np.ndarray:
     x1 = np.maximum(box1[:, 0], box2[:, 0])
     y1 = np.maximum(box1[:, 1], box2[:, 1])
     x2 = np.minimum(box1[:, 2], box2[:, 2])

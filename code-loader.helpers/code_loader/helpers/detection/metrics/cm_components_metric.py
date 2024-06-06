@@ -11,7 +11,7 @@ def detection_metrics(
     background_label: int,
     threshold: float = 0.5,
     class_agnostic: bool = False,
-) -> Dict[str, Dict[str, int]]:
+) -> Dict[str, tf.Tensor]:
     # Assuming gt_bboxes in format [n_objects, (x1, y1, x2, y2, label)]
     # Assuming pred_bboxes in format [n_predictions, (x1, y1, x2, y2, confidence, label)]
     # Initialize dictionaries to store counts
@@ -83,7 +83,9 @@ def detection_metrics(
     return results
 
 
-def generate_results_dict(batch_size: int, label_id_to_name: Dict[int, str]):
+def generate_results_dict(
+    batch_size: int, label_id_to_name: Dict[int, str]
+) -> Dict[str, np.ndarray]:
     results = {}
     for class_name in label_id_to_name.values():
         results[f"{class_name}_fn"] = np.zeros((batch_size,), dtype=int)
