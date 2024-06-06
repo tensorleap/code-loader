@@ -12,10 +12,37 @@ def detection_metrics(
     threshold: float = 0.5,
     class_agnostic: bool = False,
 ) -> Dict[str, tf.Tensor]:
-    # Assuming gt_bboxes in format [n_objects, (x1, y1, x2, y2, label)]
-    # Assuming pred_bboxes in format [n_predictions, (x1, y1, x2, y2, confidence, label)]
-    # Initialize dictionaries to store counts
+    """
+    Calculates detection metrics (TP, FP, FN) for object detection tasks.
 
+    Args:
+        gt_bboxes (tf.Tensor): Ground truth bounding boxes of shape (batch_size, num_objects, 5).
+            Each bounding box is represented by (x1, y1, x2, y2, label), where (x1, y1) and (x2, y2)
+            are the coordinates of the top-left and bottom-right corners, respectively, and label
+            indicates the object class.
+        pred_bboxes (tf.Tensor): Predicted bounding boxes of shape (batch_size, num_predictions, 6).
+            Each bounding box is represented by (x1, y1, x2, y2, confidence, label), where (x1, y1)
+            and (x2, y2) are the coordinates of the top-left and bottom-right corners, confidence
+            represents the confidence score of the prediction, and label indicates the predicted class.
+        label_id_to_name (Dict[int, str]): Dictionary mapping label IDs to class names.
+        background_label (int): Label ID for the background class.
+        threshold (float, optional): IOU threshold for considering a prediction as a true positive.
+            Defaults to 0.5.
+        class_agnostic (bool, optional): If True, returns metrics aggregated across all classes,
+            ignoring individual class distinctions. Defaults to False.
+
+    Returns:
+        Dict[str, tf.Tensor]: A dictionary containing detection metrics. Keys include:
+            - For each class:
+                - "<class_name>_fn": False negatives for the class.
+                - "<class_name>_fp": False positives for the class.
+                - "<class_name>_tp": True positives for the class.
+            - "sample_fn": False negatives for each sample in the batch.
+            - "sample_fp": False positives for each sample in the batch.
+            - "sample_tp": True positives for each sample in the batch.
+
+            If class_agnostic is True, the dictionary contains only sample-level metrics.
+    """
     batch_size = len(gt_bboxes)
     results = generate_results_dict(batch_size, label_id_to_name)
 
@@ -86,6 +113,27 @@ def detection_metrics(
 def generate_results_dict(
     batch_size: int, label_id_to_name: Dict[int, str]
 ) -> Dict[str, np.ndarray]:
+    """
+    Generate a dictionary to store evaluation results for each class and overall samples.
+
+    This function creates a dictionary with keys for false negatives (`_fn`), false positives (`_fp`),
+    and true positives (`_tp`) for each class based on the provided `label_id_to_name` mapping. Additionally,
+    it includes keys for overall false negatives, false positives, and true positives across all samples.
+
+    Args:
+        batch_size (int): The number of samples in the batch. This determines the length of the arrays.
+        label_id_to_name (Dict[int, str]): A dictionary mapping label IDs to class names.
+
+    Returns:
+        Dict[str, np.ndarray]: A dictionary with keys for false negatives, false positives, and true positives
+        for each class and overall samples. Each value is a NumPy array of zeros with length equal to `batch_size`.
+
+    Example:
+        >>> label_id_to_name = {0: "cat", 1: "dog"}
+        >>> result = generate_results_dict(5, label_id_to_name)
+        >>> print(result.keys())
+        dict_keys(['cat_fn', 'cat_fp', 'cat_tp', 'dog_fn', 'dog_fp', 'dog_tp', 'sample_fn', 'sample_fp', 'sample_tp'])
+    """
     results = {}
     for class_name in label_id_to_name.values():
         results[f"{class_name}_fn"] = np.zeros((batch_size,), dtype=int)
