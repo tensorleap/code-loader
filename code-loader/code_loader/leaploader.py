@@ -30,6 +30,7 @@ class LeapLoader:
     @lru_cache()
     def exec_script(self) -> None:
         try:
+            print("executing script")
             self.evaluate_module()
         except TypeError as e:
             import traceback
@@ -41,25 +42,34 @@ class LeapLoader:
             raise DatasetScriptException(getattr(e, 'message', repr(e))) from e
 
     def evaluate_module(self) -> None:
+        print("evaluate_module")
+
         def append_path_recursively(full_path: str) -> None:
             if '/' not in full_path or full_path == '/':
                 return
 
             parent_path = str(Path(full_path).parent)
+            print(f"evaluate_module.append_path_recursively full_path: {full_path}, parent_path: {parent_path}")
             append_path_recursively(parent_path)
+
             sys.path.append(parent_path)
 
         file_path = Path(self.code_path, self.code_entry_name)
+        print(f"evaluate_module: self.code_path: {self.code_path} self.code_entry_name: {self.code_entry_name}, "
+              f"file_path for append_path_recursively: {str(file_path)}")
         append_path_recursively(str(file_path))
 
         spec = importlib.util.spec_from_file_location(self.code_path, file_path)
+        print(f"evaluate_module: spec: {str(spec)}")
         if spec is None or spec.loader is None:
             raise DatasetScriptException(f'Something is went wrong with spec file from: {file_path}')
 
         file = importlib.util.module_from_spec(spec)
+        print(f"evaluate_module: file module_from_spec: {str(file)}")
         if file is None:
             raise DatasetScriptException(f'Something is went wrong with import module from: {file_path}')
 
+        print(f"evaluate_module: spec.loader.exec_module")
         spec.loader.exec_module(file)
 
     @lru_cache()
@@ -171,7 +181,8 @@ class LeapLoader:
                         preprocess_response, test_result, dataset_base_handler)
                 except Exception as e:
                     line_number, file_name, stacktrace = get_root_exception_file_and_line_number()
-                    test_result[0].display[state_name] = f"{repr(e)} in file {file_name}, line_number:  {line_number}\nStacktrace:\n{stacktrace}"
+                    test_result[0].display[
+                        state_name] = f"{repr(e)} in file {file_name}, line_number:  {line_number}\nStacktrace:\n{stacktrace}"
                     test_result[0].is_passed = False
 
             result_payloads.extend(test_result)
@@ -343,7 +354,8 @@ class LeapLoader:
             if isinstance(handler_result, dict):
                 for single_metadata_name, single_metadata_result in handler_result.items():
                     handler_name = f'{handler.name}_{single_metadata_name}'
-                    result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name, single_metadata_result)
+                    result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name,
+                                                                                      single_metadata_result)
             else:
                 handler_name = handler.name
                 result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name, handler_result)
