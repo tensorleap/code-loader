@@ -1,17 +1,18 @@
 import tensorflow as tf
 from typing import Dict, List
 import numpy as np
+from numpy.typing import NDArray
 
 from code_loader.helpers.detection.utils import jaccard
 
 
 def od_detection_metrics(
-    pred_bboxes: List[np.ndarray],
-    gt_bboxes: np.ndarray,
+    pred_bboxes: List[NDArray[np.float32]],
+    gt_bboxes: NDArray[np.float32],
     label_id_to_name: Dict,
     threshold: float,
     background_label: int,
-) -> Dict[str, np.ndarray]:
+) -> Dict[str, NDArray[np.float32]]:
     """
     Calculate detection metrics for a batch of predicted and ground truth
     bounding boxes.
@@ -162,7 +163,7 @@ def od_detection_metrics(
 
 def generate_results_dict(
     batch_size: int, label_id_to_name: Dict[int, str]
-) -> Dict[str, np.ndarray]:
+) -> Dict[str, NDArray[np.float32]]:
     results = {}
     for class_name in label_id_to_name.values():
         results[f"{class_name}_FN"] = np.zeros((batch_size,), dtype=int)
@@ -182,7 +183,9 @@ def generate_results_dict(
 
 
 def get_class_counts(
-    pred_bboxes: np.ndarray, gt_bboxes: np.ndarray, label_id_to_name: Dict[int, str]
+    pred_bboxes: NDArray[np.float32],
+    gt_bboxes: NDArray[np.float32],
+    label_id_to_name: Dict[int, str],
 ) -> Dict[str, int]:
     """
     Calculate the count of ground truth and predicted bounding boxes for each

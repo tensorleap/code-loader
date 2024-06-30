@@ -6,11 +6,12 @@ from code_loader.contract.datasetclasses import (
     ConfusionMatrixValue,
 )
 from code_loader.helpers.detection.utils import jaccard
+from numpy.typing import NDArray
 
 
 def od_confusion_matrix_metric(
-    pred_bboxes: List[np.ndarray],
-    gt_bboxes: np.ndarray,
+    pred_bboxes: List[NDArray[np.float32]],
+    gt_bboxes: NDArray[np.float32],
     label_id_to_name: Dict,
     threshold: float,
     background_label: int,
