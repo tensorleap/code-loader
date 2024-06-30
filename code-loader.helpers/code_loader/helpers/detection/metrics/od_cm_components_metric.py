@@ -9,10 +9,10 @@ from code_loader.helpers.detection.utils import jaccard
 def od_detection_metrics(
     pred_bboxes: List[NDArray[np.float32]],
     gt_bboxes: NDArray[np.float32],
-    label_id_to_name: Dict,
+    label_id_to_name: Dict[int, str],
     threshold: float,
     background_label: int,
-) -> Dict[str, NDArray[np.float32]]:
+) -> Tuple[Dict[str, NDArray[np.float32]], Dict[str, NDArray[np.float32]]]:
     """
     Calculate detection metrics for a batch of predicted and ground truth
     bounding boxes.

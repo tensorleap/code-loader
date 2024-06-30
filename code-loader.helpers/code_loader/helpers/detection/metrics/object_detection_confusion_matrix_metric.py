@@ -1,6 +1,6 @@
 from typing import Dict, List
 import numpy as np
-import tensorflow as tf
+import tensorflow as tf  # type: ignore
 from code_loader.contract.datasetclasses import (  # type: ignore
     ConfusionMatrixElement,
     ConfusionMatrixValue,
@@ -12,7 +12,7 @@ from numpy.typing import NDArray
 def od_confusion_matrix_metric(
     pred_bboxes: List[NDArray[np.float32]],
     gt_bboxes: NDArray[np.float32],
-    label_id_to_name: Dict,
+    label_id_to_name: Dict[int, str],
     threshold: float,
     background_label: int,
 ) -> List[List[ConfusionMatrixElement]]:
