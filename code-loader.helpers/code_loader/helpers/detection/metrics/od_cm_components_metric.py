@@ -1,5 +1,5 @@
-import tensorflow as tf
-from typing import Dict, List
+import tensorflow as tf  # type: ignore
+from typing import Dict, List, Tuple
 import numpy as np
 from numpy.typing import NDArray
 
