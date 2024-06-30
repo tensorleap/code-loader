@@ -1012,28 +1012,10 @@ setuptools = "*"
 six = ">=1.12.0"
 tensorboard = ">=2.11,<2.12"
 tensorflow-estimator = ">=2.11.0,<2.12"
+tensorflow-io-gcs-filesystem = {version = ">=0.23.1", markers = "platform_machine != \"arm64\" or platform_system != \"Darwin\""}
 termcolor = ">=1.1.0"
 typing-extensions = ">=3.6.6"
 wrapt = ">=1.11.0"
-
-[[package]]
-name = "tensorflow-metal"
-version = "0.7.1"
-description = "TensorFlow acceleration for Mac GPUs."
-optional = false
-python-versions = "*"
-files = [
-    {file = "tensorflow_metal-0.7.1-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:ebd433d54c78eff6d98df99e6f3c9ad8c81bd6c015a822904a2cbfdc74b59ce1"},
-    {file = "tensorflow_metal-0.7.1-cp310-cp310-macosx_12_0_x86_64.whl", hash = "sha256:6206a34065146ec242965161b8f90ddfc32d47024c138c58f5796591f7c61f47"},
-    {file = "tensorflow_metal-0.7.1-cp38-cp38-macosx_12_0_arm64.whl", hash = "sha256:a6a5d02714602d5c7096a33b9a5f28f92a135b6861b5646504fed3e40de27bb5"},
-    {file = "tensorflow_metal-0.7.1-cp38-cp38-macosx_12_0_x86_64.whl", hash = "sha256:0e250e34a971a9e243e63366f9fdb21b28049b52561f4f219a60439c831ef945"},
-    {file = "tensorflow_metal-0.7.1-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:c91f7957e76f2d24f3ecd7e8ddc62c917ded5489ef954c3aa174a8516d5c655d"},
-    {file = "tensorflow_metal-0.7.1-cp39-cp39-macosx_12_0_x86_64.whl", hash = "sha256:bfcb63e4688937d02fc0bf82f6384f1ee1dd922e1dd38fd3467abd922dfae958"},
-]
-
-[package.dependencies]
-six = ">=1.15.0"
-wheel = ">=0.35,<1.0"
 
 [[package]]
 name = "termcolor"
@@ -1260,4 +1242,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8,<3.11"
-content-hash = "5cd6c115d50389813daf7c74b1b994bdd4603d3a96c404cbaac7ae6c2cba4ae0"
+content-hash = "d4d9ed8532b2b91e2ec0be2d43b7a199b443e6856dd4ebfe6f6a8c670f3aaa9b"
