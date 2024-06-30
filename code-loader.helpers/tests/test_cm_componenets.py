@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-import tensorflow as tf
+import tensorflow as tf  # type: ignore
 from typing import Dict, List
 
 from cv_ai_dl.tl.metrics.cm_components_metric import detection_metrics

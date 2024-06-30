@@ -1,7 +1,7 @@
 from typing import Dict, List
 import numpy as np
 import tensorflow as tf
-from code_loader.contract.datasetclasses import (
+from code_loader.contract.datasetclasses import (  # type: ignore
     ConfusionMatrixElement,
     ConfusionMatrixValue,
 )
