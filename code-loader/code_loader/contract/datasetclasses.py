@@ -13,6 +13,25 @@ custom_latent_space_attribute = "custom_latent_space"
 
 @dataclass
 class PreprocessResponse:
+    """
+    An object that holds the preprocessed data for use within the Tensorleap platform.
+
+    This class is used to encapsulate the results of data preprocessing, including inputs, metadata, labels, and other relevant information.
+    It facilitates handling and integration of the processed data within Tensorleap.
+
+    Attributes:
+    length (int): The length of the preprocessed data.
+    data (Any): The preprocessed data itself. This can be any data type depending on the preprocessing logic.
+
+    Example:
+        # Example usage of PreprocessResponse
+        preprocessed_data = {
+            'images': ['path/to/image1.jpg', 'path/to/image2.jpg'],
+            'labels': ['SUV', 'truck'],
+            'metadata': [{'id': 1, 'source': 'camera1'}, {'id': 2, 'source': 'camera2'}]
+        }
+        response = PreprocessResponse(length=len(preprocessed_data), data=preprocessed_data)
+    """
     length: int
     data: Any
 
