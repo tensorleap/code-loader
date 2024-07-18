@@ -258,7 +258,9 @@ class LeapBinder:
         Args:
         name (str): The name of the prediction.
         labels (List[str]): The list of labels for the prediction.
-        channel_dim (int): The channel dimension of the prediction, default is -1.
+        channel_dim (int): The axis along which the prediction scores are located, default is -1.
+
+        Must satisfy len(labels) == len(output[channel_dim]).
 
         Example:
             leap_binder.add_prediction(name='class_labels', labels=['cat', 'dog'])
