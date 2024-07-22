@@ -25,9 +25,14 @@ lint_strict_helpers:
 lint_tests:
 	(cd code-loader && $(POETRY_MODULE) mypy --install-types --non-interactive tests)
 
-.PHONY: test_with_coverage
-test_with_coverage:
-	($(PYTEST) --cov=code_loader --cov-branch --no-cov-on-fail --cov-report term-missing --cov-report html -v code-loader/tests/ code_loader.helpers/tests/metrics/)
+.PHONY: test_with_coverage_code_loader
+test_with_coverage_code_loader:
+	(cd code-loader && $(PYTEST) --cov=code_loader --cov-branch --no-cov-on-fail --cov-report term-missing --cov-report html -v tests/)
+
+.PHONY: test_with_coverage_helpers
+test_with_coverage_helpers:
+	(cd code-loader.helpers && $(PYTEST) --cov=code_loader.helpers --cov-branch --no-cov-on-fail --cov-report term-missing --cov-report html -v tests/)
+
 
 .PHONY: install_code_loader_dependencies
 install_code_loader_dependencies:
