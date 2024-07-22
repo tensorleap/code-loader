@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf  # type: ignore
 from typing import Dict, List
 
-from cv_ai_dl.tl.metrics.cm_components_metric import detection_metrics
+from code_loader.helpers.code_loader.helpers.detection.metrics.od_cm_components_metric import od_detection_metrics  # type: ignore
 
 
 class TestODDetectionMetrics(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestODDetectionMetrics(unittest.TestCase):
     def test_empty_predictions_and_gt(self):
         pred_bboxes = [np.empty((0, 6))]
         gt_bboxes = np.empty((1, 0, 5))
-        true_metrics, false_metrics = detection_metrics(
+        true_metrics, false_metrics = od_detection_metrics(
             pred_bboxes,
             gt_bboxes,
             self.label_id_to_name,
@@ -34,7 +34,7 @@ class TestODDetectionMetrics(unittest.TestCase):
     def test_no_predictions_but_gt_present(self):
         pred_bboxes = [np.empty((0, 6))]
         gt_bboxes = np.array([[[0, 0, 1, 1, 1]]])
-        true_metrics, false_metrics = detection_metrics(
+        true_metrics, false_metrics = od_detection_metrics(
             pred_bboxes,
             gt_bboxes,
             self.label_id_to_name,
@@ -49,7 +49,7 @@ class TestODDetectionMetrics(unittest.TestCase):
     def test_predictions_but_no_gt_present(self):
         pred_bboxes = [np.array([[0, 0, 1, 1, 0.9, 1]])]
         gt_bboxes = np.empty((1, 0, 5))
-        true_metrics, false_metrics = detection_metrics(
+        true_metrics, false_metrics = od_detection_metrics(
             pred_bboxes,
             gt_bboxes,
             self.label_id_to_name,
@@ -64,7 +64,7 @@ class TestODDetectionMetrics(unittest.TestCase):
     def test_matching_predictions_and_gt(self):
         pred_bboxes = [np.array([[0, 0, 1, 1, 0.9, 1]])]
         gt_bboxes = np.array([[[0, 0, 1, 1, 1]]])
-        true_metrics, false_metrics = detection_metrics(
+        true_metrics, false_metrics = od_detection_metrics(
             pred_bboxes,
             gt_bboxes,
             self.label_id_to_name,
@@ -80,7 +80,7 @@ class TestODDetectionMetrics(unittest.TestCase):
     def test_non_matching_predictions_and_gt(self):
         pred_bboxes = [np.array([[0.5, 0.5, 1, 1, 0.9, 1], [0, 0, 0.5, 0.5, 0.9, 2]])]
         gt_bboxes = np.array([[[0.5, 0.5, 1, 1, 2]]])
-        true_metrics, false_metrics = detection_metrics(
+        true_metrics, false_metrics = od_detection_metrics(
             pred_bboxes,
             gt_bboxes,
             self.label_id_to_name,
@@ -113,7 +113,7 @@ class TestODDetectionMetrics(unittest.TestCase):
                 ]
             ]
         )
-        true_metrics, false_metrics = detection_metrics(
+        true_metrics, false_metrics = od_detection_metrics(
             pred_bboxes,
             gt_bboxes,
             self.label_id_to_name,

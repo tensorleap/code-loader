@@ -63,6 +63,19 @@ def od_confusion_matrix_metric(
         - The function expects that the bounding boxes coordinates are in the format [x_min, y_min, x_max, y_max].
         - The function assumes that the last dimension of the bounding box tensors represents the class label.
     """
+    # input validation
+    if not isinstance(pred_bboxes, list):
+        raise ValueError(
+            f"pred_bboxes should be a list of numpy arrays, got {type(pred_bboxes)}"
+        )
+    if not isinstance(gt_bboxes, np.ndarray):
+        raise ValueError(f"gt_bboxes should be a numpy array, got {type(gt_bboxes)}")
+    if np.concatenate(pred_bboxes, axis=0).shape[1] != 6:
+        raise ValueError("The last dimension of pred_bboxes should be 6")
+    if gt_bboxes.shape[2] != 5:
+        raise ValueError(
+            f"The last dimension of gt_bboxes should be 5, got {gt_bboxes.shape[2]}"
+        )
 
     # convert gt bboxes to numpy array
     gt_bboxes = np.asarray(gt_bboxes)

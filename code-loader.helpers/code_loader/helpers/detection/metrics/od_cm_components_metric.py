@@ -43,6 +43,20 @@ def od_detection_metrics(
             false negatives (FN), and their normalized versions (FP_norm, FN_norm)
             for each class and for the batch.
     """
+    # input validation
+    if not isinstance(pred_bboxes, list):
+        raise ValueError(
+            f"pred_bboxes should be a list of numpy arrays, got {type(pred_bboxes)}"
+        )
+    if not isinstance(gt_bboxes, np.ndarray):
+        raise ValueError(f"gt_bboxes should be a numpy array, got {type(gt_bboxes)}")
+    if np.concatenate(pred_bboxes, axis=0).shape[1] != 6:
+        raise ValueError("The last dimension of pred_bboxes should be 6")
+    if gt_bboxes.shape[2] != 5:
+        raise ValueError(
+            f"The last dimension of gt_bboxes should be 5, got {gt_bboxes.shape[2]}"
+        )
+
     # convert gt bboxes to numpy array
     gt_bboxes = np.asarray(gt_bboxes, dtype=np.float32)
     pred_bboxes = [np.asarray(pb, dtype=np.float32) for pb in pred_bboxes]
@@ -93,13 +107,13 @@ def od_detection_metrics(
                         b_i
                     ] += 1
                     results["sample_TP"][b_i] += 1
-                else:  # FP for gt label and FN for pred label
-                    # FP for gt label
+                else:  # FP for pred label and FN for gt label
+                    # FP for pred label
                     results[f"{label_id_to_name[matched_pred_bboxes[i, -1]]}_FP"][
                         b_i
                     ] += 1
                     results["sample_FP"][b_i] += 1
-                    # FN for pred label
+                    # FN for gt label
                     results[f"{label_id_to_name[matched_gt_bboxes[i, -1]]}_FN"][
                         b_i
                     ] += 1
@@ -183,9 +197,7 @@ def generate_results_dict(
 
 
 def get_class_counts(
-    pred_bboxes: NDArray[np.float32],
-    gt_bboxes: NDArray[np.float32],
-    label_id_to_name: Dict[int, str],
+    pred_bboxes: np.ndarray, gt_bboxes: np.ndarray, label_id_to_name: Dict[int, str]
 ) -> Dict[str, int]:
     """
     Calculate the count of ground truth and predicted bounding boxes for each
@@ -212,14 +224,19 @@ def get_class_counts(
     counts = {}
     gt_labels = gt_bboxes[..., -1]
     pred_labels = pred_bboxes[..., -1]
-    for label in np.unique(gt_labels):
-        class_name = label_id_to_name[label]
-        gt_count = np.sum(gt_labels == label)
-        counts[f"{class_name}_gt"] = gt_count
-    for label in np.unique(pred_labels):
-        class_name = label_id_to_name[label]
-        pred_count = np.sum(pred_labels == label)
-        counts[f"{class_name}_pred"] = pred_count
+
+    unique_labels, counts = np.unique(gt_labels, return_counts=True)
+    counts = {
+        f"{label_id_to_name[label]}_gt": count
+        for label, count in zip(unique_labels, counts)
+    }
+
+    unique_labels, counts = np.unique(pred_labels, return_counts=True)
+    counts = {
+        f"{label_id_to_name[label]}_gt": count
+        for label, count in zip(unique_labels, counts)
+    }
+
     counts["total_gt"] = gt_labels.shape[0]
     counts["total_pred"] = pred_labels.shape[0]
     return counts

@@ -3,7 +3,7 @@ import numpy as np
 from code_loader.contract.datasetclasses import (  # type: ignore
     ConfusionMatrixValue,
 )
-from cv_ai_dl.tl.metrics.new_cm import od_confusion_matrix_metric  # type: ignore
+from code_loader.helpers.code_loader.helpers.detection.metrics.object_detection_confusion_matrix_metric import od_confusion_matrix_metric  # type: ignore
 
 
 class TestODConfusionMatrixMetric(unittest.TestCase):
