@@ -27,7 +27,7 @@ lint_tests:
 
 .PHONY: test_with_coverage
 test_with_coverage:
-	(cd code-loader && $(PYTEST) --cov=code_loader --cov-branch --no-cov-on-fail --cov-report term-missing --cov-report html -v tests/ code_loader.helpers/tests/)
+	(cd code-loader && $(PYTEST) --cov=code_loader --cov-branch --no-cov-on-fail --cov-report term-missing --cov-report html -v tests/)
 
 .PHONY: install_code_loader_dependencies
 install_code_loader_dependencies:
