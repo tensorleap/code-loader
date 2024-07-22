@@ -197,7 +197,9 @@ def generate_results_dict(
 
 
 def get_class_counts(
-    pred_bboxes: np.ndarray, gt_bboxes: np.ndarray, label_id_to_name: Dict[int, str]
+    pred_bboxes: NDArray[np.float32],
+    gt_bboxes: NDArray[np.float32],
+    label_id_to_name: Dict[int, str],
 ) -> Dict[str, int]:
     """
     Calculate the count of ground truth and predicted bounding boxes for each
