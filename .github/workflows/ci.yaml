@@ -36,6 +36,8 @@ jobs:
     - run: pip install poetry
     - name: install dependencies
       run: make install_code_loader_dependencies
+    - name: install_helpers_dependencies
+      run: make install_helpers_dependencies
     - run: make test_with_coverage_code_loader
       name: code_loader_tests
     - run: make test_with_coverage_helpers
