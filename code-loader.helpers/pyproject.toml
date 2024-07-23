@@ -8,8 +8,8 @@ packages = [{include = "code_loader"}]
 
 [tool.poetry.dependencies]
 python = "^3.8,<3.11"
-tensorflow = {version = "^2.0", markers = "platform_machine  == 'x86_64'"}
-tensorflow-macos = {version = "^2.5", markers = "platform_machine  == 'arm64'"}
+tensorflow = {version = "2.11.0", markers = "platform_machine  == 'x86_64'"}
+tensorflow-macos = {version = "2.11.0", markers = "platform_machine  == 'arm64'"}
 torch = ">= 1.4.0, <= 2.1.0"
 code-loader = "^1.0"
 
