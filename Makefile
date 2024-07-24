@@ -31,7 +31,7 @@ test_with_coverage_code_loader:
 
 .PHONY: test_with_coverage_helpers
 test_with_coverage_helpers:
-	(cd code-loader.helpers/code_loader && $(PYTEST) --cov=code_loader.helpers --cov-branch --no-cov-on-fail --cov-report term-missing --cov-report html -v tests/)
+	(cd code_loader_helpers/code_loader && $(PYTEST) --cov=code_loader.helpers --cov-branch --no-cov-on-fail --cov-report term-missing --cov-report html -v tests/)
 
 
 .PHONY: install_code_loader_dependencies
@@ -40,4 +40,4 @@ install_code_loader_dependencies:
 
 .PHONY: install_helpers_dependencies
 install_helpers_dependencies:
-	(cd code-loader.helpers && poetry install)
+	(cd code_loader_helpers && poetry install)
