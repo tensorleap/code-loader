@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from code_loader.contract.datasetclasses import ConfusionMatrixValue  # type: ignore
-from code_loader.helpers.detection.metrics.object_detection_confusion_matrix_metric import od_confusion_matrix_metric  # type: ignore
+from ..code_loader.helpers.detection.metrics.object_detection_confusion_matrix_metric import od_confusion_matrix_metric  # type: ignore
 
 
 @pytest.fixture

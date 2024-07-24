@@ -4,7 +4,7 @@ import pytest
 import tensorflow as tf  # type: ignore
 from typing import Dict, List
 
-from code_loader.helpers.detection.metrics.od_cm_components_metric import od_detection_metrics  # type: ignore
+from ..code_loader.helpers.detection.metrics.od_cm_components_metric import od_detection_metrics  # type: ignore
 
 
 @pytest.fixture
