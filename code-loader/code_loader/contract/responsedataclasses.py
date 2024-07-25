@@ -95,7 +95,19 @@ class DatasetTestResultPayload:
 
 @dataclass
 class BoundingBox:
-    # (x, y) is the center of the bounding box
+    """
+    Represents a bounding box for an object in an image.
+
+    Attributes:
+    x (float): The x-coordinate of the center of the bounding box, a value between [0, 1] representing the percentage according to the image width.
+    y (float): The y-coordinate of the center of the bounding box, a value between [0, 1] representing the percentage according to the image height.
+    width (float): The width of the bounding box, a value between [0, 1] representing the percentage according to the image width.
+    height (float): The height of the bounding box, a value between [0, 1] representing the percentage according to the image height.
+    confidence (float): The confidence score of the bounding box. For predictions, this is a score typically between [0, 1]. For ground truth data, this can be 1.
+    label (str): The label or class name associated with the bounding box.
+    rotation (float): The rotation of the bounding box, a value between [0, 360] representing the degree of rotation. Default is 0.0.
+    metadata (Optional[Dict[str, Union[str, int, float]]]): Optional metadata associated with the bounding box.
+    """
     x: float  # value between [0, 1], represent the percentage according to the image size.
     y: float  # value between [0, 1], represent the percentage according to the image size.
 
