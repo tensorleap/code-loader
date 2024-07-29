@@ -5,7 +5,7 @@ import sys
 from contextlib import redirect_stdout
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Iterable, Union, Any, Optional
+from typing import Dict, List, Iterable, Union, Any, Optional, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -13,7 +13,8 @@ import numpy.typing as npt
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, GroundTruthHandler, \
     PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
     PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler, ElementInstance
-from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType, DatasetMetadataType
+from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType, DatasetMetadataType, \
+    InstanceAnalysisType
 from code_loader.contract.exceptions import DatasetScriptException
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
