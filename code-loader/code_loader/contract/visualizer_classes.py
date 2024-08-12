@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 from dataclasses import dataclass
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt     # type: ignore
 
 from code_loader.contract.enums import LeapDataType
 from code_loader.contract.responsedataclasses import BoundingBox
