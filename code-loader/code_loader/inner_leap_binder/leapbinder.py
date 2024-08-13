@@ -9,8 +9,9 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
     CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, VisualizerCallableReturnType, \
-    CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute, RawInputsForHeatmap
-from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType, MetricDirection
+    CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute, \
+    RawInputsForHeatmap, InstanceCallableInterface, ElementInstanceHandler
+from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType, MetricDirection, InstanceAnalysisType
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
 from code_loader.contract.visualizer_classes import map_leap_data_type_to_visualizer_class
 from code_loader.utils import to_numpy_return_wrapper, get_shape
@@ -202,6 +203,10 @@ class LeapBinder:
 
         self._encoder_names.append(name)
 
+    def set_instance_element(self, input_name: str, instance_function: Optional[InstanceCallableInterface] = None,
+                             analysis_type: InstanceAnalysisType = InstanceAnalysisType.MaskInput) -> None:
+        self.setup_container.element_instances.append(ElementInstanceHandler(input_name, instance_function, analysis_type))
+
     def add_custom_loss(self, function: CustomCallableInterface, name: str) -> None:
         """
         Add a custom loss function to the setup.
@@ -361,7 +366,8 @@ class LeapBinder:
             custom_layer.kernel_index = kernel_index
 
         if use_custom_latent_space and not hasattr(custom_layer, custom_latent_space_attribute):
-            raise Exception(f"{custom_latent_space_attribute} function has not been set for custom layer: {custom_layer.__name__}")
+            raise Exception(
+                f"{custom_latent_space_attribute} function has not been set for custom layer: {custom_layer.__name__}")
 
         init_args = inspect.getfullargspec(custom_layer.__init__)[0][1:]
         call_args = inspect.getfullargspec(custom_layer.call)[0][1:]

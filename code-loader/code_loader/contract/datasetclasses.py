@@ -4,7 +4,7 @@ from typing import Any, Callable, List, Optional, Dict, Union, Type
 import numpy as np
 import numpy.typing as npt
 
-from code_loader.contract.enums import DataStateType, DataStateEnum, LeapDataType, ConfusionMatrixValue, MetricDirection
+from code_loader.contract.enums import DataStateType, DataStateEnum, LeapDataType, ConfusionMatrixValue, MetricDirection, InstanceAnalysisType
 from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask, LeapImageWithBBox, LeapImageWithHeatmap
 
@@ -36,7 +36,15 @@ class PreprocessResponse:
     data: Any
 
 
+@dataclass
+class ElementInstance:
+    name: str
+    mask: npt.NDArray[np.float32]
+
+
 SectionCallableInterface = Callable[[int, PreprocessResponse], npt.NDArray[np.float32]]
+
+InstanceCallableInterface = Callable[[int, PreprocessResponse], List[ElementInstance]]
 
 MetadataSectionCallableInterface = Union[
     Callable[[int, PreprocessResponse], int],
@@ -109,6 +117,7 @@ class MetricHandler:
     arg_names: List[str]
     direction: Optional[MetricDirection] = MetricDirection.Downward
 
+
 @dataclass
 class RawInputsForHeatmap:
     raw_input_by_vizualizer_arg_name: Dict[str, npt.NDArray[np.float32]]
@@ -132,6 +141,14 @@ class DatasetBaseHandler:
 @dataclass
 class InputHandler(DatasetBaseHandler):
     shape: Optional[List[int]] = None
+
+
+@dataclass
+class ElementInstanceHandler:
+    input_name: str
+    instance_function: InstanceCallableInterface
+    analysis_type: InstanceAnalysisType
+
 
 
 @dataclass
@@ -167,6 +184,7 @@ class DatasetIntegrationSetup:
     unlabeled_data_preprocess: Optional[UnlabeledDataPreprocessHandler] = None
     visualizers: List[VisualizerHandler] = field(default_factory=list)
     inputs: List[InputHandler] = field(default_factory=list)
+    element_instances: List[ElementInstanceHandler] = field(default_factory=list)
     ground_truths: List[GroundTruthHandler] = field(default_factory=list)
     metadata: List[MetadataHandler] = field(default_factory=list)
     prediction_types: List[PredictionTypeHandler] = field(default_factory=list)

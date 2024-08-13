@@ -64,3 +64,9 @@ class ConfusionMatrixValue(Enum):
 class TestingSectionEnum(Enum):
     Warnings = "Warnings"
     Errors = "Errors"
+
+
+
+class InstanceAnalysisType(Enum):
+    MaskInput = "MaskInput"
+    MaskLatentSpace = "MaskLatentSpace"
