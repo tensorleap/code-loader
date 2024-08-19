@@ -1,11 +1,12 @@
 import numpy as np
 import cv2
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Union
 from numpy.typing import NDArray
 
 
-def validate_image(image: NDArray, function_name: str, expected_channels: int, expected_type: bool = None,
-                   allow_float64: bool = None):
+def validate_image(image: NDArray[Any], function_name: str, expected_channels: int,
+                   expected_type: Optional[bool] = None,
+                   allow_float64: Optional[bool] = None, allow_uint16: Optional[bool] = None) -> None:
     """
         Validate the input image by checking its type, dimensions, and data type.
 
@@ -15,6 +16,7 @@ def validate_image(image: NDArray, function_name: str, expected_channels: int, e
             expected_channels (int): The expected number of color channels (e.g., 1 for grayscale, 3 for RGB).
             expected_type (bool, optional): Whether to check for specific dtypes. Defaults to None, meaning no dtype check.
             allow_float64 (bool, optional): Whether to allow float64 dtype in addition to uint8 and float32. Defaults to False.
+            allow_uint16 (bool, optional): Whether to allow uint16 dtype in addition to uint8 and float32. Defaults to False.
 
         Raises:
             NotImplementedError: If the input is not a NumPy array.
@@ -38,12 +40,18 @@ def validate_image(image: NDArray, function_name: str, expected_channels: int, e
         allowed_dtypes = ['uint8', 'float32']
         if allow_float64:
             allowed_dtypes.append('float64')
+        if allow_uint16:
+            allowed_dtypes.append('uint16')
         if image.dtype.name not in allowed_dtypes:
             raise Exception(
                 f"Wrong input type send to metadata {function_name}: Expected dtype {allowed_dtypes} Got {image.dtype.name}")
 
 
-def rgb_channel_stats(image: NDArray) -> Dict[str, Any]:
+def rgb_channel_stats(image: Union[NDArray[np.uint8],
+                                   NDArray[np.uint16],
+                                   NDArray[np.float32],
+                                   NDArray[np.float64],
+                                   NDArray[np.int32]]) -> Dict[str, Any]:
     """
     Get an RGB image in shape (H,W,3) and return the mean and standard deviation for each of its color channels.
 
@@ -78,7 +86,7 @@ def rgb_channel_stats(image: NDArray) -> Dict[str, Any]:
     return res
 
 
-def lab_channel_stats(image: NDArray) -> Dict[str, Any]:
+def lab_channel_stats(image: Union[NDArray[np.float32], NDArray[np.uint8]]) -> Dict[str, Any]:
     """
     Get an RGB image in shape (H,W,3) and return the mean of the 'a' and 'b' channels in the LAB color space.
 
@@ -95,7 +103,8 @@ def lab_channel_stats(image: NDArray) -> Dict[str, Any]:
         of the 'a' and 'b' channels. The results are returned as a dictionary with keys corresponding
         to the mean values of the 'a' and 'b' channels. All values are rounded to two decimal places.
     """
-    validate_image(image, lab_channel_stats.__name__, expected_channels=3, expected_type=True, allow_float64=False)
+    validate_image(image, lab_channel_stats.__name__, expected_channels=3, expected_type=True, allow_float64=False,
+                   allow_uint16=False)
 
     img_lab = cv2.cvtColor(image, cv2.COLOR_RGB2LAB)
     _, a, b = cv2.split(img_lab)
@@ -108,7 +117,7 @@ def lab_channel_stats(image: NDArray) -> Dict[str, Any]:
     return res
 
 
-def detect_sharpness(image: NDArray) -> Dict[str, Any]:
+def detect_sharpness(image: Union[NDArray[np.float32], NDArray[np.uint8], NDArray[np.float64], NDArray[np.uint16]]) -> Dict[str, Any]:
     """
     Get an RGB image in shape (H,W,3) and return a sharpness metric based on the gradient magnitude.
 
@@ -125,7 +134,8 @@ def detect_sharpness(image: NDArray) -> Dict[str, Any]:
         the mean of the gradient magnitude, which quantifies the overall sharpness of the image.
         The sharpness value is rounded to two decimal places before being returned.
     """
-    validate_image(image, lab_channel_stats.__name__, expected_channels=1, expected_type=True, allow_float64=True)
+    validate_image(image, lab_channel_stats.__name__, expected_channels=1, expected_type=True, allow_float64=True,
+                   allow_uint16=True)
 
     grad_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=3)
     grad_y = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=3)
@@ -134,4 +144,6 @@ def detect_sharpness(image: NDArray) -> Dict[str, Any]:
     res = {'sharpness': np.round(np.mean(gradient_magnitude), 2)}
 
     return res
+
+
 
