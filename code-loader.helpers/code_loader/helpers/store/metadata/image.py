@@ -4,8 +4,8 @@ from typing import Dict, Any, Optional, Union
 from numpy.typing import NDArray
 
 
-def validate_image(image: NDArray[Any], function_name: str, expected_channels: int,
-                   expected_type: Optional[bool] = None,
+def validate_image(image: Union[NDArray[np.uint8], NDArray[np.uint16], NDArray[np.float32], NDArray[np.float64],
+NDArray[np.int32]], function_name: str, expected_channels: int, expected_type: Optional[bool] = None,
                    allow_float64: Optional[bool] = None, allow_uint16: Optional[bool] = None) -> None:
     """
         Validate the input image by checking its type, dimensions, and data type.
@@ -48,15 +48,15 @@ def validate_image(image: NDArray[Any], function_name: str, expected_channels: i
 
 
 def rgb_channel_stats(image: Union[NDArray[np.uint8],
-                                   NDArray[np.uint16],
-                                   NDArray[np.float32],
-                                   NDArray[np.float64],
-                                   NDArray[np.int32]]) -> Dict[str, Any]:
+NDArray[np.uint16],
+NDArray[np.float32],
+NDArray[np.float64],
+NDArray[np.int32]]) -> Dict[str, Any]:
     """
     Get an RGB image in shape (H,W,3) and return the mean and standard deviation for each of its color channels.
 
-    Args:
-        image (NDArray): An RGB image in shape (H,W,3) represented as a NumPy array.
+    Args: image (Union[NDArray[np.uint8], NDArray[np.uint16], NDArray[np.float32], NDArray[np.float64],
+    NDArray[np.int32]]): An RGB image in shape (H,W,3) represented as a NumPy array.
 
     Returns:
         Dict[str, Any]: A dictionary containing:
@@ -90,8 +90,8 @@ def lab_channel_stats(image: Union[NDArray[np.float32], NDArray[np.uint8]]) -> D
     """
     Get an RGB image in shape (H,W,3) and return the mean of the 'a' and 'b' channels in the LAB color space.
 
-    Args:
-        image (NDArray): An RGB image in shape (H,W,3) represented as a NumPy array with float32 or uint8 values.
+    Args: image (Union[NDArray[np.uint8], NDArray[np.float32]])): An RGB image in shape (H,W,3) represented as a
+    NumPy array.
 
     Returns:
         Dict[str, Any]: A dictionary containing:
@@ -117,12 +117,13 @@ def lab_channel_stats(image: Union[NDArray[np.float32], NDArray[np.uint8]]) -> D
     return res
 
 
-def detect_sharpness(image: Union[NDArray[np.float32], NDArray[np.uint8], NDArray[np.float64], NDArray[np.uint16]]) -> Dict[str, Any]:
+def detect_sharpness(image: Union[NDArray[np.float32], NDArray[np.uint8], NDArray[np.float64], NDArray[np.uint16]]) -> \
+        Dict[str, Any]:
     """
     Get an RGB image in shape (H,W,3) and return a sharpness metric based on the gradient magnitude.
 
-    Args:
-        image (NDArray): An image represented as a NumPy array with float32, float64 or uint8 values.
+    Args: image ((Union[NDArray[np.uint8], NDArray[np.uint16], NDArray[np.float32], NDArray[np.float64]])): An image
+    represented as a NumPy array with float32, float64 or uint8 values.
 
     Returns:
         Dict[str, Any]: A dictionary containing:
@@ -144,6 +145,3 @@ def detect_sharpness(image: Union[NDArray[np.float32], NDArray[np.uint8], NDArra
     res = {'sharpness': np.round(np.mean(gradient_magnitude), 2)}
 
     return res
-
-
-
