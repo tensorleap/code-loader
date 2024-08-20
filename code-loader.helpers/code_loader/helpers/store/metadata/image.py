@@ -47,11 +47,8 @@ NDArray[np.int32]], function_name: str, expected_channels: int, expected_type: O
                 f"Wrong input type send to metadata {function_name}: Expected dtype {allowed_dtypes} Got {image.dtype.name}")
 
 
-def rgb_channel_stats(image: Union[NDArray[np.uint8],
-NDArray[np.uint16],
-NDArray[np.float32],
-NDArray[np.float64],
-NDArray[np.int32]]) -> Dict[str, Any]:
+def rgb_channel_stats(image: Union[NDArray[np.uint8], NDArray[np.uint16], NDArray[np.float32], NDArray[np.float64],
+                                    NDArray[np.int32]]) -> Dict[str, Any]:
     """
     Get an RGB image in shape (H,W,3) and return the mean and standard deviation for each of its color channels.
 
@@ -75,6 +72,9 @@ NDArray[np.int32]]) -> Dict[str, Any]:
     validate_image(image, rgb_channel_stats.__name__, 3)
 
     r, g, b = cv2.split(image)
+
+    if not isinstance(image, np.ndarray):
+        raise NotImplementedError(f"Expected numpy array Got {type(image)}")
 
     res = {'mean_red': np.round(r.mean(), 2),
            'mean_green': np.round(g.mean(), 2),
@@ -145,3 +145,5 @@ def detect_sharpness(image: Union[NDArray[np.float32], NDArray[np.uint8], NDArra
     res = {'sharpness': np.round(np.mean(gradient_magnitude), 2)}
 
     return res
+
+
