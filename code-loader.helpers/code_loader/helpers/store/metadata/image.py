@@ -74,9 +74,6 @@ NDArray[np.int32]]) -> Dict[str, Any]:
     """
     validate_image(image, rgb_channel_stats.__name__, 3)
 
-    if not isinstance(image, np.ndarray):
-        raise NotImplementedError(f"Expected numpy array Got {type(image)}")
-
     r, g, b = cv2.split(image)
 
     res = {'mean_red': np.round(r.mean(), 2),
