@@ -72,9 +72,6 @@ def rgb_channel_stats(image: Union[NDArray[np.uint8], NDArray[np.uint16], NDArra
     validate_image(image, rgb_channel_stats.__name__, 3)
 
     r, g, b = cv2.split(image)
-    for channel in [r, g, b]:
-        if not isinstance(channel, np.ndarray):
-            raise NotImplementedError(f"Expected numpy array Got {type(channel)}")
 
     res = {'mean_red': np.round(np.array(r).mean(), 2),
            'mean_green': np.round(np.array(g).mean(), 2),
