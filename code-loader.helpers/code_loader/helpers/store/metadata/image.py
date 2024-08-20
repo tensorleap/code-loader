@@ -24,7 +24,7 @@ NDArray[np.int32]], function_name: str, expected_channels: int, expected_type: O
             Exception: If the image data type is not one of the allowed types.
         """
     if not isinstance(image, np.ndarray):
-        raise TypeError(
+        raise NotImplementedError(
             f"Wrong input type send to metadata {function_name}: Expected numpy array Got {type(image)}")
 
     if expected_channels == 3:
@@ -73,6 +73,9 @@ NDArray[np.int32]]) -> Dict[str, Any]:
         All values are rounded to two decimal places.
     """
     validate_image(image, rgb_channel_stats.__name__, 3)
+
+    if not isinstance(image, np.ndarray):
+        raise NotImplementedError(f"Expected numpy array Got {type(image)}")
 
     r, g, b = cv2.split(image)
 
