@@ -76,12 +76,12 @@ def rgb_channel_stats(image: Union[NDArray[np.uint8], NDArray[np.uint16], NDArra
         if not isinstance(channel, np.ndarray):
             raise NotImplementedError(f"Expected numpy array Got {type(channel)}")
 
-    res = {'mean_red': np.round(r.mean(), 2),
-           'mean_green': np.round(g.mean(), 2),
-           'mean_blue': np.round(b.mean(), 2),
-           'std_red': np.round(r.std(), 2),
-           'std_green': np.round(g.std(), 2),
-           'std_blue': np.round(b.std(), 2)}
+    res = {'mean_red': np.round(np.array(r).mean(), 2),
+           'mean_green': np.round(np.array(g).mean(), 2),
+           'mean_blue': np.round(np.array(b).mean(), 2),
+           'std_red': np.round(np.array(r).std(), 2),
+           'std_green': np.round(np.array(g).std(), 2),
+           'std_blue': np.round(np.array(b).std(), 2)}
 
     return res
 
