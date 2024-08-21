@@ -23,8 +23,8 @@ def load_workspace_config(workspace_dir: Optional[str] = None) -> Optional[Local
     with open(file_path) as f:
         leap_yaml = yaml.safe_load(f)
         return LocalProjectConfig(
-            codeIntegrationId=leap_yaml["codeIntegrationId"] if "codeIntegrationId" in leap_yaml else None,
-            projectId=leap_yaml["projectId"] if "projectId" in leap_yaml else None,
-            secretId=leap_yaml["secretId"] if "secretId" in leap_yaml else None,
-            entryFile=leap_yaml["entryFile"] if "entryFile" in leap_yaml else None
+            codeIntegrationId=leap_yaml.get("codeIntegrationId"),
+            projectId=leap_yaml.get("projectId"),
+            secretId=leap_yaml.get("secretId"),
+            entryFile=leap_yaml.get("entryFile"),
         )
