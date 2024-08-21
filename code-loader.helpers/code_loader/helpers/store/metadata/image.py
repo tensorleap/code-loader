@@ -24,19 +24,19 @@ def validate_image(image: NDArray[np.float64], expected_channels: Optional[int] 
 
     if not isinstance(image, np.ndarray):
         raise NotImplementedError(
-            f"Wrong input type send to metadata {caller_name}: Expected numpy array Got {type(image)}.")
+            f"Wrong input type sent to metadata {caller_name}: Expected numpy array Got {type(image)}.")
 
     if image.dtype.name != 'float64':
         raise Exception(
-            f"Wrong input type send to metadata {caller_name}: Expected dtype float64 Got {image.dtype.name}.")
+            f"Wrong input type sent to metadata {caller_name}: Expected dtype float64 Got {image.dtype.name}.")
 
     if expected_channels and expected_channels == 3:
         if image.ndim != 3 or image.shape[-1] != 3:
-            raise ValueError(f"Wrong input dimension send to metadata {caller_name}: Expected 3D with {expected_channels} "
+            raise ValueError(f"Wrong input dimension sent to metadata {caller_name}: Expected 3D with {expected_channels} "
                              f"channels, but Got {image.ndim}D with {image.shape[-1]} channels .")
     else:
         if image.ndim != 3:
-            raise ValueError(f"Wrong input dimension send to metadata {caller_name}: Expected 3D but Got {image.ndim}D.")
+            raise ValueError(f"Wrong input dimension sent to metadata {caller_name}: Expected 3D but Got {image.ndim}D.")
 
 
 def rgb_channel_stats(image: NDArray[np.float64]) -> Dict[str, np.float64]:
@@ -73,14 +73,14 @@ def rgb_channel_stats(image: NDArray[np.float64]) -> Dict[str, np.float64]:
     return res
 
 
-def lab_channel_stats(image: NDArray[np.float64]) -> Dict[str, np.float32]:
+def lab_channel_stats(image: NDArray[np.float64]) -> Dict[str, Any]:
     """
     Get an RGB image in shape (H,W,3) and return the mean of the 'a' and 'b' channels in the LAB color space.
 
     Args: image (NDArray[np.float64]): A RGB image in shape (H,W,3) represented as a NumPy array.
 
     Returns:
-        Dict[str, np.float32]: A dictionary containing:
+        Dict[str, Any]: A dictionary containing:
             - 'a_mean': Mean value of the 'a' channel.
             - 'b_mean': Mean value of the 'b' channel.
 
