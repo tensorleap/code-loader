@@ -127,15 +127,3 @@ def detect_sharpness(image: NDArray[np.float64]) -> Dict[str, np.float64]:
     res = {'sharpness': np.round(np.mean(gradient_magnitude), 2)}
 
     return res
-
-
-if __name__ == "__main__":
-    image = np.random.randint(100, size=(100, 200, 3)).astype('float64')
-    # image = cv2.imread('/Users/chenrothschild/tensorleap/data/datasets-reteai/iconqa/iconqa/train/choose_txt/10/image.png')
-    # image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) / 255.
-    #
-    # image = image / 255.
-    _ = rgb_channel_stats(image)
-    _ = lab_channel_stats(image)
-    image = np.random.randint(100, size=(1, 100, 200, 4)).astype('float64')
-    _ = detect_sharpness(image)
