@@ -2,61 +2,51 @@ import numpy as np
 import cv2
 from typing import Dict, Any, Optional, Union
 from numpy.typing import NDArray
+import inspect
 
 
-def validate_image(image: Union[NDArray[np.uint8], NDArray[np.uint16], NDArray[np.float32], NDArray[np.float64],
-NDArray[np.int32]], function_name: str, expected_channels: int, expected_type: Optional[bool] = None,
-                   allow_float64: Optional[bool] = None, allow_uint16: Optional[bool] = None) -> None:
+def validate_image(image: NDArray[np.float64], expected_channels: Optional[int] = None) -> None:
     """
         Validate the input image by checking its type, dimensions, and data type.
 
         Args:
             image (NDArray): The image to validate.
-            function_name (str): The name of the calling function for error reporting.
             expected_channels (int): The expected number of color channels (e.g., 1 for grayscale, 3 for RGB).
-            expected_type (bool, optional): Whether to check for specific dtypes. Defaults to None, meaning no dtype check.
-            allow_float64 (bool, optional): Whether to allow float64 dtype in addition to uint8 and float32. Defaults to False.
-            allow_uint16 (bool, optional): Whether to allow uint16 dtype in addition to uint8 and float32. Defaults to False.
 
         Raises:
             NotImplementedError: If the input is not a NumPy array.
             ValueError: If the image does not have the expected number of dimensions or channels.
             Exception: If the image data type is not one of the allowed types.
         """
+
+    caller_frame = inspect.stack()[1]
+    caller_name = caller_frame.function
+
     if not isinstance(image, np.ndarray):
         raise NotImplementedError(
-            f"Wrong input type send to metadata {function_name}: Expected numpy array Got {type(image)}")
+            f"Wrong input type send to metadata {caller_name}: Expected numpy array Got {type(image)}.")
 
-    if expected_channels == 3:
+    if image.dtype.name != 'float64':
+        raise Exception(
+            f"Wrong input type send to metadata {caller_name}: Expected dtype float64 Got {image.dtype.name}.")
+
+    if expected_channels and expected_channels == 3:
         if image.ndim != 3 or image.shape[-1] != 3:
-            raise ValueError(f"Wrong input dimension send to metadata {function_name}: Expected 3 Got 1")
-    elif expected_channels == 1:
-        if not (image.ndim == 2 or (image.ndim == 3 and image.shape[-1] == 1)):
-            raise ValueError(
-                f"{function_name}: Expected grayscale input (2D array or 3D with 1 channel), but got {image.ndim}D with "
-                f"shape {image.shape}")
-
-    if expected_type is not None:
-        allowed_dtypes = ['uint8', 'float32']
-        if allow_float64:
-            allowed_dtypes.append('float64')
-        if allow_uint16:
-            allowed_dtypes.append('uint16')
-        if image.dtype.name not in allowed_dtypes:
-            raise Exception(
-                f"Wrong input type send to metadata {function_name}: Expected dtype {allowed_dtypes} Got {image.dtype.name}")
+            raise ValueError(f"Wrong input dimension send to metadata {caller_name}: Expected 3D with {expected_channels} "
+                             f"channels, but Got {image.ndim}D with {image.shape[-1]} channels .")
+    else:
+        if image.ndim != 3:
+            raise ValueError(f"Wrong input dimension send to metadata {caller_name}: Expected 3D but Got {image.ndim}D.")
 
 
-def rgb_channel_stats(image: Union[NDArray[np.uint8], NDArray[np.uint16], NDArray[np.float32], NDArray[np.float64],
-                                    NDArray[np.int32]]) -> Dict[str, Any]:
+def rgb_channel_stats(image: NDArray[np.float64]) -> Dict[str, np.float64]:
     """
     Get an RGB image in shape (H,W,3) and return the mean and standard deviation for each of its color channels.
 
-    Args: image (Union[NDArray[np.uint8], NDArray[np.uint16], NDArray[np.float32], NDArray[np.float64],
-    NDArray[np.int32]]): An RGB image in shape (H,W,3) represented as a NumPy array.
+    Args: image (NDArray[np.float64]): An RGB image in shape (H,W,3) represented as a NumPy array.
 
     Returns:
-        Dict[str, Any]: A dictionary containing:
+        Dict[str, np.float64]: A dictionary containing:
             - 'mean_red': Mean brightness of the red channel.
             - 'mean_green': Mean brightness of the green channel.
             - 'mean_blue': Mean brightness of the blue channel.
@@ -69,7 +59,7 @@ def rgb_channel_stats(image: Union[NDArray[np.uint8], NDArray[np.uint16], NDArra
         The results are returned as a dictionary with keys corresponding to the statistical measures for each channel.
         All values are rounded to two decimal places.
     """
-    validate_image(image, rgb_channel_stats.__name__, 3)
+    validate_image(image, expected_channels=3)
 
     r, g, b = cv2.split(image)
 
@@ -83,15 +73,14 @@ def rgb_channel_stats(image: Union[NDArray[np.uint8], NDArray[np.uint16], NDArra
     return res
 
 
-def lab_channel_stats(image: Union[NDArray[np.float32], NDArray[np.uint8]]) -> Dict[str, Any]:
+def lab_channel_stats(image: NDArray[np.float64]) -> Dict[str, np.float32]:
     """
     Get an RGB image in shape (H,W,3) and return the mean of the 'a' and 'b' channels in the LAB color space.
 
-    Args: image (Union[NDArray[np.uint8], NDArray[np.float32]])): An RGB image in shape (H,W,3) represented as a
-    NumPy array.
+    Args: image (NDArray[np.float64]): A RGB image in shape (H,W,3) represented as a NumPy array.
 
     Returns:
-        Dict[str, Any]: A dictionary containing:
+        Dict[str, np.float32]: A dictionary containing:
             - 'a_mean': Mean value of the 'a' channel.
             - 'b_mean': Mean value of the 'b' channel.
 
@@ -100,10 +89,9 @@ def lab_channel_stats(image: Union[NDArray[np.float32], NDArray[np.uint8]]) -> D
         of the 'a' and 'b' channels. The results are returned as a dictionary with keys corresponding
         to the mean values of the 'a' and 'b' channels. All values are rounded to two decimal places.
     """
-    validate_image(image, lab_channel_stats.__name__, expected_channels=3, expected_type=True, allow_float64=False,
-                   allow_uint16=False)
+    validate_image(image)
 
-    img_lab = cv2.cvtColor(image, cv2.COLOR_RGB2LAB)
+    img_lab = cv2.cvtColor(image.astype('float32'), cv2.COLOR_RGB2LAB)
     _, a, b = cv2.split(img_lab)
 
     mean_a = np.mean(img_lab[:, :, 1])
@@ -114,26 +102,23 @@ def lab_channel_stats(image: Union[NDArray[np.float32], NDArray[np.uint8]]) -> D
     return res
 
 
-def detect_sharpness(image: Union[NDArray[np.float32], NDArray[np.uint8], NDArray[np.float64], NDArray[np.uint16]]) -> \
-        Dict[str, Any]:
+def detect_sharpness(image: NDArray[np.float64]) -> Dict[str, np.float64]:
     """
-    Get an RGB image in shape (H,W,3) and return a sharpness metric based on the gradient magnitude.
+    Get an image in shape (H,W,C) and return a sharpness metric based on the gradient magnitude.
 
-    Args: image ((Union[NDArray[np.uint8], NDArray[np.uint16], NDArray[np.float32], NDArray[np.float64]])): An image
-    represented as a NumPy array with float32, float64 or uint8 values.
+    Args: image (NDArray[np.float64]): A gray scale image represented as a NumPy array.
 
     Returns:
-        Dict[str, Any]: A dictionary containing:
+        Dict[str, np.float64]: A dictionary containing:
             - 'sharpness': The average gradient magnitude, representing the sharpness of the image.
 
     Description:
-        This function converts the input RGB image to grayscale and computes the gradient magnitude using
-        the Sobel operator in both the x and y directions. The sharpness metric is determined by calculating
-        the mean of the gradient magnitude, which quantifies the overall sharpness of the image.
+        This function computes the gradient magnitude using the Sobel operator in both the x and y directions.
+        The sharpness metric is determined by calculating the mean of the gradient magnitude, which quantifies the
+        overall sharpness of the image.
         The sharpness value is rounded to two decimal places before being returned.
     """
-    validate_image(image, lab_channel_stats.__name__, expected_channels=1, expected_type=True, allow_float64=True,
-                   allow_uint16=True)
+    validate_image(image)
 
     grad_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=3)
     grad_y = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=3)
@@ -144,3 +129,13 @@ def detect_sharpness(image: Union[NDArray[np.float32], NDArray[np.uint8], NDArra
     return res
 
 
+if __name__ == "__main__":
+    image = np.random.randint(100, size=(100, 200, 3)).astype('float64')
+    # image = cv2.imread('/Users/chenrothschild/tensorleap/data/datasets-reteai/iconqa/iconqa/train/choose_txt/10/image.png')
+    # image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) / 255.
+    #
+    # image = image / 255.
+    _ = rgb_channel_stats(image)
+    _ = lab_channel_stats(image)
+    image = np.random.randint(100, size=(1, 100, 200, 4)).astype('float64')
+    _ = detect_sharpness(image)
