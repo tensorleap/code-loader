@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from os import path
 import os
-from typing import List, Optional
+from typing import Optional
 import yaml
 
 
@@ -10,9 +10,7 @@ class LocalProjectConfig:
     codeIntegrationId: Optional[str] = None
     projectId: Optional[str] = None
     secretId: Optional[str] = None
-    secretManagerId: Optional[str] = None
     entryFile: Optional[str] = None
-    includePatterns: Optional[List[str]] = None
 
 # Loading workspace configuration from leap.yaml
 def load_workspace_config(workspace_dir: Optional[str] = None) -> Optional[LocalProjectConfig]:
@@ -23,5 +21,10 @@ def load_workspace_config(workspace_dir: Optional[str] = None) -> Optional[Local
 
     file_path = path.join(workspace_dir, "leap.yaml")
     with open(file_path) as f:
-        y = yaml.safe_load(f)
-        return LocalProjectConfig(**y)
+        leap_yaml = yaml.safe_load(f)
+        return LocalProjectConfig(
+            codeIntegrationId=leap_yaml.get("codeIntegrationId"),
+            projectId=leap_yaml.get("projectId"),
+            secretId=leap_yaml.get("secretId"),
+            entryFile=leap_yaml.get("entryFile"),
+        )

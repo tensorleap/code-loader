@@ -6,18 +6,21 @@ from code_loader.experiment_api.types import ApiMetrics
 
 
 @dataclass
-class StartExperimentRequest:
-    projectId: str
+class InitExperimentRequest:
     experimentName: str
     description: str
+    projectName: Optional[str] = None
+    projectId: Optional[str] = None
     removeUntaggedUploadedModels: bool = True
-    codeIntegrationVersionId: Optional[str] = None
+    codeIntegrationName: Optional[str] = None
+    codeIntegrationId: Optional[str] = None
 
 @dataclass
-class StartExperimentResponse:
+class InitExperimentResponse:
     projectId: str
     versionId: str
     experimentId: str
+    isCreatedProject: bool
 
 @dataclass
 class GetUploadModelSignedUrlRequest:
@@ -34,7 +37,7 @@ class GetUploadModelSignedUrlResponse:
     fileName: str
 
 @dataclass
-class AddExternalEpochDataRequest:
+class LogExternalEpochDataRequest:
   projectId: str
   experimentId: str
   epoch: int
@@ -49,33 +52,33 @@ class TagModelRequest:
   tags: List[str]
 
 @dataclass
-class SetExperimentNotesRequest:
+class SetExperimentPropertiesRequest:
     projectId: str
     experimentId: str
-    notes: Dict[str, Any]
+    properties: Dict[str, Any]
 
 class Api:
     def __init__(self, client: Client):
         self.client = client
     
-    def start_experiment(self, data: StartExperimentRequest) -> StartExperimentResponse:
-        response = self.client.post('/versions/startExperiment', data)
+    def init_experiment(self, data: InitExperimentRequest) -> InitExperimentResponse:
+        response = self.client.post('/versions/initExperiment', data)
         self.client.check_response(response)
-        return StartExperimentResponse(**response.json())
+        return InitExperimentResponse(**response.json())
     
     def get_uploaded_model_signed_url(self, data: GetUploadModelSignedUrlRequest)-> GetUploadModelSignedUrlResponse:
         response = self.client.post('/versions/getUploadModelSignedUrl', data)
         self.client.check_response(response)
         return GetUploadModelSignedUrlResponse(**response.json())
     
-    def add_external_epoch_data(self, data: AddExternalEpochDataRequest)-> None:
-        response = self.client.post('/externalepochdata/addExternalEpochData', data)
+    def log_external_epoch_data(self, data: LogExternalEpochDataRequest)-> None:
+        response = self.client.post('/externalepochdata/logExternalEpochData', data)
         self.client.check_response(response)
     
     def tag_model(self, data: TagModelRequest)-> None:
         response = self.client.post('/versions/tagModel', data)
         self.client.check_response(response)
 
-    def set_experiment_notes(self, data: SetExperimentNotesRequest)-> None:
-        response = self.client.post('/versions/setExperimentNotes', data)
+    def set_experiment_properties(self, data: SetExperimentPropertiesRequest)-> None:
+        response = self.client.post('/versions/setExperimentProperties', data)
         self.client.check_response(response)

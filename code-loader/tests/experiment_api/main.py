@@ -5,7 +5,7 @@ from code_loader.experiment_api.experiment import init_experiment
 
 working_dir = path.dirname(path.abspath(__file__))
 
-exp = init_experiment("Exp1", "description", working_dir=working_dir)
+exp = init_experiment("Exp1", "description", working_dir=working_dir, project_name="pppp")
 
 h5_file_path = path.join(working_dir, "mnist.h5")
 
@@ -61,7 +61,7 @@ exp.log_epoch(epoch=6, metrics={
 }, model_path=h5_file_path, tags=["latest"])
 
 
-exp.set_notes({ 
+exp.set_properties({ 
     'description': "This is a note", 
     "tags": ["note", "important"],
     "custom_note": "custom_note",
