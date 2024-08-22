@@ -420,14 +420,12 @@ class LeapBinder:
             ]
             for i, (single_metadata_name, single_metadata_result) in enumerate(raw_result.items()):
                 metadata_test_result = metadata_test_result_payloads[i]
-                assert isinstance(single_metadata_result, (float, int, str, bool))
                 result_shape = get_shape(single_metadata_result)
                 metadata_test_result.shape = result_shape
                 metadata_test_result.raw_result = single_metadata_result
                 metadata_test_result.handler_type = handler_type
             test_result = metadata_test_result_payloads
         else:
-            assert not isinstance(raw_result, dict)
             result_shape = get_shape(raw_result)
             test_result[0].shape = result_shape
             test_result[0].raw_result = raw_result

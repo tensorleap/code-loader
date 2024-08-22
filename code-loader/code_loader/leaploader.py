@@ -233,13 +233,13 @@ class LeapLoader:
             if hasattr(handler_test_payload.raw_result, 'tolist'):
                 handler_test_payload.raw_result = handler_test_payload.raw_result.tolist()
             metadata_type = type(handler_test_payload.raw_result)
-            if metadata_type == int:
+            if metadata_type == int or isinstance(handler_test_payload.raw_result, (np.unsignedinteger, np.signedinteger)):
                 metadata_type = float
-            if metadata_type == str:
+            if isinstance(handler_test_payload.raw_result, str):
                 dataset_metadata_type = DatasetMetadataType.string
-            elif metadata_type == bool:
+            elif metadata_type == bool or isinstance(handler_test_payload.raw_result, np.bool_):
                 dataset_metadata_type = DatasetMetadataType.boolean
-            elif metadata_type == float:
+            elif metadata_type == float or isinstance(handler_test_payload.raw_result, np.floating):
                 dataset_metadata_type = DatasetMetadataType.float
             else:
                 raise Exception(f"Unsupported return type of metadata {handler_test_payload.name}."
