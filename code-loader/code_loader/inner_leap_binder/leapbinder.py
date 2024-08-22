@@ -420,6 +420,7 @@ class LeapBinder:
             ]
             for i, (single_metadata_name, single_metadata_result) in enumerate(raw_result.items()):
                 metadata_test_result = metadata_test_result_payloads[i]
+
                 result_shape = get_shape(single_metadata_result)
                 metadata_test_result.shape = result_shape
                 metadata_test_result.raw_result = single_metadata_result

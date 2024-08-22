@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 from types import TracebackType
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Any
 import traceback
 import numpy as np
 import numpy.typing as npt
@@ -43,7 +43,7 @@ def get_root_exception_file_and_line_number() -> Tuple[int, str, str]:
     return root_exception_line_number, root_exception_file_name, traceback_as_string
 
 
-def get_shape(result: Union[npt.NDArray[np.float32], str, float, int, bool]) -> List[int]:
+def get_shape(result: Any) -> List[int]:
     if not isinstance(result, np.ndarray):
         return [1]
     np_shape = result.shape
