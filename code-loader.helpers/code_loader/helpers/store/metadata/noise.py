@@ -2,7 +2,7 @@ import numpy as np
 import scipy.ndimage
 import skimage
 
-from image import validate_image
+from code_loader.helpers.store.image import validate_image
 
 def get_abs_log_metadata(image: np.ndarray, sigma=1) -> np.ndarray:
     """
