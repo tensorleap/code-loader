@@ -29,14 +29,15 @@ def validate_image(image: NDArray[np.float64], expected_channels: Optional[int] 
     if image.dtype.name != 'float64':
         raise Exception(
             f"Wrong input type sent to metadata {caller_name}: Expected dtype float64 Got {image.dtype.name}.")
+    
+    if image.ndim != 3:
+        raise ValueError(f"Wrong input dimension sent to metadata {caller_name}: Expected 3D but Got {image.ndim}D.")
 
-    if expected_channels and expected_channels == 3:
-        if image.ndim != 3 or image.shape[-1] != 3:
-            raise ValueError(f"Wrong input dimension sent to metadata {caller_name}: Expected 3D with {expected_channels} "
-                             f"channels, but Got {image.ndim}D with {image.shape[-1]} channels .")
-    else:
-        if image.ndim != 3:
-            raise ValueError(f"Wrong input dimension sent to metadata {caller_name}: Expected 3D but Got {image.ndim}D.")
+
+    if expected_channels and expected_channels != image.shape[-1]:
+        raise ValueError(f"Wrong input dimension sent to metadata {caller_name}: Expected {expected_channels} channels, "
+                         f"but Got {image.shape[-1]} channels.")
+    
 
 
 def rgb_channel_stats(image: NDArray[np.float64]) -> Dict[str, np.float64]:
@@ -89,7 +90,7 @@ def lab_channel_stats(image: NDArray[np.float64]) -> Dict[str, Any]:
         of the 'a' and 'b' channels. The results are returned as a dictionary with keys corresponding
         to the mean values of the 'a' and 'b' channels. All values are rounded to two decimal places.
     """
-    validate_image(image)
+    validate_image(image, expected_channels=3)
 
     img_lab = cv2.cvtColor(image.astype('float32'), cv2.COLOR_RGB2LAB)
     _, a, b = cv2.split(img_lab)
