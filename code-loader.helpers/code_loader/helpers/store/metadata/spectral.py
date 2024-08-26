@@ -1,33 +1,30 @@
 import numpy as np
 from numpy.typing import NDArray
 from scipy import fftpack
+from code_loader.helpers.store_helpers.spectral_analysis import compute_magnitude_spectrum, radial_profile
 
-
-def quantify_frequency_content(image):
+def quantify_frequency_content(image: NDArray[np.float64], f_min: np.float64, f_max: np.float64) -> np.float64:
     """
-    Quantify the amounts of low and high-frequency content in an image.
+    Quantify the energy in a specific frequency band of an image.
 
-    Parameters:
-    - image: 2D numpy array (input image)
-    - cutoff_frequency: float (normalized cutoff frequency, between 0 and 0.5)
+    Args:
+        image: Input image as a 2D numpy array.
+        f_min: Lower frequency bound.
+        f_max: Upper frequency bound.
 
     Returns:
-    - low_freq_energy_ratio: Ratio of low-frequency energy to total energy
-    - high_freq_energy_ratio: Ratio of high-frequency energy to total energy
+        freq_energy_ratio: Ratio of energy in the specified frequency band to the total energy.
     """
+    magnitude_spectrum = compute_magnitude_spectrum(image)
+    freq, radial_prof = radial_profile(magnitude_spectrum)
 
-    freq, radial_prof = frequency_analysis(image)
+    f_mask = ((freq < f_max).astype(int) * (freq > f_min).astype(int)).astype(bool)
 
-    hf_mask = ((freq < 0.45).astype(int) * (freq > 0.15).astype(int)).astype(bool)
-    lf_mask = ((freq < 0.15).astype(int) * (freq > 0.04).astype(int)).astype(bool)
-
-    # Calculate the energy in each frequency band
-    low_freq_energy = np.sum(radial_prof[lf_mask])
-    high_freq_energy = np.sum(radial_prof[hf_mask])
+    # Calculate the energy in frequency band
+    freq_energy = np.sum(radial_prof[f_mask])
     # Total energy
     total_energy = np.sum(radial_prof)
     # Ratios of energy in low and high frequencies
-    low_freq_energy_ratio = low_freq_energy / total_energy
-    high_freq_energy_ratio = high_freq_energy / total_energy
+    freq_energy_ratio = freq_energy / total_energy
 
-    return low_freq_energy_ratio, high_freq_energy_ratio
+    return freq_energy_ratio
