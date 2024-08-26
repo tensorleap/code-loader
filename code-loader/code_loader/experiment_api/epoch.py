@@ -91,13 +91,14 @@ class Epoch:
             tags=tags
         ))
 
-    def log(self, modelFilePath: Optional[str] = None, tags: Optional[List[str]] = None) -> None:
+    def log(self, modelFilePath: Optional[str] = None, tags: Optional[List[str]] = None, override: bool = False) -> None:
         """
         Logs the epoch with optional model file and tags.
 
         Args:
             modelFilePath (Optional[str]): The path to the model file. Defaults to None.
             tags (Optional[List[str]]): A list of tags to associate with the epoch model. Will always include the default tag. Unless the default tag is set to '', all previous epoch model with the same tag will be removed
+            override (bool): Whether to override the existing epoch model. Defaults to False.
         """
         if tags is None:
             tags = []
@@ -119,7 +120,8 @@ class Epoch:
             experimentId=self.ctx.experiment_id,
             projectId=self.ctx.project_id,
             epoch=self.epoch,
-            metrics=api_metrics
+            metrics=api_metrics,
+            override=override
         ))
         if modelFilePath is not None and len(tags) > 0:
             self._tag_model(tags)
