@@ -43,7 +43,7 @@ def compute_magnitude_spectrum(image: NDArray[np.float64]) -> NDArray[np.float64
     f = fftpack.fft2(image)
     fshift = fftpack.fftshift(f)
     magnitude_spectrum = 20 * np.log10(np.abs(fshift))
-    return magnitude_spectrum
+    return np.asarray(magnitude_spectrum).astype(np.float64)
 
 
 def radial_profile(spectrum_array: NDArray[np.float64], 
