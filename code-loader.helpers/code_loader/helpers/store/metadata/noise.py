@@ -4,7 +4,7 @@ from numpy.typing import NDArray
 import scipy.ndimage # type: ignore
 import skimage # type: ignore
 
-from code_loader.helpers.store.image import validate_image
+from code_loader.helpers.store.image import validate_image  # type: ignore
 
 def get_abs_log_metadata(image: NDArray[np.float64], sigma=1) -> NDArray[np.float64]:
     """
@@ -29,7 +29,6 @@ def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
 
     Returns:
         The estimated noise sigma
-
     """
     validate_image(image)
     sigma = skimage.restoration.estimate_sigma(image, average_sigmas=True, channel_axis=-1)
