@@ -3,7 +3,7 @@ import numpy as np
 from numpy.typing import NDArray
 from code_loader.helpers.store_helpers.spectral_analysis import compute_magnitude_spectrum, radial_profile
 
-def frequency_band_retention_score(noisy: NDArray[np.float64], denoised: NDArray[np.float64], 
+def frequency_band_retention_score(noisy: NDArray[np.float64], denoised: NDArray[np.float64], pixel_size: np.float64,
                                    f_min: np.float64, f_max: np.float64) -> NDArray[np.float64]:
 
     batch_size = noisy.shape[0]
@@ -19,9 +19,8 @@ def frequency_band_retention_score(noisy: NDArray[np.float64], denoised: NDArray
         ps_denoised = compute_magnitude_spectrum(denoised_sample)
 
         # Compute radial profile
-        center = tuple(map(lambda x: x // 2, ps_noisy.shape))
-        freq, power_noisy = radial_profile(ps_noisy, center)
-        _, power_denoised = radial_profile(ps_denoised, center)
+        freq, power_noisy = radial_profile(ps_noisy, pixel_size)
+        _, power_denoised = radial_profile(ps_denoised, pixel_size)
 
         # Define frequency bands (relative frequencies)
         f_mask = ((freq < f_max).astype(int) * (freq > f_min).astype(int)).astype(bool)

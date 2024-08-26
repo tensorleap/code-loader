@@ -6,7 +6,7 @@ import skimage # type: ignore
 
 from code_loader.helpers.store.image import validate_image  # type: ignore
 
-def get_abs_log_metadata(image: NDArray[np.float64], sigma=1) -> NDArray[np.float64]:
+def get_abs_log_metadata(image: NDArray[np.float64], sigma: int=1) -> NDArray[np.float64]:
     """
     Gets an image returns the absolute value of a LOG (Laplacian of Gaussians).
     Can be used to detect non-flat areas
