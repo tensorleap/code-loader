@@ -57,7 +57,7 @@ def lab_channel_stats(image: NDArray[np.float64]) -> Dict[str, Any]:
         of the 'a' and 'b' channels. The results are returned as a dictionary with keys corresponding
         to the mean values of the 'a' and 'b' channels. All values are rounded to two decimal places.
     """
-    validate_image(image)
+    validate_image(image, expected_channels=3)
 
     img_lab = cv2.cvtColor(image.astype('float32'), cv2.COLOR_RGB2LAB)
     _, a, b = cv2.split(img_lab)
