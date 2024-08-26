@@ -2,7 +2,7 @@ from typing import Tuple
 import numpy as np
 from numpy.typing import NDArray
 from scipy import fftpack  # type: ignore
-from code_loader.helpers.store_helpers.validators import validate_image  # type: ignore
+from code_loader.helpers.store_helpers.validators import validate_image  
 
 
 def compute_power_spectrum(image: NDArray[np.float64]) -> NDArray[np.float64]:

@@ -1,14 +1,15 @@
 import numpy as np
 from numpy.typing import NDArray
 from scipy import fftpack # type: ignore
-from code_loader.helpers.store_helpers.spectral_analysis import compute_magnitude_spectrum, radial_profile  # type: ignore
+from code_loader.helpers.store_helpers.spectral_analysis import compute_magnitude_spectrum, radial_profile
 
-def quantify_frequency_content(image: NDArray[np.float64], f_min: np.float64, f_max: np.float64) -> np.float64:
+def quantify_frequency_content(image: NDArray[np.float64], pixel_size: np.float64, f_min: np.float64, f_max: np.float64) -> NDArray[np.float64]:
     """
     Quantify the energy in a specific frequency band of an image.
 
     Args:
         image: Input image as a 2D numpy array.
+        pixel_size: Size of a pixel in meters.
         f_min: Lower frequency bound.
         f_max: Upper frequency bound.
 
@@ -18,7 +19,7 @@ def quantify_frequency_content(image: NDArray[np.float64], f_min: np.float64, f_
     # Compute the magnitude spectrum of the input image
     magnitude_spectrum = compute_magnitude_spectrum(image)
     # Compute the radial profile of the magnitude spectrum
-    freq, radial_prof = radial_profile(magnitude_spectrum)
+    freq, radial_prof = radial_profile(magnitude_spectrum, pixel_size)
     # Define frequency bands
     f_mask = ((freq < f_max).astype(int) * (freq > f_min).astype(int)).astype(bool)
     # Calculate the energy in frequency band

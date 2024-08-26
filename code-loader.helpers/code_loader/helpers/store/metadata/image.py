@@ -3,7 +3,7 @@ import cv2
 from typing import Dict, Any, Optional, Union
 from numpy.typing import NDArray
 import inspect
-from code_loader.helpers.store_helpers.validators import validate_image  # type: ignore
+from code_loader.helpers.store_helpers.validators import validate_image  
 
 
 

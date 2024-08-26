@@ -4,9 +4,9 @@ from numpy.typing import NDArray
 import scipy.ndimage # type: ignore
 import skimage # type: ignore
 
-from code_loader.helpers.store.image import validate_image  # type: ignore
+from code_loader.helpers.store.image import validate_image
 
-def get_abs_log_metadata(image: NDArray[np.float64], sigma=1) -> np.float64:
+def get_abs_log_metadata(image: NDArray[np.float64], sigma=1) -> NDArray[np.float64]:
     """
     Gets an image returns the absolute value of a LOG (Laplacian of Gaussians).
     Can be used to detect non-flat areas
@@ -21,7 +21,7 @@ def get_abs_log_metadata(image: NDArray[np.float64], sigma=1) -> np.float64:
     log = scipy.ndimage.gaussian_laplace(image, sigma)
     return np.abs(log)
 
-def estimate_noise_sigma(image: NDArray[np.float64]) -> np.float64:
+def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Estimate the noise in an image using the sigma method
     Args: 
@@ -36,7 +36,7 @@ def estimate_noise_sigma(image: NDArray[np.float64]) -> np.float64:
     
     return sigma
 
-def estimate_noise_laplacian(image: NDArray[np.float64]) -> np.float64:
+def estimate_noise_laplacian(image: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Estimate the noise in an image using the Laplacian method.
     Args:
@@ -48,7 +48,7 @@ def estimate_noise_laplacian(image: NDArray[np.float64]) -> np.float64:
     sigma = np.mean(np.abs(filtered_image))
     return sigma
 
-def estimate_noise(image: NDArray[np.float64], method: str = 'sigma') -> np.float64:
+def estimate_noise(image: NDArray[np.float64], method: str = 'sigma') -> NDArray[np.float64]:
     """
     Estimate the noise in an image using a specified method.
     Args:
@@ -66,7 +66,7 @@ def estimate_noise(image: NDArray[np.float64], method: str = 'sigma') -> np.floa
         raise ValueError(f"Unsupported noise estimation method: {method}")
 
 
-def total_variation(image: NDArray[np.float64]) -> np.float64:
+def total_variation(image: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Calculate the total variation (TV) of an image.
 

@@ -1,7 +1,7 @@
 from typing import Dict
 import numpy as np
 from numpy.typing import NDArray
-from code_loader.helpers.store_helpers.spectral_analysis import compute_magnitude_spectrum, radial_profile  # type: ignore
+from code_loader.helpers.store_helpers.spectral_analysis import compute_magnitude_spectrum, radial_profile
 
 def frequency_band_retention_score(noisy: NDArray[np.float64], denoised: NDArray[np.float64], 
                                    f_min: np.float64, f_max: np.float64) -> NDArray[np.float64]:
