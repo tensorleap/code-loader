@@ -12,4 +12,4 @@ def total_vairation_diff(image_1: NDArray[np.float64], image_2: NDArray[np.float
     """
     tv_diff = total_vairation(image_1) - total_vairation(image_2)
     
-    return tv_diff
+    return np.asarray(tv_diff).astype(np.float64)

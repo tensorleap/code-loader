@@ -6,20 +6,20 @@ import skimage # type: ignore
 
 from code_loader.helpers.store.image import validate_image  # type: ignore
 
-def get_abs_log_metadata(image: NDArray[np.float64], sigma: int=1) -> NDArray[np.float64]:
+def get_mean_abs_log_metadata(image: NDArray[np.float64], sigma: int=1) -> NDArray[np.float64]:
     """
-    Gets an image returns the absolute value of a LOG (Laplacian of Gaussians).
+    Gets an image returns the  mean absolute value of a LOG (Laplacian of Gaussians).
     Can be used to detect non-flat areas
     Args:
         image: An image [H,W,C]
         sigma: The sigma of the Gassian filter
 
     Returns:
-        The absolute value of the LOG in shape [H,W,C]
+        The mean absolute value of the LOG in shape [H,W,C]
     """
     validate_image(image)
     log = scipy.ndimage.gaussian_laplace(image, sigma)
-    return np.mean(np.abs(log)).astype(np.float64)
+    return np.asarray(np.mean(np.abs(log))).astype(np.float64)
 
 def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
     """
@@ -65,7 +65,7 @@ def estimate_noise(image: NDArray[np.float64], method: str = 'sigma') -> NDArray
         raise ValueError(f"Unsupported noise estimation method: {method}")
 
 
-def total_variation(image: NDArray[np.float64]) -> np.float64:
+def total_variation(image: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Calculate the total variation (TV) of an image.
 
