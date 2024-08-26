@@ -33,9 +33,9 @@ def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
     validate_image(image)
     sigma = skimage.restoration.estimate_sigma(image, average_sigmas=True, channel_axis=-1)
     
-    return sigma
+    return np.asarray(sigma).astype(np.float64)
 
-def estimate_noise_laplacian(image: NDArray[np.float64]) -> float:
+def estimate_noise_laplacian(image: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Estimate the noise in an image using the Laplacian method.
     Args:
@@ -45,7 +45,7 @@ def estimate_noise_laplacian(image: NDArray[np.float64]) -> float:
     """
     filtered_image = scipy.ndimage.laplace(image)
     sigma = np.mean(np.abs(filtered_image))
-    return float(sigma)
+    return np.asarray(sigma).astype(np.float64)
 
 def estimate_noise(image: NDArray[np.float64], method: str = 'sigma') -> NDArray[np.float64]:
     """
@@ -82,4 +82,4 @@ def total_variation(image: NDArray[np.float64]) -> np.float64:
     """
     validate_image(image)
     grad = np.array(np.gradient(image))
-    return np.sum(np.sqrt(np.sum(grad**2, axis=0)))
+    return np.asarray(np.sum(np.sqrt(np.sum(grad**2, axis=0)))).astype(np.float64)

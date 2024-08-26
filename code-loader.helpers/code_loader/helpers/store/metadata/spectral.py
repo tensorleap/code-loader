@@ -29,4 +29,4 @@ def quantify_frequency_content(image: NDArray[np.float64], pixel_size: np.float6
     # Ratios of energy in the specified frequency band to the total energy
     freq_energy_ratio = freq_energy / total_energy
 
-    return freq_energy_ratio
+    return np.asarray(freq_energy_ratio).astype(np.float64)
