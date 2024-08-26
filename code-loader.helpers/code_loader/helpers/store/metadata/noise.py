@@ -19,7 +19,7 @@ def get_abs_log_metadata(image: NDArray[np.float64], sigma: int=1) -> NDArray[np
     """
     validate_image(image)
     log = scipy.ndimage.gaussian_laplace(image, sigma)
-    return np.abs(log)
+    return np.mean(np.abs(log)).astype(np.float64)
 
 def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
     """
@@ -35,7 +35,7 @@ def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
     
     return sigma
 
-def estimate_noise_laplacian(image: NDArray[np.float64]) -> NDArray[np.float64]:
+def estimate_noise_laplacian(image: NDArray[np.float64]) -> float:
     """
     Estimate the noise in an image using the Laplacian method.
     Args:
@@ -45,7 +45,7 @@ def estimate_noise_laplacian(image: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     filtered_image = scipy.ndimage.laplace(image)
     sigma = np.mean(np.abs(filtered_image))
-    return sigma
+    return float(sigma)
 
 def estimate_noise(image: NDArray[np.float64], method: str = 'sigma') -> NDArray[np.float64]:
     """

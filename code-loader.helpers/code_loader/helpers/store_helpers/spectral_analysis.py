@@ -23,7 +23,7 @@ def compute_power_spectrum(image: NDArray[np.float64]) -> NDArray[np.float64]:
     f = fftpack.fft2(image)
     fshift = fftpack.fftshift(f)
     power_spectrum = np.abs(fshift) ** 2
-    return power_spectrum
+    return np.asarray(power_spectrum).astype(np.float64)
 
 
 def compute_magnitude_spectrum(image: NDArray[np.float64]) -> NDArray[np.float64]:
