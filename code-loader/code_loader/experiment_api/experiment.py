@@ -41,7 +41,7 @@ class Experiment:
         """
         return Epoch(self.ctx, epoch, self.default_epoch_tag)
     
-    def log_epoch(self, epoch: int, metrics: Optional[Metrics] = None, model_path: Optional[str] = None, tags: Optional[List[str]] = None) -> None:
+    def log_epoch(self, epoch: int, metrics: Optional[Metrics] = None, model_path: Optional[str] = None, tags: Optional[List[str]] = None, override: bool = False) -> None:
         """
         Logs an epoch with optional metrics, model path, and tags.
 
@@ -50,11 +50,12 @@ class Experiment:
             metrics (Optional[Metrics]): The metrics to log for the epoch. Defaults to None.
             model_path (Optional[str]): The path to the model file. Defaults to None.
             tags (Optional[List[str]]): A list of tags to associate with the epoch model. Will always include the default tag. Unless the default tag is set to '', all previous epoch model with the same tag will be removed.
+            override (bool): Whether to override the epoch if it already exists. Defaults to False.
         """
         epoch_o = self.init_epoch(epoch)
         if metrics is not None:
             epoch_o.set_metrics(metrics)
-        epoch_o.log(model_path, tags)
+        epoch_o.log(model_path, tags, override)
 
     def set_properties(self, properties: Dict[str, Any]) -> None:
         """

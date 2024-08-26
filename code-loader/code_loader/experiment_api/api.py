@@ -42,7 +42,7 @@ class LogExternalEpochDataRequest:
   experimentId: str
   epoch: int
   metrics: ApiMetrics
-  force: bool = False
+  override: bool = False
 
 @dataclass
 class TagModelRequest:
