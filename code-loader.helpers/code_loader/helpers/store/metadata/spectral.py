@@ -1,76 +1,33 @@
 import numpy as np
 from numpy.typing import NDArray
 from scipy import fftpack
-from code_loader.helpers.store.image import validate_image
 
 
-def compute_power_spectrum(image: NDArray[np.float64]) -> NDArray[np.float64]:
+def quantify_frequency_content(image):
     """
-    Compute the power spectrum of an input image using Fast Fourier Transform (FFT).
+    Quantify the amounts of low and high-frequency content in an image.
 
-    This function applies a 2D FFT to the input image, shifts the zero frequency component
-    to the center of the spectrum, and calculates the power spectrum.
-
-    Args:
-        image (numpy.ndarray): Input image as a 2D numpy array.
+    Parameters:
+    - image: 2D numpy array (input image)
+    - cutoff_frequency: float (normalized cutoff frequency, between 0 and 0.5)
 
     Returns:
-        power_spectrum: Power spectrum of the input image, represented as the squared magnitude
-                        of the shifted Fourier transform.
+    - low_freq_energy_ratio: Ratio of low-frequency energy to total energy
+    - high_freq_energy_ratio: Ratio of high-frequency energy to total energy
     """
-    validate_image(image, expected_channels=2)
-    f = fftpack.fft2(image)
-    fshift = fftpack.fftshift(f)
-    power_spectrum = np.abs(fshift) ** 2
-    return power_spectrum
 
+    freq, radial_prof = frequency_analysis(image)
 
-def compute_magnitude_spectrum(image: NDArray[np.float64]) -> NDArray[np.float64]:
-    """
-    Compute the magnitude spectrum of an input image using Fast Fourier Transform (FFT).
+    hf_mask = ((freq < 0.45).astype(int) * (freq > 0.15).astype(int)).astype(bool)
+    lf_mask = ((freq < 0.15).astype(int) * (freq > 0.04).astype(int)).astype(bool)
 
-    This function applies a 2D FFT to the input image, shifts the zero frequency component
-    to the center of the spectrum, and calculates the magnitude spectrum in decibels.
+    # Calculate the energy in each frequency band
+    low_freq_energy = np.sum(radial_prof[lf_mask])
+    high_freq_energy = np.sum(radial_prof[hf_mask])
+    # Total energy
+    total_energy = np.sum(radial_prof)
+    # Ratios of energy in low and high frequencies
+    low_freq_energy_ratio = low_freq_energy / total_energy
+    high_freq_energy_ratio = high_freq_energy / total_energy
 
-    Args:
-        image (numpy.ndarray): Input image as a 2D numpy array.
-
-    Returns:
-        magnitude_spectrum: Magnitude spectrum of the input image in decibels.
-    """
-    validate_image(image, expected_channels=2)
-    f = fftpack.fft2(image)
-    fshift = fftpack.fftshift(f)
-    magnitude_spectrum = 20 * np.log10(np.abs(fshift))
-    return magnitude_spectrum
-
-
-def radial_profile(spectrum_array: NDArray[np.float64]) -> NDArray[np.float64]:
-    """
-    Compute the radial profile of a 2D spectrum.
-
-    This function calculates the average values of the input data at different
-    radial distances from a specified center point. It's often used in image
-    processing and signal analysis to analyze radially symmetric patterns.
-
-    Args:
-        spectrum_array : 2D input array for which to compute the radial profile.
-
-    Returns:
-        numpy.ndarray: 1D array representing the radial profile. Each element is the
-                       average value of the input data at that radial distance from
-                       the center.
-
-    Note:
-        The radial distances are rounded to the nearest integer, so the resolution
-        of the profile depends on the size and scale of the input data.
-    """
-    y, x = np.indices((spectrum_array.shape))
-    center = (spectrum_array.shape[0] // 2, spectrum_array.shape[1] // 2)
-    r = np.sqrt((x - center[0]) ** 2 + (y - center[1]) ** 2)
-    r = r.astype(np.int32)
-    tbin = np.bincount(r.ravel(), spectrum_array.ravel())
-    nr = np.bincount(r.ravel())
-    radialprofile = tbin / nr
-    return radialprofile
-
+    return low_freq_energy_ratio, high_freq_energy_ratio

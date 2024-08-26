@@ -46,7 +46,7 @@ def compute_magnitude_spectrum(image: NDArray[np.float64]) -> NDArray[np.float64
     return magnitude_spectrum
 
 
-def radial_profile(spectrum_array: NDArray[np.float64], pixel_size: float) -> NDArray[np.float64]:
+def radial_profile(spectrum_array: NDArray[np.float64], pixel_size: np.float64) -> NDArray[np.float64]:
     """
     Compute the radial profile of a 2D spectrum.
 

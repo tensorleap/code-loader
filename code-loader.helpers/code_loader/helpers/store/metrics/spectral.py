@@ -1,10 +1,10 @@
 from typing import Dict
 import numpy as np
 from numpy.typing import NDArray
-from code_loader.helpers.store_helpers.validators import validate_image
 from code_loader.helpers.store_helpers.spectral_analysis import compute_magnitude_spectrum, radial_profile
 
-def frequency_band_retention_score(noisy: NDArray[np.float64], denoised: NDArray[np.float64], f_min: float, f_max: float) -> np.ndarray:
+def frequency_band_retention_score(noisy: NDArray[np.float64], denoised: NDArray[np.float64], 
+                                   f_min: np.float64, f_max: np.float64) -> NDArray[np.float64]:
 
     batch_size = noisy.shape[0]
     frs_scores = np.zeros(batch_size)
@@ -13,9 +13,6 @@ def frequency_band_retention_score(noisy: NDArray[np.float64], denoised: NDArray
         # Extract individual samples from the batch
         noisy_sample = noisy[i]
         denoised_sample = denoised[i]
-        
-        validate_image(noisy_sample)
-        validate_image(denoised_sample)
 
         # Compute magnitude spectra
         ps_noisy = compute_magnitude_spectrum(noisy_sample)
