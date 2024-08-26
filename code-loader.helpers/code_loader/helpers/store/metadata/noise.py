@@ -66,7 +66,7 @@ def estimate_noise(image: NDArray[np.float64], method: str = 'sigma') -> NDArray
         raise ValueError(f"Unsupported noise estimation method: {method}")
 
 
-def total_variation(image: NDArray[np.float64]) -> NDArray[np.float64]:
+def total_variation(image: NDArray[np.float64]) -> np.float64:
     """
     Calculate the total variation (TV) of an image.
 
