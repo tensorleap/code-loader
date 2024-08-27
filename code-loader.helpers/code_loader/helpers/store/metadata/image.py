@@ -154,7 +154,6 @@ def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
     Returns:
         The estimated noise sigma
     """
-    validate_image(image)
     sigma = skimage.restoration.estimate_sigma(image, average_sigmas=True, channel_axis=-1)
     
     return np.asarray(sigma).astype(np.float64)
@@ -221,6 +220,8 @@ def quantify_frequency_content(image: NDArray[np.float64], pixel_size: np.float6
     Returns:
         freq_energy_ratio: Ratio of energy in the specified frequency band to the total energy.
     """
+    if image.ndim != 2:
+        raise ValueError("Input image must be a 2D numpy array.")
     # Compute the magnitude spectrum of the input image
     magnitude_spectrum = compute_magnitude_spectrum(image)
     # Compute the radial profile of the magnitude spectrum

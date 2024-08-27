@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.typing import NDArray
-from code_loader.helpers.store.noise import total_vairation  # type: ignore
+from code_loader.helpers.store.metadata.image import validate_image, total_vairation
 from code_loader.helpers.store.utils import compute_magnitude_spectrum, radial_profile
 
 
@@ -8,11 +8,20 @@ def total_vairation_diff(image_1: NDArray[np.float64], image_2: NDArray[np.float
     """
     Calculate the total variation (TV) of an image.
     Args:
-        image: [H,W,C]
+        image: [B,H,W,C]
     Returns:
         float: Total variation of the input image.
     """
-    tv_diff = total_vairation(image_1) - total_vairation(image_2)
+    if image_1.shape != image_2.shape:
+        raise ValueError("Error in total_vairation_diff metric. The input images must have the same shape.")
+    if len(image_1.shape) != 4:
+        raise ValueError(f"Error in total_vairation_diff metric. The input images must have 4 dimensions (B,H,W,C) but instead got {image_1.shape}.")
+    
+    tv_diffs = []
+    barch_size = image_1.shape[0]
+    for i in range(barch_size):
+        tv_diff = total_vairation(image_1[i]) - total_vairation(image_2[i])
+        tv_diffs.append(tv_diff)
     
     return np.asarray(tv_diff).astype(np.float64)
 
@@ -36,7 +45,11 @@ def frequency_band_retention_score(noisy: NDArray[np.float64], denoised: NDArray
     Returns:
         NDArray[np.float64]: A 1D array containing the frequency band retention scores for each image in the batch.
     """
-
+    if noisy.shape != denoised.shape:
+        raise ValueError("Error in frequency_band_retention_score metric. The input images must have the same shape.")
+    if len(noisy.shape) != 3:
+        raise ValueError(f"Error in frequency_band_retention_score metric. The input images must have 3 dimensions (B,H,W) but instead got {noisy.shape}.")
+    
     batch_size = noisy.shape[0]
     frs_scores = np.zeros(batch_size)
 
