@@ -19,6 +19,23 @@ def total_vairation_diff(image_1: NDArray[np.float64], image_2: NDArray[np.float
 
 def frequency_band_retention_score(noisy: NDArray[np.float64], denoised: NDArray[np.float64], pixel_size: np.float64,
                                    f_min: np.float64, f_max: np.float64) -> NDArray[np.float64]:
+    """
+    Calculate the frequency band retention score (FRS) for a batch of noisy and denoised images.
+
+    The FRS measures the retention of power in a specific frequency band after denoising,
+    indicating how much of the high-frequency content (such as details or textures) is preserved.
+
+    Args:
+        noisy (NDArray[np.float64]): A batch of noisy images represented as a 3D array (batch size, height, width).
+        denoised (NDArray[np.float64]): A batch of denoised images corresponding to the noisy images, 
+                                        represented as a 3D array (batch size, height, width).
+        pixel_size (np.float64): The size of a pixel in real-world units, used for calculating the frequency.
+        f_min (np.float64): The minimum frequency of the band of interest.
+        f_max (np.float64): The maximum frequency of the band of interest.
+
+    Returns:
+        NDArray[np.float64]: A 1D array containing the frequency band retention scores for each image in the batch.
+    """
 
     batch_size = noisy.shape[0]
     frs_scores = np.zeros(batch_size)
