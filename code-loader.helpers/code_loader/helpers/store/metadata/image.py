@@ -2,11 +2,44 @@ import numpy as np
 import cv2
 from typing import Dict, Any, Optional, Union
 from numpy.typing import NDArray
+import scipy.ndimage # type: ignore
+import skimage # type: ignore
 import inspect
-from code_loader.helpers.store_helpers.validators import validate_image
+from code_loader.helpers.store.utils import compute_magnitude_spectrum, radial_profile 
+
+def validate_image(image: NDArray[np.float64], expected_channels: Optional[int] = None) -> None:
+    """
+        Validate the input image by checking its type, dimensions, and data type.
+
+        Args:
+            image (NDArray): The image to validate.
+            expected_channels (int): The expected number of color channels (e.g., 1 for grayscale, 3 for RGB).
+
+        Raises:
+            NotImplementedError: If the input is not a NumPy array.
+            ValueError: If the image does not have the expected number of dimensions or channels.
+            Exception: If the image data type is not one of the allowed types.
+        """
+
+    caller_frame = inspect.stack()[1]
+    caller_name = caller_frame.function
+
+    if not isinstance(image, np.ndarray):
+        raise NotImplementedError(
+            f"Wrong input type sent to metadata {caller_name}: Expected numpy array Got {type(image)}.")
+
+    if image.dtype.name != 'float64':
+        raise Exception(
+            f"Wrong input type sent to metadata {caller_name}: Expected dtype float64 Got {image.dtype.name}.")
+    
+    if image.ndim != 3:
+        raise ValueError(f"Wrong input dimension sent to metadata {caller_name}: Expected 3D but Got {image.ndim}D.")
 
 
-
+    if expected_channels and expected_channels != image.shape[-1]:
+        raise ValueError(f"Wrong input dimension sent to metadata {caller_name}: Expected {expected_channels} channels, "
+                         f"but Got {image.shape[-1]} channels.")
+    
 def rgb_channel_stats(image: NDArray[np.float64]) -> Dict[str, np.float64]:
     """
     Get an RGB image in shape (H,W,3) and return the mean and standard deviation for each of its color channels.
@@ -95,3 +128,110 @@ def detect_sharpness(image: NDArray[np.float64]) -> Dict[str, np.float64]:
     res = {'sharpness': np.round(np.mean(gradient_magnitude), 2)}
 
     return res
+
+
+def get_mean_abs_log_metadata(image: NDArray[np.float64], sigma: int=1) -> NDArray[np.float64]:
+    """
+    Gets an image returns the  mean absolute value of a LOG (Laplacian of Gaussians).
+    Can be used to detect non-flat areas
+    Args:
+        image: An image [H,W,C]
+        sigma: The sigma of the Gassian filter
+
+    Returns:
+        The mean absolute value of the LOG in shape [H,W,C]
+    """
+    validate_image(image)
+    log = scipy.ndimage.gaussian_laplace(image, sigma)
+    return np.asarray(np.mean(np.abs(log))).astype(np.float64)
+
+def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
+    """
+    Estimate the noise in an image using the sigma method
+    Args: 
+        image: [H, W, C]
+
+    Returns:
+        The estimated noise sigma
+    """
+    validate_image(image)
+    sigma = skimage.restoration.estimate_sigma(image, average_sigmas=True, channel_axis=-1)
+    
+    return np.asarray(sigma).astype(np.float64)
+
+def estimate_noise_laplacian(image: NDArray[np.float64]) -> NDArray[np.float64]:
+    """
+    Estimate the noise in an image using the Laplacian method.
+    Args:
+        image: [H,W,C]
+    Returns:
+        float: Estimated noise level in the input image.
+    """
+    filtered_image = scipy.ndimage.laplace(image)
+    sigma = np.mean(np.abs(filtered_image))
+    return np.asarray(sigma).astype(np.float64)
+
+def estimate_noise(image: NDArray[np.float64], method: str = 'sigma') -> NDArray[np.float64]:
+    """
+    Estimate the noise in an image using a specified method.
+    Args:
+        image: Input image as a 2D or 3D numpy array.
+        method: Method to use for noise estimation. Supported methods are 'sigma' and 'laplacian'.
+    Returns:
+        float: Estimated noise level in the input image.
+    """
+    validate_image(image)
+    if method == 'sigma':
+        return estimate_noise_sigma(image)
+    elif method == 'laplacian':
+        return estimate_noise_laplacian(image)
+    else:
+        raise ValueError(f"Unsupported noise estimation method: {method}")
+
+
+def total_variation(image: NDArray[np.float64]) -> NDArray[np.float64]:
+    """
+    Calculate the total variation (TV) of an image.
+
+    Total variation is a measure of the smoothness of an image. It is often used 
+    in image processing to reduce noise while preserving edges.
+
+    Args:
+        image: A 2D or 3D array representing the image. For a 3D array,
+                            the channels should be along the last dimension.
+
+    Returns:
+        float: The total variation of the image, which is the sum of the magnitudes 
+               of the gradients across all pixels.
+    """
+    validate_image(image)
+    grad = np.array(np.gradient(image))
+    return np.asarray(np.sum(np.sqrt(np.sum(grad**2, axis=0)))).astype(np.float64)
+
+def quantify_frequency_content(image: NDArray[np.float64], pixel_size: np.float64, f_min: np.float64, f_max: np.float64) -> NDArray[np.float64]:
+    """
+    Quantify the energy in a specific frequency band of an image.
+
+    Args:
+        image: Input image as a 2D numpy array.
+        pixel_size: Size of a pixel in meters.
+        f_min: Lower frequency bound.
+        f_max: Upper frequency bound.
+
+    Returns:
+        freq_energy_ratio: Ratio of energy in the specified frequency band to the total energy.
+    """
+    # Compute the magnitude spectrum of the input image
+    magnitude_spectrum = compute_magnitude_spectrum(image)
+    # Compute the radial profile of the magnitude spectrum
+    freq, radial_prof = radial_profile(magnitude_spectrum, pixel_size)
+    # Define frequency bands
+    f_mask = ((freq < f_max).astype(int) * (freq > f_min).astype(int)).astype(bool)
+    # Calculate the energy in frequency band
+    freq_energy = np.sum(radial_prof[f_mask])
+    # Total energy
+    total_energy = np.sum(radial_prof)
+    # Ratios of energy in the specified frequency band to the total energy
+    freq_energy_ratio = freq_energy / total_energy
+
+    return np.asarray(freq_energy_ratio).astype(np.float64)

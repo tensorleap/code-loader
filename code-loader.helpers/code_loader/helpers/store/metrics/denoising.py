@@ -1,7 +1,21 @@
-from typing import Dict
 import numpy as np
 from numpy.typing import NDArray
-from code_loader.helpers.store_helpers.spectral_analysis import compute_magnitude_spectrum, radial_profile
+from code_loader.helpers.store.noise import total_vairation  # type: ignore
+from code_loader.helpers.store.utils import compute_magnitude_spectrum, radial_profile
+
+
+def total_vairation_diff(image_1: NDArray[np.float64], image_2: NDArray[np.float64]) -> NDArray[np.float64]:
+    """
+    Calculate the total variation (TV) of an image.
+    Args:
+        image: [H,W,C]
+    Returns:
+        float: Total variation of the input image.
+    """
+    tv_diff = total_vairation(image_1) - total_vairation(image_2)
+    
+    return np.asarray(tv_diff).astype(np.float64)
+
 
 def frequency_band_retention_score(noisy: NDArray[np.float64], denoised: NDArray[np.float64], pixel_size: np.float64,
                                    f_min: np.float64, f_max: np.float64) -> NDArray[np.float64]:

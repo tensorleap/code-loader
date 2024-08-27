@@ -2,7 +2,6 @@ from typing import Tuple
 import numpy as np
 from numpy.typing import NDArray
 from scipy import fftpack  # type: ignore
-from code_loader.helpers.store_helpers.validators import validate_image  
 
 
 def compute_power_spectrum(image: NDArray[np.float64]) -> NDArray[np.float64]:
@@ -19,7 +18,6 @@ def compute_power_spectrum(image: NDArray[np.float64]) -> NDArray[np.float64]:
         power_spectrum: Power spectrum of the input image, represented as the squared magnitude
                         of the shifted Fourier transform.
     """
-    validate_image(image, expected_channels=2)
     f = fftpack.fft2(image)
     fshift = fftpack.fftshift(f)
     power_spectrum = np.abs(fshift) ** 2
@@ -39,7 +37,6 @@ def compute_magnitude_spectrum(image: NDArray[np.float64]) -> NDArray[np.float64
     Returns:
         magnitude_spectrum: Magnitude spectrum of the input image in decibels.
     """
-    validate_image(image, expected_channels=2)
     f = fftpack.fft2(image)
     fshift = fftpack.fftshift(f)
     magnitude_spectrum = 20 * np.log10(np.abs(fshift))
