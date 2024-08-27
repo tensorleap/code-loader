@@ -1,10 +1,10 @@
 import numpy as np
 from numpy.typing import NDArray
-from code_loader.helpers.store.metadata.image import validate_image, total_vairation
+from code_loader.helpers.store.metadata.image import validate_image, total_variation
 from code_loader.helpers.store.utils import compute_magnitude_spectrum, radial_profile
 
 
-def total_vairation_diff(image_1: NDArray[np.float64], image_2: NDArray[np.float64]) -> NDArray[np.float64]:
+def total_variation_diff(image_1: NDArray[np.float64], image_2: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Calculate the total variation (TV) of an image.
     Args:
@@ -13,14 +13,14 @@ def total_vairation_diff(image_1: NDArray[np.float64], image_2: NDArray[np.float
         float: Total variation of the input image.
     """
     if image_1.shape != image_2.shape:
-        raise ValueError("Error in total_vairation_diff metric. The input images must have the same shape.")
+        raise ValueError("Error in total_variation_diff metric. The input images must have the same shape.")
     if len(image_1.shape) != 4:
-        raise ValueError(f"Error in total_vairation_diff metric. The input images must have 4 dimensions (B,H,W,C) but instead got {image_1.shape}.")
+        raise ValueError(f"Error in total_variation_diff metric. The input images must have 4 dimensions (B,H,W,C) but instead got {image_1.shape}.")
     
     tv_diffs = []
     barch_size = image_1.shape[0]
     for i in range(barch_size):
-        tv_diff = total_vairation(image_1[i]) - total_vairation(image_2[i])
+        tv_diff = total_variation(image_1[i]) - total_variation(image_2[i])
         tv_diffs.append(tv_diff)
     
     return np.asarray(tv_diff).astype(np.float64)
