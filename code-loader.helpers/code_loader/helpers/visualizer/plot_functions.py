@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
-from code_loader.contract.enums import LeapDataType
-from code_loader.contract.datasetclasses import LeapData
+from code_loader.contract.enums import LeapDataType  # type: ignore
+from code_loader.contract.datasetclasses import LeapData  # type: ignore
 
 
 def plot_image_with_b_box(leap_data: LeapData) -> None:
