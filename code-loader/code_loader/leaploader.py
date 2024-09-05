@@ -11,7 +11,7 @@ import numpy as np
 import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, GroundTruthHandler, \
-    PreprocessResponse, VisualizerHandler, VisualizerCallableReturnType, CustomLossHandler, \
+    PreprocessResponse, VisualizerHandler, LeapData, CustomLossHandler, \
     PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType, DatasetMetadataType
 from code_loader.contract.exceptions import DatasetScriptException
@@ -187,7 +187,7 @@ class LeapLoader:
         return all_dataset_base_handlers
 
     def run_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]],
-                       ) -> VisualizerCallableReturnType:
+                       ) -> LeapData:
         return self.visualizer_by_name()[visualizer_name].function(**input_tensors_by_arg_name)
 
     def run_heatmap_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]

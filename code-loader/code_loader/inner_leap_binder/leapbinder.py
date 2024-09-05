@@ -8,7 +8,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     GroundTruthHandler, MetadataHandler, DatasetIntegrationSetup, VisualizerHandler, PreprocessResponse, \
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
-    CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, VisualizerCallableReturnType, \
+    CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, LeapData, \
     CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute, RawInputsForHeatmap
 from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType, MetricDirection
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
@@ -103,7 +103,7 @@ class LeapBinder:
         if visualizer_type.value not in map_leap_data_type_to_visualizer_class:
             raise Exception(
                 f'The visualizer_type is invalid. current visualizer_type: {visualizer_type}, '  # type: ignore[attr-defined]
-                f'should be one of : {", ".join([arg.__name__ for arg in VisualizerCallableReturnType.__args__])}')
+                f'should be one of : {", ".join([arg.__name__ for arg in LeapData.__args__])}')
 
         func_annotations = function.__annotations__
         if "return" not in func_annotations:
@@ -113,10 +113,10 @@ class LeapBinder:
                   f"https://docs.python.org/3/library/typing.html")
         else:
             return_type = func_annotations["return"]
-            if return_type not in VisualizerCallableReturnType.__args__:  # type: ignore[attr-defined]
+            if return_type not in LeapData.__args__:  # type: ignore[attr-defined]
                 raise Exception(
                     f'The return type of function {function.__name__} is invalid. current return type: {return_type}, '  # type: ignore[attr-defined]
-                    f'should be one of : {", ".join([arg.__name__ for arg in VisualizerCallableReturnType.__args__])}')
+                    f'should be one of : {", ".join([arg.__name__ for arg in LeapData.__args__])}')
 
             expected_return_type = map_leap_data_type_to_visualizer_class[visualizer_type.value]
             if not issubclass(return_type, expected_return_type):
