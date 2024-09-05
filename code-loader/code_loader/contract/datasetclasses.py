@@ -73,8 +73,8 @@ VisualizerCallableInterface = Union[
     Callable[..., LeapImageWithHeatmap]
 ]
 
-VisualizerCallableReturnType = Union[LeapImage, LeapText, LeapGraph, LeapHorizontalBar,
-LeapImageMask, LeapTextMask, LeapImageWithBBox, LeapImageWithHeatmap]
+LeapData = Union[LeapImage, LeapText, LeapGraph, LeapHorizontalBar, LeapImageMask, LeapTextMask, LeapImageWithBBox,
+LeapImageWithHeatmap]
 
 CustomCallableInterface = Callable[..., Any]
 
@@ -108,6 +108,7 @@ class MetricHandler:
     function: Union[CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs]
     arg_names: List[str]
     direction: Optional[MetricDirection] = MetricDirection.Downward
+
 
 @dataclass
 class RawInputsForHeatmap:
