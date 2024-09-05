@@ -8,7 +8,7 @@ from keras.metrics import mean_squared_logarithmic_error, categorical_accuracy
 from keras import metrics
 from tensorflow.python.ops import array_ops, confusion_matrix, math_ops  # type: ignore
 
-from code_loader.contract.datasetclasses import ConfusionMatrixElement # type: ignore
+from code_loader.contract.datasetclasses import ConfusionMatrixElement  # type: ignore
 from code_loader.contract.enums import ConfusionMatrixValue, MetricDirection  # type: ignore
 
 
@@ -141,12 +141,13 @@ def confusion_matrix_classification_metric(ground_truth: tf.Tensor, prediction: 
 
 metrics_names_to_functions_and_direction = {
     Metric.MeanSquaredError.name: (mean_squared_error_dimension_reduced, MetricDirection.Downward),
-    Metric.MeanSquaredLogarithmicError.name: (mean_squared_logarithmic_error_dimension_reduced, MetricDirection.Downward),
+    Metric.MeanSquaredLogarithmicError.name: (
+    mean_squared_logarithmic_error_dimension_reduced, MetricDirection.Downward),
     Metric.MeanAbsoluteError.name: (mean_absolute_error_dimension_reduced, MetricDirection.Downward),
-    Metric.MeanAbsolutePercentageError.name: (mean_absolute_percentage_error_dimension_reduced, MetricDirection.Downward),
+    Metric.MeanAbsolutePercentageError.name: (
+    mean_absolute_percentage_error_dimension_reduced, MetricDirection.Downward),
     Metric.Accuracy.name: (reduced_categorical_accuracy, MetricDirection.Upward),
     Metric.BinaryAccuracy.name: (binary_accuracy, MetricDirection.Upward),
     Metric.ConfusionMatrixClassification.name: (confusion_matrix_classification_metric, None),
     Metric.MeanIOU.name: (batch_mean_iou, MetricDirection.Upward)
 }
-
