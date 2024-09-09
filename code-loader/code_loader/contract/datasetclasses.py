@@ -32,21 +32,38 @@ class PreprocessResponse:
         }
         response = PreprocessResponse(length=len(preprocessed_data), data=preprocessed_data)
     """
-    length: int
-    data: Any
+    length: Optional[int] = None  # Deprecated. Please use sample_ids instead
+    data: Any = None
+    sample_ids: Optional[Union[List[str], List[int]]] = None
+    state: Optional[DataStateType] = None
+    sample_id_type: Optional[Type] = None
+
+    def __post_init__(self):
+        if self.length is not None and self.sample_ids is None:
+            self.sample_ids = [i for i in range(self.length)]
+            self.sample_id_type = int
+        elif self.length is None and self.sample_ids is not None:
+            self.length = len(self.sample_ids)
+            if self.sample_id_type is None:
+                self.sample_id_type = str
+        else:
+            raise Exception("length is deprecated. Please use sample_ids instead.")
+
+    def __len__(self):
+        return len(self.sample_ids)
 
 
-SectionCallableInterface = Callable[[int, PreprocessResponse], npt.NDArray[np.float32]]
+SectionCallableInterface = Callable[[Union[int, str], PreprocessResponse], npt.NDArray[np.float32]]
 
 MetadataSectionCallableInterface = Union[
-    Callable[[int, PreprocessResponse], int],
-    Callable[[int, PreprocessResponse], Dict[str, int]],
-    Callable[[int, PreprocessResponse], str],
-    Callable[[int, PreprocessResponse], Dict[str, str]],
-    Callable[[int, PreprocessResponse], bool],
-    Callable[[int, PreprocessResponse], Dict[str, bool]],
-    Callable[[int, PreprocessResponse], float],
-    Callable[[int, PreprocessResponse], Dict[str, float]]
+    Callable[[Union[int, str], PreprocessResponse], int],
+    Callable[[Union[int, str], PreprocessResponse], Dict[str, int]],
+    Callable[[Union[int, str], PreprocessResponse], str],
+    Callable[[Union[int, str], PreprocessResponse], Dict[str, str]],
+    Callable[[Union[int, str], PreprocessResponse], bool],
+    Callable[[Union[int, str], PreprocessResponse], Dict[str, bool]],
+    Callable[[Union[int, str], PreprocessResponse], float],
+    Callable[[Union[int, str], PreprocessResponse], Dict[str, float]]
 ]
 
 
@@ -181,5 +198,5 @@ class DatasetSample:
     inputs: Dict[str, npt.NDArray[np.float32]]
     gt: Optional[Dict[str, npt.NDArray[np.float32]]]
     metadata: Dict[str, Union[str, int, bool, float]]
-    index: int
+    index: Union[int, str]
     state: DataStateEnum
