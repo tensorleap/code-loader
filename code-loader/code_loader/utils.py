@@ -10,7 +10,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, Prepro
 
 
 def to_numpy_return_wrapper(encoder_function: SectionCallableInterface) -> SectionCallableInterface:
-    def numpy_encoder_function(idx: int, samples: PreprocessResponse) -> npt.NDArray[np.float32]:
+    def numpy_encoder_function(idx: Union[int, str], samples: PreprocessResponse) -> npt.NDArray[np.float32]:
         result = encoder_function(idx, samples)
         numpy_result: npt.NDArray[np.float32] = np.array(result)
         return numpy_result

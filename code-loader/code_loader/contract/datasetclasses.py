@@ -36,9 +36,9 @@ class PreprocessResponse:
     data: Any = None
     sample_ids: Optional[Union[List[str], List[int]]] = None
     state: Optional[DataStateType] = None
-    sample_id_type: Optional[Type] = None
+    sample_id_type: Optional[Union[Type[str], Type[int]]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.length is not None and self.sample_ids is None:
             self.sample_ids = [i for i in range(self.length)]
             self.sample_id_type = int
@@ -47,9 +47,10 @@ class PreprocessResponse:
             if self.sample_id_type is None:
                 self.sample_id_type = str
         else:
-            raise Exception("length is deprecated. Please use sample_ids instead.")
+            raise Exception("length is deprecated.")
 
-    def __len__(self):
+    def __len__(self) -> int:
+        assert self.sample_ids is not None
         return len(self.sample_ids)
 
 

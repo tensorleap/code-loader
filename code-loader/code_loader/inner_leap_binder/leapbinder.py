@@ -430,6 +430,7 @@ class LeapBinder:
     def check_handler(
             preprocess_response: PreprocessResponse, test_result: List[DatasetTestResultPayload],
             dataset_base_handler: Union[DatasetBaseHandler, MetadataHandler]) -> List[DatasetTestResultPayload]:
+        assert preprocess_response.sample_ids is not None
         raw_result = dataset_base_handler.function(preprocess_response.sample_ids[0], preprocess_response)
         handler_type = 'metadata' if isinstance(dataset_base_handler, MetadataHandler) else None
         if isinstance(dataset_base_handler, MetadataHandler) and isinstance(raw_result, dict):
