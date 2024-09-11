@@ -1,4 +1,5 @@
 import inspect
+import sys
 from typing import Callable, List, Optional, Dict, Any, Type, Union
 
 import numpy as np
@@ -36,6 +37,8 @@ class LeapBinder:
         self._visualizer_names: List[str] = list()
         self._encoder_names: List[str] = list()
         self._extend_with_default_visualizers()
+
+        self.batch_size_to_validate: Optional[int] = None
 
     def _extend_with_default_visualizers(self) -> None:
         self.set_visualizer(function=default_image_visualizer, name=DefaultVisualizer.Image.value,
@@ -471,5 +474,20 @@ class LeapBinder:
         self.check_preprocess(preprocess_result)
         self.check_handlers(preprocess_result)
         print("Successful!")
+
+    def set_batch_size_to_validate(self, batch_size: int):
+        self.batch_size_to_validate = batch_size
+
+    @staticmethod
+    def init():
+        available_functions = inspect.getmembers(sys.modules[__name__], inspect.isfunction)
+        for func_name, func in available_functions:
+            if 'tensorleap_custom_metric' in str(func):
+                try:
+                    func()
+                except:
+                    pass
+
+
 
 
