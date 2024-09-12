@@ -1,5 +1,4 @@
 import inspect
-import sys
 from typing import Callable, List, Optional, Dict, Any, Type, Union
 
 import numpy as np
@@ -477,16 +476,6 @@ class LeapBinder:
 
     def set_batch_size_to_validate(self, batch_size: int):
         self.batch_size_to_validate = batch_size
-
-    @staticmethod
-    def init():
-        available_functions = inspect.getmembers(sys.modules[__name__], inspect.isfunction)
-        for func_name, func in available_functions:
-            if 'tensorleap_custom_metric' in str(func):
-                try:
-                    func()
-                except:
-                    pass
 
 
 
