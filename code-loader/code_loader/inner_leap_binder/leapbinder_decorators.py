@@ -5,7 +5,8 @@ import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import CustomCallableInterfaceMultiArgs, \
     CustomMultipleReturnCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, CustomCallableInterface, \
-    VisualizerCallableInterface, MetadataSectionCallableInterface, PreprocessResponse, SectionCallableInterface
+    VisualizerCallableInterface, MetadataSectionCallableInterface, PreprocessResponse, SectionCallableInterface, \
+    ConfusionMatrixElement
 from code_loader.contract.enums import MetricDirection, LeapDataType
 from code_loader import leap_binder
 from code_loader.contract.visualizer_classes import LeapImage, LeapImageMask, LeapTextMask, LeapText, LeapGraph, \
@@ -15,8 +16,8 @@ from code_loader.contract.visualizer_classes import LeapImage, LeapImageMask, Le
 def tensorleap_custom_metric(name: str, direction: Optional[MetricDirection] = MetricDirection.Downward):
     def decorating_function(
             user_function: Union[CustomCallableInterfaceMultiArgs,
-                                 CustomMultipleReturnCallableInterfaceMultiArgs,
-                                 ConfusionMatrixCallableInterfaceMultiArgs]
+            CustomMultipleReturnCallableInterfaceMultiArgs,
+            ConfusionMatrixCallableInterfaceMultiArgs]
     ):
         for metric_handler in leap_binder.setup_container.metrics:
             if metric_handler.name == name:
@@ -45,13 +46,24 @@ def tensorleap_custom_metric(name: str, direction: Optional[MetricDirection] = M
                          f'instead of {leap_binder.batch_size_to_validate}')
 
         def _validate_result(result):
-            assert isinstance(result, np.ndarray), (f'tensorleap_custom_metric validation failed: '
-                                                    f'The return type should be a numpy array. Got {type(result)}.')
-            assert len(result.shape) == 1, (f'tensorleap_custom_metric validation failed: '
-                                            f'The return shape should be 1D. Got {len(result.shape)}D.')
+            supported_types_message = (f'tensorleap_custom_metric validation failed: '
+                                       f'Metric has returned unsupported type. Supported types are List[float], '
+                                       f'List[List[ConfusionMatrixElement]], NDArray[np.float32]. ')
+
+            if isinstance(result, list):
+                if isinstance(result[0], list):
+                    assert isinstance(result[0][0], ConfusionMatrixElement), \
+                        f'{supported_types_message}Got List[List[{type(result[0][0])}]].'
+                else:
+                    assert isinstance(result[0], float), f'{supported_types_message}Got List[{type(result[0])}].'
+
+            else:
+                assert isinstance(result, np.ndarray), f'{supported_types_message}Got {type(result)}.'
+                assert len(result.shape) == 1, (f'tensorleap_custom_metric validation failed: '
+                                                f'The return shape should be 1D. Got {len(result.shape)}D.')
             if leap_binder.batch_size_to_validate:
-                assert result.shape[0] == leap_binder.batch_size_to_validate, \
-                    f'tensorleap_custom_metric validation failed: The return len should be as the batch size.'
+                assert len(result) == leap_binder.batch_size_to_validate, \
+                    f'tensorleap_custom_metrix validation failed: The return len should be as the batch size.'
 
         def inner(*args, **kwargs):
             _validate_input_args(*args, **kwargs)
@@ -330,7 +342,7 @@ def tensorleap_custom_loss(name: str):
                 raise Exception('the input arguments of the custom loss function should be tensorflow tensors')
 
             assert isinstance(result, (np.ndarray, tf.Tensor)), \
-                (f'tensorleap_custom_loss validation failed: '  
+                (f'tensorleap_custom_loss validation failed: '
                  f'The return type should be a numpy array or a tensorflow tensor. Got {type(result)}.')
 
         def inner(sample_id, preprocess_response):
@@ -364,9 +376,3 @@ def tensorleap_custom_layer(name: str):
         return custom_layer
 
     return decorating_function
-
-
-
-
-
-
