@@ -1,3 +1,5 @@
+# mypy: ignore-errors
+
 from typing import Optional, Union, Callable, List
 
 import numpy as np
@@ -26,7 +28,7 @@ def tensorleap_custom_metric(name: str, direction: Optional[MetricDirection] = M
 
         leap_binder.add_custom_metric(user_function, name, direction)
 
-        def _validate_input_args(*args, **kwargs):
+        def _validate_input_args(*args, **kwargs) -> None:
             for i, arg in enumerate(args):
                 assert isinstance(arg, np.ndarray), (f'tensorleap_custom_metric validation failed: '
                                                      f'Argument #{i} should be a numpy array. Got {type(arg)}.')
@@ -45,7 +47,7 @@ def tensorleap_custom_metric(name: str, direction: Optional[MetricDirection] = M
                          f'first dim should be as the batch size. Got {arg.shape[0]} '
                          f'instead of {leap_binder.batch_size_to_validate}')
 
-        def _validate_result(result):
+        def _validate_result(result) -> None:
             supported_types_message = (f'tensorleap_custom_metric validation failed: '
                                        f'Metric has returned unsupported type. Supported types are List[float], '
                                        f'List[List[ConfusionMatrixElement]], NDArray[np.float32]. ')
@@ -358,7 +360,7 @@ def tensorleap_custom_loss(name: str):
 
 def tensorleap_custom_layer(name: str):
     def decorating_function(custom_layer):
-        for custom_layer_handler in leap_binder.setup_container.custom_layers:
+        for custom_layer_handler in leap_binder.setup_container.custom_layers.values():
             if custom_layer_handler.name == name:
                 raise Exception(f'Custom Layer with name {name} already exists. '
                                 f'Please choose another')

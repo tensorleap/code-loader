@@ -474,7 +474,7 @@ class LeapBinder:
         self.check_handlers(preprocess_result)
         print("Successful!")
 
-    def set_batch_size_to_validate(self, batch_size: int):
+    def set_batch_size_to_validate(self, batch_size: int) -> None:
         self.batch_size_to_validate = batch_size
 
 
