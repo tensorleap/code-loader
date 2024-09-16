@@ -37,6 +37,8 @@ class LeapBinder:
         self._encoder_names: List[str] = list()
         self._extend_with_default_visualizers()
 
+        self.batch_size_to_validate: Optional[int] = None
+
     def _extend_with_default_visualizers(self) -> None:
         self.set_visualizer(function=default_image_visualizer, name=DefaultVisualizer.Image.value,
                             visualizer_type=LeapDataType.Image)
@@ -471,5 +473,10 @@ class LeapBinder:
         self.check_preprocess(preprocess_result)
         self.check_handlers(preprocess_result)
         print("Successful!")
+
+    def set_batch_size_to_validate(self, batch_size: int):
+        self.batch_size_to_validate = batch_size
+
+
 
 
