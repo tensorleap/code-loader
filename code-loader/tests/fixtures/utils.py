@@ -23,4 +23,4 @@ def refresh_setup_container() -> None:
 
 @pytest.fixture
 def simple_sample_params() -> Dict[str, Union[DataStateEnum, int]]:
-    return {"state": DataStateEnum.training, "idx": 0}
+    return {"state": DataStateEnum.training, "sample_id": 0}

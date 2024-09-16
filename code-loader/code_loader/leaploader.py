@@ -2,10 +2,11 @@
 import importlib.util
 import io
 import sys
+import time
 from contextlib import redirect_stdout
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Iterable, Union, Any
+from typing import Dict, List, Iterable, Union, Any, Type
 
 import numpy as np
 import numpy.typing as npt
@@ -26,6 +27,8 @@ class LeapLoader:
     def __init__(self, code_path: str, code_entry_name: str):
         self.code_entry_name = code_entry_name
         self.code_path = code_path
+
+        self._preprocess_result_cached = None
 
     @lru_cache()
     def exec_script(self) -> None:
@@ -103,12 +106,16 @@ class LeapLoader:
             for prediction_type in setup.prediction_types
         }
 
-    def get_sample(self, state: DataStateEnum, idx: int) -> DatasetSample:
+    def get_sample(self, state: DataStateEnum, sample_id: Union[int, str]) -> DatasetSample:
         self.exec_script()
-        sample = DatasetSample(inputs=self._get_inputs(state, idx),
-                               gt=None if state == DataStateEnum.unlabeled else self._get_gt(state, idx),
-                               metadata=self._get_metadata(state, idx),
-                               index=idx,
+        preprocess_result = self._preprocess_result()
+        if state == DataStateEnum.unlabeled and sample_id not in preprocess_result[state].sample_ids:
+            self._preprocess_result(update_unlabeled_preprocess=True)
+
+        sample = DatasetSample(inputs=self._get_inputs(state, sample_id),
+                               gt=None if state == DataStateEnum.unlabeled else self._get_gt(state, sample_id),
+                               metadata=self._get_metadata(state, sample_id),
+                               index=sample_id,
                                state=state)
         return sample
 
@@ -148,6 +155,13 @@ class LeapLoader:
         test_result = DatasetTestResultPayload('preprocess')
         try:
             preprocess_result = self._preprocess_result()
+            if self.get_sample_id_type() is str:
+                max_allowed_item_size = np.dtype('<U256').itemsize
+                for state, preprocess_response in preprocess_result.items():
+                    sample_ids_array = np.array(preprocess_response.sample_ids)
+                    if sample_ids_array.dtype.itemsize > max_allowed_item_size:
+                        raise Exception(f"Sample id are too long. Max allowed length is 256 charecters.")
+
             global_leap_binder.check_preprocess(preprocess_result)
         except Exception as e:
             line_number, file_name, stacktrace = get_root_exception_file_and_line_number()
@@ -279,27 +293,42 @@ class LeapLoader:
         ]
         return ModelSetup(custom_layer_instances)
 
-    @lru_cache()
-    def _preprocess_result(self) -> Dict[DataStateEnum, PreprocessResponse]:
+    def _preprocess_result(self, update_unlabeled_preprocess=False) -> Dict[DataStateEnum, PreprocessResponse]:
         self.exec_script()
-        return global_leap_binder.get_preprocess_result()
+
+        if self._preprocess_result_cached is None:
+            self._preprocess_result_cached = global_leap_binder.get_preprocess_result()
+
+        if update_unlabeled_preprocess:
+            self._preprocess_result_cached[
+                DataStateEnum.unlabeled] = global_leap_binder.get_preprocess_unlabeled_result()
+
+        return self._preprocess_result_cached
+
+    def get_preprocess_sample_ids(self, update_unlabeled_preprocess=False) -> Dict[DataStateEnum, Union[List[int], List[str]]]:
+        preprocess_result = self._preprocess_result(update_unlabeled_preprocess)
+        sample_ids = {}
+        for state, preprocess_response in preprocess_result.items():
+            sample_ids[state] = preprocess_response.sample_ids
+
+        return sample_ids
 
     def _get_dataset_handlers(self, handlers: Iterable[DatasetBaseHandler],
-                              state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
+                              state: DataStateEnum, sample_id: Union[int, str]) -> Dict[str, npt.NDArray[np.float32]]:
         result_agg = {}
         preprocess_result = self._preprocess_result()
         preprocess_state = preprocess_result[state]
         for handler in handlers:
-            handler_result = handler.function(idx, preprocess_state)
+            handler_result = handler.function(sample_id, preprocess_state)
             handler_name = handler.name
             result_agg[handler_name] = handler_result
         return result_agg
 
-    def _get_inputs(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
-        return self._get_dataset_handlers(global_leap_binder.setup_container.inputs, state, idx)
+    def _get_inputs(self, state: DataStateEnum, sample_id: Union[int, str]) -> Dict[str, npt.NDArray[np.float32]]:
+        return self._get_dataset_handlers(global_leap_binder.setup_container.inputs, state, sample_id)
 
-    def _get_gt(self, state: DataStateEnum, idx: int) -> Dict[str, npt.NDArray[np.float32]]:
-        return self._get_dataset_handlers(global_leap_binder.setup_container.ground_truths, state, idx)
+    def _get_gt(self, state: DataStateEnum, sample_id: Union[int, str]) -> Dict[str, npt.NDArray[np.float32]]:
+        return self._get_dataset_handlers(global_leap_binder.setup_container.ground_truths, state, sample_id)
 
     @lru_cache()
     def _metadata_name_to_type(self) -> Dict[str, DatasetMetadataType]:
@@ -334,12 +363,12 @@ class LeapLoader:
 
         return converted_value
 
-    def _get_metadata(self, state: DataStateEnum, idx: int) -> Dict[str, Union[str, int, bool, float]]:
+    def _get_metadata(self, state: DataStateEnum, sample_id: Union[int, str]) -> Dict[str, Union[str, int, bool, float]]:
         result_agg = {}
         preprocess_result = self._preprocess_result()
         preprocess_state = preprocess_result[state]
         for handler in global_leap_binder.setup_container.metadata:
-            handler_result = handler.function(idx, preprocess_state)
+            handler_result = handler.function(sample_id, preprocess_state)
             if isinstance(handler_result, dict):
                 for single_metadata_name, single_metadata_result in handler_result.items():
                     handler_name = f'{handler.name}_{single_metadata_name}'
@@ -349,3 +378,14 @@ class LeapLoader:
                 result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name, handler_result)
 
         return result_agg
+
+    @lru_cache()
+    def get_sample_id_type(self) -> Type:
+        preprocess_results = list(self._preprocess_result().values())
+        id_type = preprocess_results[0].sample_id_type
+        for preprocess_result in preprocess_results:
+            if preprocess_result.sample_id_type != id_type:
+                raise Exception("Different id types in preprocess results")
+
+        return id_type
+

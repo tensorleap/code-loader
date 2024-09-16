@@ -389,16 +389,35 @@ class LeapBinder:
         if preprocess is None:
             raise Exception("Please make sure you call the leap_binder.set_preprocess method")
         preprocess_results = preprocess.function()
-        preprocess_result_dict = {
-            DataStateEnum(i): preprocess_result
-            for i, preprocess_result in enumerate(preprocess_results)
-        }
+        preprocess_result_dict = {}
+        for i, preprocess_result in enumerate(preprocess_results):
+            if preprocess_result.state is None:
+                state_enum = DataStateEnum(i)
+                preprocess_result.state = DataStateType(state_enum.name)
+            else:
+                state_enum = DataStateEnum[preprocess_result.state.name]
 
-        unlabeled_preprocess = self.setup_container.unlabeled_data_preprocess
-        if unlabeled_preprocess is not None:
-            preprocess_result_dict[DataStateEnum.unlabeled] = unlabeled_preprocess.function()
+            if state_enum in preprocess_result_dict:
+                raise Exception(f"Duplicate state {state_enum.name} in preprocess results")
+            preprocess_result_dict[state_enum] = preprocess_result
+
+        if DataStateEnum.unlabeled not in preprocess_result_dict:
+            preprocess_unlabeled_result = self.get_preprocess_unlabeled_result()
+            if preprocess_unlabeled_result is not None:
+                preprocess_result_dict[DataStateEnum.unlabeled] = preprocess_unlabeled_result
+
+        if DataStateEnum.training not in preprocess_result_dict:
+            raise Exception("Training data is required")
+        if DataStateEnum.validation not in preprocess_result_dict:
+            raise Exception("Validation data is required")
 
         return preprocess_result_dict
+
+    def get_preprocess_unlabeled_result(self) -> Optional[PreprocessResponse]:
+        unlabeled_preprocess = self.setup_container.unlabeled_data_preprocess
+        if unlabeled_preprocess is not None:
+            return unlabeled_preprocess.function()
+        return None
 
     def _get_all_dataset_base_handlers(self) -> List[Union[DatasetBaseHandler, MetadataHandler]]:
         all_dataset_base_handlers: List[Union[DatasetBaseHandler, MetadataHandler]] = []
@@ -411,7 +430,8 @@ class LeapBinder:
     def check_handler(
             preprocess_response: PreprocessResponse, test_result: List[DatasetTestResultPayload],
             dataset_base_handler: Union[DatasetBaseHandler, MetadataHandler]) -> List[DatasetTestResultPayload]:
-        raw_result = dataset_base_handler.function(0, preprocess_response)
+        assert preprocess_response.sample_ids is not None
+        raw_result = dataset_base_handler.function(preprocess_response.sample_ids[0], preprocess_response)
         handler_type = 'metadata' if isinstance(dataset_base_handler, MetadataHandler) else None
         if isinstance(dataset_base_handler, MetadataHandler) and isinstance(raw_result, dict):
             metadata_test_result_payloads = [
