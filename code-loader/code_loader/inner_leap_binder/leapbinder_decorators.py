@@ -279,7 +279,7 @@ def tensorleap_gt_encoder(name: str):
     def decorating_function(user_function: SectionCallableInterface):
         for gt_handler in leap_binder.setup_container.ground_truths:
             if gt_handler.name == name:
-                raise Exception(f'Input with name {name} already exists. '
+                raise Exception(f'GT with name {name} already exists. '
                                 f'Please choose another')
 
         leap_binder.set_ground_truth(user_function, name)
@@ -319,7 +319,7 @@ def tensorleap_custom_loss(name: str):
     def decorating_function(user_function: CustomCallableInterface):
         for loss_handler in leap_binder.setup_container.custom_loss_handlers:
             if loss_handler.name == name:
-                raise Exception(f'Input with name {name} already exists. '
+                raise Exception(f'Custom loss with name {name} already exists. '
                                 f'Please choose another')
 
         leap_binder.add_custom_loss(user_function, name)
