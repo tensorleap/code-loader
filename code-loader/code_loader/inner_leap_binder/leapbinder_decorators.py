@@ -93,17 +93,17 @@ def tensorleap_custom_visualizer(name: str, visualizer_type: LeapDataType,
                 assert isinstance(arg, np.ndarray), (f'tensorleap_custom_visualizer validation failed: '
                                                      f'Argument #{i} should be a numpy array. Got {type(arg)}.')
                 if leap_binder.batch_size_to_validate:
-                    assert arg.shape[0] == leap_binder.batch_size_to_validate, \
-                        (f'tensorleap_custom_visualizer validation failed: Argument #{i} '
-                         f'first dim should be 1. The visualizers will always run with batch size 1. Got {arg.shape[0]}')
+                    assert arg.shape[0] != leap_binder.batch_size_to_validate, \
+                        (f'tensorleap_custom_visualizer validation failed: '
+                         f'Argument #{i} should be without batch dimension. ')
 
             for _arg_name, arg in kwargs.items():
                 assert isinstance(arg, np.ndarray), (f'tensorleap_custom_visualizer validation failed: '
                                                      f'Argument {_arg_name} should be a numpy array. Got {type(arg)}.')
                 if leap_binder.batch_size_to_validate:
-                    assert arg.shape[0] == leap_binder.batch_size_to_validate, \
+                    assert arg.shape[0] != leap_binder.batch_size_to_validate, \
                         (f'tensorleap_custom_visualizer validation failed: Argument {_arg_name} '
-                         f'first dim should be 1. The visualizers will always run with batch size 1. Got {arg.shape[0]}')
+                         f'should be without batch dimension. ')
 
         def _validate_result(result):
             result_type_map = {
@@ -327,8 +327,8 @@ def tensorleap_custom_loss(name: str):
         def _validate_input_args(*args, **kwargs):
             try:
                 import tensorflow as tf
-            except ImportError:
-                raise Exception('the input arguments of the custom loss function should be tensorflow tensors')
+            except ImportError as e:
+                raise Exception('the input arguments of the custom loss function should be tensorflow tensors') from e
 
             for i, arg in enumerate(args):
                 assert isinstance(arg, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
@@ -367,11 +367,11 @@ def tensorleap_custom_layer(name: str):
 
         try:
             import tensorflow as tf
-        except ImportError:
-            raise Exception('The custom layer should be inherited from tf.keras.layers.Layer')
+        except ImportError as e:
+            raise Exception('Custom layer should be inherit from tf.keras.layers.Layer') from e
 
         if not issubclass(custom_layer, tf.keras.layers.Layer):
-            raise Exception('The custom layer should be inherited from tf.keras.layers.Layer')
+            raise Exception('Custom layer should be inherit from tf.keras.layers.Layer')
 
         leap_binder.set_custom_layer(custom_layer, name)
 
