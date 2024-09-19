@@ -49,6 +49,9 @@ class PreprocessResponse:
         else:
             raise Exception("length is deprecated.")
 
+    def __hash__(self) -> int:
+        return id(self)
+
     def __len__(self) -> int:
         assert self.sample_ids is not None
         return len(self.sample_ids)
