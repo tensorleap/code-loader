@@ -52,20 +52,30 @@ def tensorleap_custom_metric(name: str, direction: Optional[MetricDirection] = M
                                        f'Metric has returned unsupported type. Supported types are List[float], '
                                        f'List[List[ConfusionMatrixElement]], NDArray[np.float32]. ')
 
-            if isinstance(result, list):
-                if isinstance(result[0], list):
-                    assert isinstance(result[0][0], ConfusionMatrixElement), \
-                        f'{supported_types_message}Got List[List[{type(result[0][0])}]].'
+            def _validate_single_metric(single_metric_result):
+                if isinstance(single_metric_result, list):
+                    if isinstance(single_metric_result[0], list):
+                        assert isinstance(single_metric_result[0][0], ConfusionMatrixElement), \
+                            f'{supported_types_message}Got List[List[{type(single_metric_result[0][0])}]].'
+                    else:
+                        assert isinstance(single_metric_result[0], float), f'{supported_types_message}Got List[{type(single_metric_result[0])}].'
                 else:
-                    assert isinstance(result[0], float), f'{supported_types_message}Got List[{type(result[0])}].'
+                    assert isinstance(single_metric_result, np.ndarray), f'{supported_types_message}Got {type(single_metric_result)}.'
+                    assert len(single_metric_result.shape) == 1, (f'tensorleap_custom_metric validation failed: '
+                                                    f'The return shape should be 1D. Got {len(single_metric_result.shape)}D.')
 
+                if leap_binder.batch_size_to_validate:
+                    assert len(single_metric_result) == leap_binder.batch_size_to_validate, \
+                        f'tensorleap_custom_metrix validation failed: The return len should be as the batch size.'
+
+            if isinstance(result, dict):
+                for key, value in result.items():
+                    assert isinstance(key, str), \
+                        (f'tensorleap_custom_metric validation failed: '
+                         f'Keys in the return dict should be of type str. Got {type(key)}.')
+                    _validate_single_metric(value)
             else:
-                assert isinstance(result, np.ndarray), f'{supported_types_message}Got {type(result)}.'
-                assert len(result.shape) == 1, (f'tensorleap_custom_metric validation failed: '
-                                                f'The return shape should be 1D. Got {len(result.shape)}D.')
-            if leap_binder.batch_size_to_validate:
-                assert len(result) == leap_binder.batch_size_to_validate, \
-                    f'tensorleap_custom_metrix validation failed: The return len should be as the batch size.'
+                _validate_single_metric(result)
 
         def inner(*args, **kwargs):
             _validate_input_args(*args, **kwargs)
