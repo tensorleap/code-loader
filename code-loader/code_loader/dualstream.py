@@ -3,7 +3,7 @@ from typing import IO
 
 
 class DualStream(StringIO):
-    def __init__(self, stream1: IO, stream2: StringIO):
+    def __init__(self, stream1: IO[str], stream2: StringIO):
         super().__init__()
         self.stream1 = stream1  # Usually sys.stdout
         self.stream2 = stream2  # The StringIO stream
