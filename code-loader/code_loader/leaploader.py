@@ -19,6 +19,7 @@ from code_loader.contract.exceptions import DatasetScriptException
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
     VisualizerInstance, PredictionTypeInstance, ModelSetup, CustomLayerInstance, MetricInstance, CustomLossInstance
+from code_loader.dualstream import DualStream
 from code_loader.inner_leap_binder import global_leap_binder
 from code_loader.utils import get_root_exception_file_and_line_number
 
@@ -123,8 +124,9 @@ class LeapLoader:
         test_payloads: List[DatasetTestResultPayload] = []
         setup_response = None
         general_error = None
-        stdout_steam = io.StringIO()
-        with redirect_stdout(stdout_steam):
+        stdout_stream = io.StringIO()
+        dual_stream = DualStream(sys.stdout, stdout_stream)
+        with redirect_stdout(dual_stream):
             try:
                 self.exec_script()
                 preprocess_test_payload = self._check_preprocess()
@@ -142,7 +144,7 @@ class LeapLoader:
                 general_error = f"Something went wrong. {repr(e.__cause__)} in file {file_name}, line_number:  {line_number}\nStacktrace:\n{stacktrace}"
                 is_valid = False
 
-        print_log = stdout_steam.getvalue()
+        print_log = dual_stream.stream2.getvalue()
         is_valid_for_model = bool(global_leap_binder.setup_container.custom_layers)
         model_setup = self.get_model_setup_response()
 
