@@ -357,9 +357,9 @@ def tensorleap_custom_loss(name: str):
                 (f'tensorleap_custom_loss validation failed: '
                  f'The return type should be a numpy array or a tensorflow tensor. Got {type(result)}.')
 
-        def inner(sample_id, preprocess_response):
-            _validate_input_args(sample_id, preprocess_response)
-            result = user_function(sample_id, preprocess_response)
+        def inner(*args, **kwargs):
+            _validate_input_args(*args, **kwargs)
+            result = user_function(*args, **kwargs)
             _validate_result(result)
             return result
 
