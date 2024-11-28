@@ -221,8 +221,8 @@ class LeapLoader:
         if global_leap_binder.setup_container.unlabeled_data_preprocess:
             unlabeled_length = global_leap_binder.setup_container.unlabeled_data_preprocess.data_length
         dataset_preprocess = DatasetPreprocess(
-            training_length=setup.preprocess.data_length[DataStateType.training],
-            validation_length=setup.preprocess.data_length[DataStateType.validation],
+            training_length=setup.preprocess.data_length.get(DataStateType.training, 0),
+            validation_length=setup.preprocess.data_length.get(DataStateType.validation, 0),
             test_length=setup.preprocess.data_length.get(DataStateType.test),
             unlabeled_length=unlabeled_length
         )
