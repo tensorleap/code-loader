@@ -218,6 +218,8 @@ def plot_image_mask(leap_data: LeapData) -> None:
 
     # Create a color map for each label
     colors = plt.cm.jet(np.linspace(0, 1, len(labels)))
+    if image.dtype == np.uint8:
+        colors = colors * 255
 
     # Make a copy of the image to draw on
     overlayed_image = image.copy()
