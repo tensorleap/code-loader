@@ -154,7 +154,7 @@ class DatasetBaseHandler:
 @dataclass
 class InputHandler(DatasetBaseHandler):
     shape: Optional[List[int]] = None
-
+    channel_dim: Optional[int] = -1
 
 @dataclass
 class GroundTruthHandler(DatasetBaseHandler):
