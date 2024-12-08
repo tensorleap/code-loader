@@ -245,14 +245,16 @@ def tensorleap_unlabeled_preprocess():
     return decorating_function
 
 
-def tensorleap_input_encoder(name: str):
+def tensorleap_input_encoder(name: str, channel_dim=-1):
     def decorating_function(user_function: SectionCallableInterface):
         for input_handler in leap_binder.setup_container.inputs:
             if input_handler.name == name:
                 raise Exception(f'Input with name {name} already exists. '
                                 f'Please choose another')
+        if channel_dim <= 0 and channel_dim != -1:
+            raise Exception(f"Channel dim for input {name} is expected to be either -1 or positive")
 
-        leap_binder.set_input(user_function, name)
+        leap_binder.set_input(user_function, name, channel_dim=channel_dim)
 
         def _validate_input_args(sample_id: Union[int, str], preprocess_response: PreprocessResponse):
             assert isinstance(sample_id, (int, str)), \
@@ -273,6 +275,8 @@ def tensorleap_input_encoder(name: str):
             assert result.dtype == np.float32, \
                 (f'tensorleap_input_encoder validation failed: '
                  f'The return type should be a numpy array of type float32. Got {result.dtype}.')
+            assert channel_dim - 1 <= len(result.shape), (f'tensorleap_input_encoder validation failed: '
+                 f'The channel_dim ({channel_dim}) should be <= to the rank of the resulting input rank ({len(result.shape)}).')
 
         def inner(sample_id, preprocess_response):
             _validate_input_args(sample_id, preprocess_response)
