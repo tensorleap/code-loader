@@ -58,11 +58,13 @@ def tensorleap_custom_metric(name: str, direction: Optional[MetricDirection] = M
                         assert isinstance(single_metric_result[0][0], ConfusionMatrixElement), \
                             f'{supported_types_message}Got List[List[{type(single_metric_result[0][0])}]].'
                     else:
-                        assert isinstance(single_metric_result[0], float), f'{supported_types_message}Got List[{type(single_metric_result[0])}].'
+                        assert isinstance(single_metric_result[0],
+                                          float), f'{supported_types_message}Got List[{type(single_metric_result[0])}].'
                 else:
-                    assert isinstance(single_metric_result, np.ndarray), f'{supported_types_message}Got {type(single_metric_result)}.'
+                    assert isinstance(single_metric_result,
+                                      np.ndarray), f'{supported_types_message}Got {type(single_metric_result)}.'
                     assert len(single_metric_result.shape) == 1, (f'tensorleap_custom_metric validation failed: '
-                                                    f'The return shape should be 1D. Got {len(single_metric_result.shape)}D.')
+                                                                  f'The return shape should be 1D. Got {len(single_metric_result.shape)}D.')
 
                 if leap_binder.batch_size_to_validate:
                     assert len(single_metric_result) == leap_binder.batch_size_to_validate, \
@@ -276,7 +278,7 @@ def tensorleap_input_encoder(name: str, channel_dim=-1):
                 (f'tensorleap_input_encoder validation failed: '
                  f'The return type should be a numpy array of type float32. Got {result.dtype}.')
             assert channel_dim - 1 <= len(result.shape), (f'tensorleap_input_encoder validation failed: '
-                 f'The channel_dim ({channel_dim}) should be <= to the rank of the resulting input rank ({len(result.shape)}).')
+                                                          f'The channel_dim ({channel_dim}) should be <= to the rank of the resulting input rank ({len(result.shape)}).')
 
         def inner(sample_id, preprocess_response):
             _validate_input_args(sample_id, preprocess_response)
@@ -345,11 +347,21 @@ def tensorleap_custom_loss(name: str):
                 raise Exception('the input arguments of the custom loss function should be tensorflow tensors') from e
 
             for i, arg in enumerate(args):
-                assert isinstance(arg, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
-                                                    f'Argument #{i} should be a tensorflow tensor. Got {type(arg)}.')
+                if isinstance(arg, list):
+                    for y, elem in enumerate(arg):
+                        assert isinstance(elem, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
+                                                             f'Element #{y} of list should be a tensorflow tensor. Got {type(elem)}.')
+                else:
+                    assert isinstance(arg, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
+                                                        f'Argument #{i} should be a tensorflow tensor. Got {type(arg)}.')
             for _arg_name, arg in kwargs.items():
-                assert isinstance(arg, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
-                                                    f'Argument {_arg_name} should be a tensorflow tensor. Got {type(arg)}.')
+                if isinstance(arg, list):
+                    for y, elem in enumerate(arg):
+                        assert isinstance(elem, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
+                                                             f'Element #{y} of list should be a tensorflow tensor. Got {type(elem)}.')
+                else:
+                    assert isinstance(arg, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
+                                                        f'Argument #{_arg_name} should be a tensorflow tensor. Got {type(arg)}.')
 
         def _validate_result(result):
             try:
