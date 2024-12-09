@@ -20,6 +20,7 @@ class DatasetBaseSectionInstance:
 @dataclass
 class DatasetInputInstance(DatasetBaseSectionInstance):
     shape: List[int]
+    channel_dim: Optional[int] = -1
 
 
 @dataclass

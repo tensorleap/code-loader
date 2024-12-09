@@ -231,7 +231,7 @@ class LeapLoader:
         for inp in setup.inputs:
             if inp.shape is None:
                 raise Exception(f"cant calculate shape for input, input name:{inp.name}")
-            inputs.append(DatasetInputInstance(name=inp.name, shape=inp.shape))
+            inputs.append(DatasetInputInstance(name=inp.name, shape=inp.shape, channel_dim=inp.channel_dim))
 
         ground_truths = []
         for gt in setup.ground_truths:

@@ -181,13 +181,14 @@ class LeapBinder:
         """
         self.setup_container.unlabeled_data_preprocess = UnlabeledDataPreprocessHandler(function)
 
-    def set_input(self, function: SectionCallableInterface, name: str) -> None:
+    def set_input(self, function: SectionCallableInterface, name: str, channel_dim: int = -1) -> None:
         """
         Set the input handler function.
 
         Args:
         function (SectionCallableInterface): The input handler function.
         name (str): The name of the input section.
+        channel_dim (int): The dimension of the channels axis
 
         Example:
             def input_encoder(subset: PreprocessResponse, index: int) -> np.ndarray:
@@ -197,10 +198,10 @@ class LeapBinder:
                 img = normalize(img)
                 return img
 
-            leap_binder.set_input(input_encoder, name='input_encoder')
+            leap_binder.set_input(input_encoder, name='input_encoder', channel_dim=-1)
         """
         function = to_numpy_return_wrapper(function)
-        self.setup_container.inputs.append(InputHandler(name, function))
+        self.setup_container.inputs.append(InputHandler(name, function, channel_dim=channel_dim))
 
         self._encoder_names.append(name)
 

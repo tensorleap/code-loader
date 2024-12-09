@@ -3,6 +3,12 @@ import pytest
 from code_loader.leaploader import LeapLoader
 from tests.fixtures.dataset_integ_scripts import dataset_integ_scripts_path
 
+@pytest.fixture
+def no_cloud_input_dim_dataset_loader() -> LeapLoader:
+    file_name = "simple_no_cloud_dataset_channel_dim.py"
+    leap_loader = LeapLoader(dataset_integ_scripts_path, file_name)
+    return leap_loader
+
 
 @pytest.fixture
 def no_cloud_dataset_loader() -> LeapLoader:
