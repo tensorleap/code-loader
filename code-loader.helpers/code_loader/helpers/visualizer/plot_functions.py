@@ -4,7 +4,7 @@ from code_loader.contract.enums import LeapDataType  # type: ignore
 from code_loader.contract.datasetclasses import LeapData  # type: ignore
 
 
-def plot_image_with_b_box(leap_data: LeapData) -> None:
+def plot_image_with_b_box(leap_data: LeapData, title: str) -> None:
     """
     Plot an image with overlaid bounding boxes.
 
@@ -28,7 +28,7 @@ def plot_image_with_b_box(leap_data: LeapData) -> None:
 
     # Display the image
     ax.imshow(image)
-    ax.set_title('Leap Image With BBox Visualization', color='white')
+    ax.set_title(title, color='white')
 
     # Draw bounding boxes on the image
     for bbox in bounding_boxes:
@@ -60,7 +60,7 @@ def plot_image_with_b_box(leap_data: LeapData) -> None:
     plt.show()
 
 
-def plot_image(leap_data: LeapData) -> None:
+def plot_image(leap_data: LeapData, title: str) -> None:
     """
     Display the image contained in the LeapImage object.
 
@@ -85,11 +85,11 @@ def plot_image(leap_data: LeapData) -> None:
     ax.imshow(image_data)
 
     plt.axis('off')
-    plt.title('Leap Image Visualization', color='white')
+    plt.title(title, color='white')
     plt.show()
 
 
-def plot_graph(leap_data: LeapData) -> None:
+def plot_graph(leap_data: LeapData, title: str) -> None:
     """
         Display the line chart contained in the LeapGraph object.
 
@@ -115,7 +115,7 @@ def plot_graph(leap_data: LeapData) -> None:
 
     ax.set_xlabel('Data Points', color='white')
     ax.set_ylabel('Values', color='white')
-    ax.set_title('Leap Graph Visualization', color='white')
+    ax.set_title(title, color='white')
     ax.legend()
     ax.grid(True, color='white')
 
@@ -125,7 +125,7 @@ def plot_graph(leap_data: LeapData) -> None:
     plt.show()
 
 
-def plot_text(leap_data: LeapData) -> None:
+def plot_text(leap_data: LeapData, title: str) -> None:
     """
         Display the text contained in the LeapText object.
 
@@ -155,13 +155,13 @@ def plot_text(leap_data: LeapData) -> None:
 
     # Add the text to the image
     ax.text(0.5, 0.5, display_text, color=font_color, fontsize=font_size, ha='center', va='center')
-    ax.set_title('Leap Text Visualization', color='white')
+    ax.set_title(title, color='white')
 
     # Display the image
     plt.show()
 
 
-def plot_hbar(leap_data: LeapData) -> None:
+def plot_hbar(leap_data: LeapData, title: str) -> None:
     """
         Display the horizontal bar chart contained in the LeapHorizontalBar object.
 
@@ -187,7 +187,7 @@ def plot_hbar(leap_data: LeapData) -> None:
 
     # Set the color of the labels and title to white
     ax.set_xlabel('Scores', color='white')
-    ax.set_title('Leap Horizontal Bar Visualization', color='white')
+    ax.set_title(title, color='white')
 
     # Set the color of the ticks to white
     ax.tick_params(axis='x', colors='white')
@@ -196,7 +196,7 @@ def plot_hbar(leap_data: LeapData) -> None:
     plt.show()
 
 
-def plot_image_mask(leap_data: LeapData) -> None:
+def plot_image_mask(leap_data: LeapData, title: str) -> None:
     """
         Plots an image with overlaid masks given a LeapImageMask visualizer object.
 
@@ -239,12 +239,12 @@ def plot_image_mask(leap_data: LeapData) -> None:
     ax.set_facecolor('black')  # Set the axis background to black
 
     ax.imshow(overlayed_image)
-    ax.set_title('Leap Image With Mask Visualization', color='white')
+    ax.set_title(title, color='white')
     plt.axis('off')  # Hide the axis
     plt.show()
 
 
-def plot_text_mask(leap_data: LeapData) -> None:
+def plot_text_mask(leap_data: LeapData, title: str) -> None:
     """
         Plots text with overlaid masks given a LeapTextMask visualizer object.
 
@@ -256,6 +256,7 @@ def plot_text_mask(leap_data: LeapData) -> None:
             mask_data = np.array([0, 0, 0, 1, 0, 0, 0]).astype(np.uint8)
             labels = ["object"]
             leap_text_mask = LeapTextMask(text=text_data, mask=mask_data, labels=labels)
+            leap_text_mask.plot_visualizer()
         """
 
     text_data = leap_data.text
@@ -271,7 +272,7 @@ def plot_text_mask(leap_data: LeapData) -> None:
     # Set background to black
     fig.patch.set_facecolor('black')
     ax.set_facecolor('black')
-    ax.set_title('Leap Text Mask Visualization', color='white')
+    ax.set_title(title, color='white')
     ax.axis('off')
 
     # Set initial position
@@ -294,7 +295,7 @@ def plot_text_mask(leap_data: LeapData) -> None:
     plt.show()
 
 
-def plot_image_with_heatmap(leap_data: LeapData) -> None:
+def plot_image_with_heatmap(leap_data: LeapData, title: str) -> None:
     """
         Display the image with overlaid heatmaps contained in the LeapImageWithHeatmap object.
 
@@ -331,7 +332,7 @@ def plot_image_with_heatmap(leap_data: LeapData) -> None:
         plt.setp(plt.getp(cbar.ax.axes, 'yticklabels'), color='white')  # Set color for the colorbar labels
 
     plt.axis('off')
-    plt.title('Leap Image With Heatmaps Visualization', color='white')
+    plt.title(title, color='white')
     plt.show()
 
 
