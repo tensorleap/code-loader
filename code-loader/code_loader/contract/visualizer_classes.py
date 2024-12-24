@@ -127,8 +127,8 @@ class LeapText:
 
         if self.heatmap is not None:
             validate_type(type(self.heatmap), list)
-            for value in self.heatmap:
-                validate_type(type(value), float)
+            for v in self.heatmap:
+                validate_type(type(v), float)
             if len(self.heatmap) != len(self.data):
                 raise LeapValidationError(
                     f"Heatmap length ({len(self.heatmap)}) must match the number of tokens in `data` ({len(self.data)})."
