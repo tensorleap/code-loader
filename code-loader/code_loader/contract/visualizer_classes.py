@@ -1,4 +1,4 @@
-from typing import List, Any, Union
+from typing import List, Any, Union, Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -112,17 +112,27 @@ class LeapText:
 
     Example:
         text_data = ['I', 'ate', 'a', 'banana', '', '', '']
-        leap_text = LeapText(data=text_data)  # Create LeapText object
-        LeapText(leap_text)
+        heatmap = [0.1, 0.3, 0.2, 0.9, 0.0, 0.0, 0.0]
+        leap_text = LeapText(data=text_data heatmap=heatmap)  # Create LeapText object
     """
     data: List[str]
     type: LeapDataType = LeapDataType.Text
+    heatmap: Optional[List[float]] = None
 
     def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.Text)
         validate_type(type(self.data), list)
         for value in self.data:
             validate_type(type(value), str)
+
+        if self.heatmap is not None:
+            validate_type(type(self.heatmap), list)
+            for value in self.heatmap:
+                validate_type(type(value), float)
+            if len(self.heatmap) != len(self.data):
+                raise LeapValidationError(
+                    f"Heatmap length ({len(self.heatmap)}) must match the number of tokens in `data` ({len(self.data)})."
+                )
 
 
 @dataclass
