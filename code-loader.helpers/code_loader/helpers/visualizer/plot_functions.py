@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt  # type: ignore
 import numpy as np
 from code_loader.contract.enums import LeapDataType  # type: ignore
 from code_loader.contract.datasetclasses import LeapData  # type: ignore
+from textwrap import wrap
+import math
 
 
 def plot_image_with_b_box(leap_data: LeapData, title: str) -> None:
@@ -15,7 +17,8 @@ def plot_image_with_b_box(leap_data: LeapData, title: str) -> None:
         image_data = np.random.rand(100, 100, 3).astype(np.float32)
         bbox = BoundingBox(x=0.5, y=0.5, width=0.2, height=0.2, confidence=0.9, label="object")
         leap_image_with_bbox = LeapImageWithBBox(data=image_data, bounding_boxes=[bbox])
-        leap_image_with_bbox.plot_visualizer()
+        title = "Image With bbox"
+        visualize(leap_image_with_bbox, title)
     """
 
     image = leap_data.data
@@ -70,7 +73,8 @@ def plot_image(leap_data: LeapData, title: str) -> None:
     Example:
         image_data = np.random.rand(100, 100, 3).astype(np.float32)
         leap_image = LeapImage(data=image_data)
-        leap_image.plot_visualizer()
+        title = "Image"
+        visualize(leap_image, title)
     """
     image_data = leap_data.data
 
@@ -99,7 +103,8 @@ def plot_graph(leap_data: LeapData, title: str) -> None:
         Example:
             graph_data = np.random.rand(100, 3).astype(np.float32)
             leap_graph = LeapGraph(data=graph_data)
-            leap_graph.plot_visualizer()
+            title = "Graph"
+            visualize(leap_graph, title)
         """
     graph_data = leap_data.data
     num_variables = graph_data.shape[1]
@@ -125,39 +130,72 @@ def plot_graph(leap_data: LeapData, title: str) -> None:
     plt.show()
 
 
-def plot_text(leap_data: LeapData, title: str) -> None:
+def plot_text_with_heatmap(leap_data: LeapData, title: str) -> None:
     """
-        Display the text contained in the LeapText object.
+    Display the text contained in the LeapText object with a heatmap overlay.
 
-        Returns:
-            None
+    Args:
+        leap_data (LeapData): The LeapText object containing text tokens and an optional heatmap.
+        title (str): The title of the visualization.
 
-        Example:
-            text_data = ['I', 'ate', 'a', 'banana', '', '', '']
-            leap_text = LeapText(data=text_data)
-            leap_text.plot_visualizer()
-        """
+    Returns:
+        None
+
+    Example:
+        text_data = ['I', 'ate', 'a', 'banana', '', '', '']
+        heatmap = [0.1, 0.3, 0.2, 0.9, 0.0, 0.0, 0.0]
+        leap_text = LeapText(data=text_data, heatmap=heatmap)  # Create LeapText object
+        title = "Text with Heatmap"
+        visualize(leap_text, title)
+    """
     text_data = leap_data.data
-    # Join the text tokens into a single string, ignoring empty strings
-    display_text = ' '.join([token for token in text_data if token])
+    heatmap = leap_data.heatmap
 
-    # Create a black image using Matplotlib
-    fig, ax = plt.subplots(figsize=(10, 5))
+    text_data = [s for s in text_data if s != "[PAD]"]
+
+    fig, ax = plt.subplots(figsize=(12, 5))
     fig.patch.set_facecolor('black')
     ax.set_facecolor('black')
+    ax.axis('off')  # Hide axes
 
-    # Hide the axes
-    ax.axis('off')
-
-    # Set the text properties
     font_size = 20
-    font_color = 'white'
 
-    # Add the text to the image
-    ax.text(0.5, 0.5, display_text, color=font_color, fontsize=font_size, ha='center', va='center')
-    ax.set_title(title, color='white')
+    if heatmap is not None:
+        heatmap = heatmap[:len(text_data)]
+        if len(heatmap) != len(text_data):
+            raise ValueError(
+                f"Heatmap length ({len(heatmap)}) must match the number of tokens in `data` ({len(text_data)}).")
 
-    # Display the image
+        max_tokens_per_row = 10
+        num_rows = math.ceil(len(text_data) / max_tokens_per_row)
+
+        fig.set_size_inches(12, num_rows * 1.2)
+        for idx, (token, value) in enumerate(zip(text_data, heatmap)):
+            if token:
+                row = idx // max_tokens_per_row
+                col = idx % max_tokens_per_row
+
+                x_pos = col / max_tokens_per_row + 0.03
+                y_pos = 1 - (row + 0.5) / num_rows
+                color = plt.cm.jet(value)
+                ax.text(
+                    x_pos,
+                    y_pos,
+                    token,
+                    fontsize=font_size,
+                    color=color,
+                    ha="left",
+                    va="center"
+                )
+    else:
+        display_text = ' '.join([token for token in text_data if token])
+        wrapped_text = "\n".join(wrap(display_text, width=80))
+        font_color = 'white'
+        ax.text(0.5, 0.5, wrapped_text, color=font_color, fontsize=font_size, ha='center', va='center')
+
+    ax.set_title(title, color='white', fontsize=16)
+
+    plt.tight_layout()
     plt.show()
 
 
@@ -172,7 +210,8 @@ def plot_hbar(leap_data: LeapData, title: str) -> None:
             body_data = np.random.rand(5).astype(np.float32)
             labels = ['Class A', 'Class B', 'Class C', 'Class D', 'Class E']
             leap_horizontal_bar = LeapHorizontalBar(body=body_data, labels=labels)
-            leap_horizontal_bar.plot_visualizer()
+            title = "Horizontal Bar"
+            visualize(leap_horizontal_bar, title)
         """
     body_data = leap_data.body
     labels = leap_data.labels
@@ -209,7 +248,8 @@ def plot_image_mask(leap_data: LeapData, title: str) -> None:
             mask_data = np.random.randint(0, 2, (100, 100)).astype(np.uint8)
             labels = ["background", "object"]
             leap_image_mask = LeapImageMask(image=image_data, mask=mask_data, labels=labels)
-            leap_image_mask.plot_visualizer()
+            title = "Image Mask"
+            visualize(leap_image_mask, title)
         """
 
     image = leap_data.image
@@ -256,7 +296,8 @@ def plot_text_mask(leap_data: LeapData, title: str) -> None:
             mask_data = np.array([0, 0, 0, 1, 0, 0, 0]).astype(np.uint8)
             labels = ["object"]
             leap_text_mask = LeapTextMask(text=text_data, mask=mask_data, labels=labels)
-            leap_text_mask.plot_visualizer()
+            title = "Text Mask"
+            visualize(leap_text_mask, title)
         """
 
     text_data = leap_data.text
@@ -307,7 +348,8 @@ def plot_image_with_heatmap(leap_data: LeapData, title: str) -> None:
             heatmaps = np.random.rand(3, 100, 100).astype(np.float32)
             labels = ["heatmap1", "heatmap2", "heatmap3"]
             leap_image_with_heatmap = LeapImageWithHeatmap(image=image_data, heatmaps=heatmaps, labels=labels)
-            leap_image_with_heatmap.plot_visualizer()
+            title = "Image With Heatmap"
+            visualize(leap_image_with_heatmap, title)
         """
     image = leap_data.image
     heatmaps = leap_data.heatmaps
@@ -338,11 +380,11 @@ def plot_image_with_heatmap(leap_data: LeapData, title: str) -> None:
 
 plot_switch = {
     LeapDataType.Image: plot_image,
-    LeapDataType.Text: plot_text,
+    LeapDataType.Text: plot_text_with_heatmap,
     LeapDataType.Graph: plot_graph,
     LeapDataType.HorizontalBar: plot_hbar,
     LeapDataType.ImageMask: plot_image_mask,
     LeapDataType.TextMask: plot_text_mask,
     LeapDataType.ImageWithHeatmap: plot_image_with_heatmap,
-    LeapDataType.ImageWithBBox: plot_image_with_b_box
+    LeapDataType.ImageWithBBox: plot_image_with_b_box,
 }
