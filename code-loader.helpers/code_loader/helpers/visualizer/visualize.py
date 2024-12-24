@@ -2,6 +2,7 @@ import sys
 
 from code_loader.contract.datasetclasses import LeapData  # type: ignore
 from code_loader.helpers.visualizer.plot_functions import plot_switch
+
 from typing import Optional
 
 
@@ -14,3 +15,4 @@ def visualize(leap_data: LeapData, title: Optional[str] = None) -> None:
     if not title:
         title = f"Leap {leap_data.type.name} Visualization"
     vis_function(leap_data, title)
+
