@@ -117,18 +117,28 @@ MetricCallableReturnType = Union[Any, List[List[ConfusionMatrixElement]]]
 
 
 @dataclass
-class CustomLossHandler:
+class CustomLossHandlerData:
     name: str
-    function: CustomCallableInterface
     arg_names: List[str]
 
 
 @dataclass
-class MetricHandler:
+class CustomLossHandler:
+    custom_loss_handler_data: CustomLossHandlerData
+    function: CustomCallableInterface
+
+
+@dataclass
+class MetricHandlerData:
     name: str
-    function: Union[CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs]
     arg_names: List[str]
     direction: Optional[MetricDirection] = MetricDirection.Downward
+
+
+@dataclass
+class MetricHandler:
+    metric_handler_data: MetricHandlerData
+    function: Union[CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs]
 
 
 @dataclass
@@ -137,11 +147,16 @@ class RawInputsForHeatmap:
 
 
 @dataclass
-class VisualizerHandler:
+class VisualizerHandlerData:
     name: str
-    function: VisualizerCallableInterface
     type: LeapDataType
     arg_names: List[str]
+
+
+@dataclass
+class VisualizerHandler:
+    visualizer_handler_data: VisualizerHandlerData
+    function: VisualizerCallableInterface
     heatmap_function: Optional[Callable[..., npt.NDArray[np.float32]]] = None
 
 

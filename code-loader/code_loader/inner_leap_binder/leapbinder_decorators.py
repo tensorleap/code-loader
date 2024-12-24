@@ -22,7 +22,7 @@ def tensorleap_custom_metric(name: str, direction: Optional[MetricDirection] = M
             ConfusionMatrixCallableInterfaceMultiArgs]
     ):
         for metric_handler in leap_binder.setup_container.metrics:
-            if metric_handler.name == name:
+            if metric_handler.metric_handler_data.name == name:
                 raise Exception(f'Metric with name {name} already exists. '
                                 f'Please choose another')
 
@@ -92,7 +92,7 @@ def tensorleap_custom_visualizer(name: str, visualizer_type: LeapDataType,
                                  heatmap_function: Optional[Callable[..., npt.NDArray[np.float32]]] = None):
     def decorating_function(user_function: VisualizerCallableInterface):
         for viz_handler in leap_binder.setup_container.visualizers:
-            if viz_handler.name == name:
+            if viz_handler.visualizer_handler_data.name == name:
                 raise Exception(f'Visualizer with name {name} already exists. '
                                 f'Please choose another')
 
@@ -328,7 +328,7 @@ def tensorleap_gt_encoder(name: str):
 def tensorleap_custom_loss(name: str):
     def decorating_function(user_function: CustomCallableInterface):
         for loss_handler in leap_binder.setup_container.custom_loss_handlers:
-            if loss_handler.name == name:
+            if loss_handler.custom_loss_handler_data.name == name:
                 raise Exception(f'Custom loss with name {name} already exists. '
                                 f'Please choose another')
 
