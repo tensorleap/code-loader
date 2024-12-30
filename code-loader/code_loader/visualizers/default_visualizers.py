@@ -33,6 +33,8 @@ def default_horizontal_bar_visualizer(data: npt.NDArray[np.float32]) -> LeapHori
 
 
 def default_word_visualizer(data: npt.NDArray[np.float32]) -> LeapText:
+    if len(data.shape) == 2 and data.shape[0] == 1:
+        data = data[0]
     if hasattr(data, 'tolist'):
         data = data.tolist()
     words = [str(index[0]) if type(index) is list else str(index) for index in data]
