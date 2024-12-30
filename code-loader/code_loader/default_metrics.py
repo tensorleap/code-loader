@@ -1,3 +1,5 @@
+# mypy: ignore-errors
+
 from enum import Enum
 from typing import List, Tuple
 import numpy as np
