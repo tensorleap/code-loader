@@ -1,7 +1,7 @@
 from enum import Enum
 
 from code_loader.contract.datasetclasses import ConfusionMatrixElement  # type: ignore
-from code_loader.contract.enums import ConfusionMatrixValue, MetricDirection  # type: ignore
+from code_loader.contract.enums import ConfusionMatrixValue, MetricDirection
 from code_loader.default_metrics import mean_absolute_percentage_error_dimension_reduced, \
     mean_absolute_error_dimension_reduced, mean_squared_logarithmic_error_dimension_reduced, \
     mean_squared_error_dimension_reduced, categorical_crossentropy, binary_crossentropy
