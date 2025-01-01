@@ -15,7 +15,18 @@ class Metric(Enum):
     MeanAbsolutePercentageError = 'MeanAbsolutePercentageError'
     Accuracy = 'Accuracy'
     ConfusionMatrixClassification = 'ConfusionMatrixClassification'
+    CategoricalCrossentropy = 'CategoricalCrossentropy'
+    BinaryCrossentropy = 'BinaryCrossentropy'
 
+
+def binary_crossentropy(ground_truth: np.array, prediction: np.array) -> np.array:
+    ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
+    return -(ground_truth * np.log(prediction) + (1 - ground_truth) * np.log(1 - prediction)).mean(axis=1).astype(np.float32)
+
+
+def categorical_crossentropy(ground_truth: np.array, prediction: np.array) -> np.array:
+    ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
+    return -(ground_truth * np.log(prediction)).mean(axis=1).astype(np.float32)
 
 def accuracy_reduced(ground_truth: np.array, prediction: np.array) -> np.array:
     ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
@@ -80,4 +91,6 @@ metrics_names_to_functions_and_direction = {
         mean_absolute_percentage_error_dimension_reduced, MetricDirection.Downward),
     Metric.Accuracy.name: (accuracy_reduced, MetricDirection.Upward),
     Metric.ConfusionMatrixClassification.name: (confusion_matrix_classification_metric, None),
+    Metric.CategoricalCrossentropy.name: (categorical_crossentropy, MetricDirection.Downward),
+    Metric.BinaryCrossentropy.name: (binary_crossentropy, MetricDirection.Downward)
 }
