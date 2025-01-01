@@ -340,38 +340,36 @@ def tensorleap_custom_loss(name: str):
 
         leap_binder.add_custom_loss(user_function, name)
 
+        valid_types = np.ndarray
+        try:
+            import tensorflow as tf
+            valid_types = (np.ndarray, tf.Tensor)
+        except:
+            pass
+
         def _validate_input_args(*args, **kwargs):
-            try:
-                import tensorflow as tf
-            except ImportError as e:
-                raise Exception('the input arguments of the custom loss function should be tensorflow tensors') from e
 
             for i, arg in enumerate(args):
                 if isinstance(arg, list):
                     for y, elem in enumerate(arg):
-                        assert isinstance(elem, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
-                                                             f'Element #{y} of list should be a tensorflow tensor. Got {type(elem)}.')
+                        assert isinstance(elem, valid_types), (f'tensorleap_custom_loss validation failed: '
+                                                               f'Element #{y} of list should be a numpy array. Got {type(elem)}.')
                 else:
                     assert isinstance(arg, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
-                                                        f'Argument #{i} should be a tensorflow tensor. Got {type(arg)}.')
+                                                        f'Argument #{i} should be a numpy array. Got {type(arg)}.')
             for _arg_name, arg in kwargs.items():
                 if isinstance(arg, list):
                     for y, elem in enumerate(arg):
-                        assert isinstance(elem, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
-                                                             f'Element #{y} of list should be a tensorflow tensor. Got {type(elem)}.')
+                        assert isinstance(elem,valid_types), (f'tensorleap_custom_loss validation failed: '
+                                                             f'Element #{y} of list should be a numpy array. Got {type(elem)}.')
                 else:
-                    assert isinstance(arg, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
-                                                        f'Argument #{_arg_name} should be a tensorflow tensor. Got {type(arg)}.')
+                    assert isinstance(arg, valid_types), (f'tensorleap_custom_loss validation failed: '
+                                                        f'Argument #{_arg_name} should be a numpy array. Got {type(arg)}.')
 
         def _validate_result(result):
-            try:
-                import tensorflow as tf
-            except ImportError:
-                raise Exception('the input arguments of the custom loss function should be tensorflow tensors')
-
-            assert isinstance(result, (np.ndarray, tf.Tensor)), \
+            assert isinstance(result, valid_types), \
                 (f'tensorleap_custom_loss validation failed: '
-                 f'The return type should be a numpy array or a tensorflow tensor. Got {type(result)}.')
+                 f'The return type should be a numpy array. Got {type(result)}.')
 
         def inner(*args, **kwargs):
             _validate_input_args(*args, **kwargs)
