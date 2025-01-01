@@ -1,32 +1,33 @@
 # mypy: ignore-errors
 import importlib.util
+import inspect
 import io
 import sys
-import time
 from contextlib import redirect_stdout
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Iterable, Union, Any, Type
+from typing import Dict, List, Iterable, Union, Any, Type, Optional
 
 import numpy as np
 import numpy.typing as npt
 
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, GroundTruthHandler, \
-    PreprocessResponse, VisualizerHandler, LeapData, CustomLossHandler, \
-    PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler
+    PreprocessResponse, VisualizerHandler, LeapData, \
+    PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler, VisualizerHandlerData, MetricHandlerData, \
+    MetricCallableReturnType, CustomLossHandlerData, CustomLossHandler, RawInputsForHeatmap
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType, DatasetMetadataType
 from code_loader.contract.exceptions import DatasetScriptException
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetPreprocess, DatasetSetup, DatasetInputInstance, DatasetOutputInstance, DatasetMetadataInstance, \
     VisualizerInstance, PredictionTypeInstance, ModelSetup, CustomLayerInstance, MetricInstance, CustomLossInstance
 from code_loader.inner_leap_binder import global_leap_binder
+from code_loader.leaploaderbase import LeapLoaderBase
 from code_loader.utils import get_root_exception_file_and_line_number
 
 
-class LeapLoader:
+class LeapLoader(LeapLoaderBase):
     def __init__(self, code_path: str, code_entry_name: str):
-        self.code_entry_name = code_entry_name
-        self.code_path = code_path
+        super().__init__(code_path, code_entry_name)
 
         self._preprocess_result_cached = None
 
@@ -66,29 +67,56 @@ class LeapLoader:
         spec.loader.exec_module(file)
 
     @lru_cache()
-    def metric_by_name(self) -> Dict[str, MetricHandler]:
+    def metric_by_name(self) -> Dict[str, MetricHandlerData]:
         self.exec_script()
         setup = global_leap_binder.setup_container
         return {
-            metric_handler.name: metric_handler
+            metric_handler.metric_handler_data.name: metric_handler.metric_handler_data
             for metric_handler in setup.metrics
         }
 
     @lru_cache()
-    def visualizer_by_name(self) -> Dict[str, VisualizerHandler]:
+    def _metric_handler_by_name(self) -> Dict[str, MetricHandler]:
         self.exec_script()
         setup = global_leap_binder.setup_container
         return {
-            visualizer_handler.name: visualizer_handler
+            metric_handler.metric_handler_data.name: metric_handler
+            for metric_handler in setup.metrics
+        }
+
+    @lru_cache()
+    def visualizer_by_name(self) -> Dict[str, VisualizerHandlerData]:
+        self.exec_script()
+        setup = global_leap_binder.setup_container
+        return {
+            visualizer_handler.visualizer_handler_data.name: visualizer_handler.visualizer_handler_data
             for visualizer_handler in setup.visualizers
         }
 
     @lru_cache()
-    def custom_loss_by_name(self) -> Dict[str, CustomLossHandler]:
+    def _visualizer_handler_by_name(self) -> Dict[str, VisualizerHandler]:
         self.exec_script()
         setup = global_leap_binder.setup_container
         return {
-            custom_loss_handler.name: custom_loss_handler
+            visualizer_handler.visualizer_handler_data.name: visualizer_handler
+            for visualizer_handler in setup.visualizers
+        }
+
+    @lru_cache()
+    def custom_loss_by_name(self) -> Dict[str, CustomLossHandlerData]:
+        self.exec_script()
+        setup = global_leap_binder.setup_container
+        return {
+            custom_loss_handler.custom_loss_handler_data.name: custom_loss_handler.custom_loss_handler_data
+            for custom_loss_handler in setup.custom_loss_handlers
+        }
+
+    @lru_cache()
+    def _custom_loss_handler_by_name(self) -> Dict[str, CustomLossHandler]:
+        self.exec_script()
+        setup = global_leap_binder.setup_container
+        return {
+            custom_loss_handler.custom_loss_handler_data.name: custom_loss_handler
             for custom_loss_handler in setup.custom_loss_handlers
         }
 
@@ -200,20 +228,42 @@ class LeapLoader:
         all_dataset_base_handlers.extend(global_leap_binder.setup_container.metadata)
         return all_dataset_base_handlers
 
-    def run_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]],
-                       ) -> LeapData:
-        return self.visualizer_by_name()[visualizer_name].function(**input_tensors_by_arg_name)
+    def run_metric(self, metric_name: str,
+                   input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]) -> MetricCallableReturnType:
+        self._preprocess_result()
+        return self._metric_handler_by_name()[metric_name].function(**input_tensors_by_arg_name)
+
+    def run_custom_loss(self, custom_loss_name: str,
+                        input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]):
+        return self._custom_loss_handler_by_name()[custom_loss_name].function(**input_tensors_by_arg_name)
+
+    def run_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]) -> LeapData:
+        # running preprocessing to sync preprocessing in main thread (can be valuable when preprocess is filling a
+        # global param that visualizer is using)
+        self._preprocess_result()
+
+        return self._visualizer_handler_by_name()[visualizer_name].function(**input_tensors_by_arg_name)
 
     def run_heatmap_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]
-                               ) -> npt.NDArray[np.float32]:
-        heatmap_function = self.visualizer_by_name()[visualizer_name].heatmap_function
+                               ) -> Optional[npt.NDArray[np.float32]]:
+        heatmap_function = self._visualizer_handler_by_name()[visualizer_name].heatmap_function
         if heatmap_function is None:
             assert len(input_tensors_by_arg_name) == 1
-            return list(input_tensors_by_arg_name.values())[0]
+            return None
+
         return heatmap_function(**input_tensors_by_arg_name)
 
-    @staticmethod
-    def get_dataset_setup_response(handlers_test_payloads: List[DatasetTestResultPayload]) -> DatasetSetup:
+    def get_heatmap_visualizer_raw_vis_input_arg_name(self, visualizer_name: str) -> Optional[str]:
+        heatmap_function = self._visualizer_handler_by_name()[visualizer_name].heatmap_function
+        if heatmap_function is None:
+            return None
+
+        for arg_name, arg_type in inspect.getfullargspec(heatmap_function).annotations.items():
+            if arg_type == RawInputsForHeatmap:
+                return arg_name
+        return None
+
+    def get_dataset_setup_response(self, handlers_test_payloads: List[DatasetTestResultPayload]) -> DatasetSetup:
         setup = global_leap_binder.setup_container
         assert setup.preprocess is not None
 
@@ -262,10 +312,13 @@ class LeapLoader:
                                                               type=dataset_metadata_type))
 
         visualizers = [
-            VisualizerInstance(visualizer_handler.name, visualizer_handler.type, visualizer_handler.arg_names)
+            VisualizerInstance(
+                visualizer_handler.visualizer_handler_data.name, visualizer_handler.visualizer_handler_data.type,
+                visualizer_handler.visualizer_handler_data.arg_names)
             for visualizer_handler in setup.visualizers]
 
-        custom_losses = [CustomLossInstance(custom_loss.name, custom_loss.arg_names)
+        custom_losses = [CustomLossInstance(custom_loss.custom_loss_handler_data.name,
+                                            custom_loss.custom_loss_handler_data.arg_names)
                          for custom_loss in setup.custom_loss_handlers]
 
         prediction_types = []
@@ -276,15 +329,14 @@ class LeapLoader:
 
         metrics = []
         for metric in setup.metrics:
-            metric_inst = MetricInstance(metric.name, metric.arg_names)
+            metric_inst = MetricInstance(metric.metric_handler_data.name, metric.metric_handler_data.arg_names)
             metrics.append(metric_inst)
 
         return DatasetSetup(preprocess=dataset_preprocess, inputs=inputs, outputs=ground_truths,
                             metadata=metadata_instances, visualizers=visualizers, prediction_types=prediction_types,
                             custom_losses=custom_losses, metrics=metrics)
 
-    @staticmethod
-    def get_model_setup_response() -> ModelSetup:
+    def get_model_setup_response(self) -> ModelSetup:
         setup = global_leap_binder.setup_container
         custom_layer_instances = [
             CustomLayerInstance(custom_layer_handler.name, custom_layer_handler.init_arg_names,
@@ -388,4 +440,5 @@ class LeapLoader:
                 raise Exception("Different id types in preprocess results")
 
         return id_type
+
 

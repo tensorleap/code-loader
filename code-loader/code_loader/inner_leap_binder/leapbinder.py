@@ -9,10 +9,12 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     PreprocessHandler, VisualizerCallableInterface, CustomLossHandler, CustomCallableInterface, PredictionTypeHandler, \
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
     CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, LeapData, \
-    CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute, RawInputsForHeatmap
+    CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute, \
+    RawInputsForHeatmap, VisualizerHandlerData, MetricHandlerData, CustomLossHandlerData
 from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType, MetricDirection
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
 from code_loader.contract.visualizer_classes import map_leap_data_type_to_visualizer_class
+from code_loader.default_metrics import metrics_names_to_functions_and_direction
 from code_loader.utils import to_numpy_return_wrapper, get_shape
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
     default_graph_visualizer, \
@@ -36,6 +38,7 @@ class LeapBinder:
         self._visualizer_names: List[str] = list()
         self._encoder_names: List[str] = list()
         self._extend_with_default_visualizers()
+        self._extend_with_default_metrics()
 
         self.batch_size_to_validate: Optional[int] = None
 
@@ -54,6 +57,10 @@ class LeapBinder:
                             visualizer_type=LeapDataType.ImageMask)
         self.set_visualizer(function=default_text_mask_visualizer, name=DefaultVisualizer.TextMask.value,
                             visualizer_type=LeapDataType.TextMask)
+
+    def _extend_with_default_metrics(self) -> None:
+        for metric_name, (func, direction) in metrics_names_to_functions_and_direction.items():
+            self.add_custom_metric(func, metric_name, direction)
 
     def set_visualizer(self, function: VisualizerCallableInterface,
                        name: str,
@@ -127,7 +134,7 @@ class LeapBinder:
                     f'should be {expected_return_type}')
 
         self.setup_container.visualizers.append(
-            VisualizerHandler(name, function, visualizer_type, arg_names, heatmap_visualizer))
+            VisualizerHandler(VisualizerHandlerData(name, visualizer_type, arg_names), function, heatmap_visualizer))
         self._visualizer_names.append(name)
 
     def set_preprocess(self, function: Callable[[], List[PreprocessResponse]]) -> None:
@@ -226,7 +233,7 @@ class LeapBinder:
             leap_binder.add_custom_loss(custom_loss_function, name='custom_loss')
         """
         arg_names = inspect.getfullargspec(function)[0]
-        self.setup_container.custom_loss_handlers.append(CustomLossHandler(name, function, arg_names))
+        self.setup_container.custom_loss_handlers.append(CustomLossHandler(CustomLossHandlerData(name, arg_names), function))
 
     def add_custom_metric(self,
                           function: Union[CustomCallableInterfaceMultiArgs,
@@ -252,7 +259,7 @@ class LeapBinder:
             leap_binder.add_custom_metric(custom_metric_function, name='custom_metric', direction=MetricDirection.Downward)
         """
         arg_names = inspect.getfullargspec(function)[0]
-        self.setup_container.metrics.append(MetricHandler(name, function, arg_names, direction))
+        self.setup_container.metrics.append(MetricHandler(MetricHandlerData(name, arg_names, direction), function))
 
     def add_prediction(self, name: str, labels: List[str], channel_dim: int = -1) -> None:
         """
