@@ -4,7 +4,7 @@ import pytest
 from code_loader.contract.enums import DatasetMetadataType, LeapDataType
 from code_loader.contract.responsedataclasses import DatasetSetup, DatasetInputInstance, DatasetMetadataInstance, \
     DatasetOutputInstance, DatasetIntegParseResult, DatasetTestResultPayload, DatasetPreprocess, VisualizerInstance, \
-    MetricInstance
+    MetricInstance, CustomLossInstance
 
 
 @pytest.fixture
@@ -35,10 +35,16 @@ def no_cloud_dataset_loader_expected_result() -> DatasetIntegParseResult:
             MetricInstance(name='MeanAbsoluteError', arg_names=['ground_truth', 'prediction']),
             MetricInstance(name='MeanAbsolutePercentageError', arg_names=['ground_truth', 'prediction']),
             MetricInstance(name='Accuracy', arg_names=['ground_truth', 'prediction']),
-            MetricInstance(name='ConfusionMatrixClassification', arg_names=['ground_truth', 'prediction'])
-        ],
+            MetricInstance(name='ConfusionMatrixClassification', arg_names=['ground_truth', 'prediction']),
+            MetricInstance(name='CategoricalCrossentropy', arg_names=['ground_truth', 'prediction']),
+            MetricInstance(name='BinaryCrossentropy', arg_names=['ground_truth', 'prediction'])],
         prediction_types=[],
-        custom_losses=[]
+        custom_losses=[CustomLossInstance(name='MeanSquaredError', arg_names=['ground_truth', 'prediction']),
+                       CustomLossInstance(name='MeanSquaredLogarithmicError', arg_names=['ground_truth', 'prediction']),
+                       CustomLossInstance(name='MeanAbsoluteError', arg_names=['ground_truth', 'prediction']),
+                       CustomLossInstance(name='MeanAbsolutePercentageError', arg_names=['ground_truth', 'prediction']),
+                       CustomLossInstance(name='CategoricalCrossentropy', arg_names=['ground_truth', 'prediction']),
+                       CustomLossInstance(name='BinaryCrossentropy', arg_names=['ground_truth', 'prediction'])]
     )
 
     expected_payloads = [
