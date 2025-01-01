@@ -344,7 +344,7 @@ def tensorleap_custom_loss(name: str):
         try:
             import tensorflow as tf
             valid_types = (np.ndarray, tf.Tensor)
-        except:
+        except ImportError:
             pass
 
         def _validate_input_args(*args, **kwargs):
