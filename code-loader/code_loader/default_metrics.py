@@ -21,12 +21,17 @@ class Metric(Enum):
 
 def binary_crossentropy(ground_truth: np.array, prediction: np.array) -> np.array:
     ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
-    return -(ground_truth * np.log(prediction) + (1 - ground_truth) * np.log(1 - prediction)).mean(axis=1).astype(np.float32)
+    epsilon = 1e-07
+    prediction = np.clip(prediction, epsilon, 1.0 - epsilon)
+    return -(ground_truth * np.log(prediction) + (1 - ground_truth) * np.log(1 - prediction)).sum(axis=1).astype(np.float32)
 
 
 def categorical_crossentropy(ground_truth: np.array, prediction: np.array) -> np.array:
     ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
-    return -(ground_truth * np.log(prediction)).mean(axis=1).astype(np.float32)
+    prediction = prediction / np.sum(prediction, axis=1)
+    epsilon = 1e-07
+    prediction = np.clip(prediction, epsilon, 1.0 - epsilon)
+    return -(ground_truth * np.log(prediction)).sum(axis=1).astype(np.float32)
 
 def accuracy_reduced(ground_truth: np.array, prediction: np.array) -> np.array:
     ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
