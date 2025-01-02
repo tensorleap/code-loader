@@ -23,7 +23,8 @@ def binary_crossentropy(ground_truth: np.array, prediction: np.array) -> np.arra
     ground_truth, prediction = flatten_non_batch_dims(ground_truth, prediction)
     epsilon = 1e-07
     prediction = np.clip(prediction, epsilon, 1.0 - epsilon)
-    return -(ground_truth * np.log(prediction) + (1 - ground_truth) * np.log(1 - prediction)).sum(axis=1).astype(np.float32)
+    return -(ground_truth * np.log(prediction) + (1 - ground_truth) *
+             np.log(1 - prediction)).sum(axis=1).astype(np.float32)
 
 
 def categorical_crossentropy(ground_truth: np.array, prediction: np.array) -> np.array:
