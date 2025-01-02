@@ -14,6 +14,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
 from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType, MetricDirection
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
 from code_loader.contract.visualizer_classes import map_leap_data_type_to_visualizer_class
+from code_loader.default_losses import loss_name_to_function
 from code_loader.default_metrics import metrics_names_to_functions_and_direction
 from code_loader.utils import to_numpy_return_wrapper, get_shape
 from code_loader.visualizers.default_visualizers import DefaultVisualizer, \
@@ -39,6 +40,7 @@ class LeapBinder:
         self._encoder_names: List[str] = list()
         self._extend_with_default_visualizers()
         self._extend_with_default_metrics()
+        self._extend_with_default_losses()
 
         self.batch_size_to_validate: Optional[int] = None
 
@@ -57,6 +59,10 @@ class LeapBinder:
                             visualizer_type=LeapDataType.ImageMask)
         self.set_visualizer(function=default_text_mask_visualizer, name=DefaultVisualizer.TextMask.value,
                             visualizer_type=LeapDataType.TextMask)
+
+    def _extend_with_default_losses(self) -> None:
+        for loss_name, func in loss_name_to_function.items():
+            self.add_custom_loss(func, loss_name)
 
     def _extend_with_default_metrics(self) -> None:
         for metric_name, (func, direction) in metrics_names_to_functions_and_direction.items():
