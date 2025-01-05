@@ -196,6 +196,7 @@ class CustomLayerHandler:
     init_arg_names: List[str]
     call_arg_names: List[str]
     use_custom_latent_space: bool = False
+    build: bool = True
 
 
 @dataclass
