@@ -355,7 +355,7 @@ def tensorleap_custom_loss(name: str):
                         assert isinstance(elem, valid_types), (f'tensorleap_custom_loss validation failed: '
                                                                f'Element #{y} of list should be a numpy array. Got {type(elem)}.')
                 else:
-                    assert isinstance(arg, tf.Tensor), (f'tensorleap_custom_loss validation failed: '
+                    assert isinstance(arg, valid_types), (f'tensorleap_custom_loss validation failed: '
                                                         f'Argument #{i} should be a numpy array. Got {type(arg)}.')
             for _arg_name, arg in kwargs.items():
                 if isinstance(arg, list):
