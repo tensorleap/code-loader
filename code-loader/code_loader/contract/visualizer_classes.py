@@ -1,4 +1,4 @@
-from typing import List, Any, Union, Optional
+from typing import List, Any, Tuple, Union, Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -85,19 +85,36 @@ class LeapGraph:
     Attributes:
     data (npt.NDArray[np.float32]): The array data, shaped [M, N] where M is the number of data points and N is the number of variables.
     type (LeapDataType): The data type, default is LeapDataType.Graph.
+    x_label (Optional[str]): The x-axis label.
+    y_label (Optional[str]): The y-axis label.
+    x_range (Optional[Tuple[float, float]]): The range of x-axis. mapping the index to the range.
 
     Example:
         graph_data = np.random.rand(100, 3).astype(np.float32)
-        leap_graph = LeapGraph(data=graph_data)
+        x_label = 'Frequency [Seconds]'
+        y_label = 'Amplitude [Voltage]'
+        x_range = (0.1, 3.0)
+        leap_graph = LeapGraph(data=graph_data, x_label=x_label, y_label=y_label, x_range=x_range)
     """
     data: npt.NDArray[np.float32]
     type: LeapDataType = LeapDataType.Graph
+    x_label: Optional[str] = None
+    y_label: Optional[str] = None
+    x_range: Optional[Tuple[float,float]] = None
 
     def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.Graph)
         validate_type(type(self.data), np.ndarray)
         validate_type(self.data.dtype, np.float32)
         validate_type(len(self.data.shape), 2, 'Graph must be of shape 2')
+        validate_type(type(self.x_label), [str, type(None)], 'x_label must be a string or None')
+        validate_type(type(self.y_label), [str, type(None)], 'y_label must be a string or None')
+        validate_type(type(self.x_range), [tuple, type(None)], 'x_range must be a tuple or None')
+        if self.x_range is not None:
+            if len(self.x_range) != 2:
+                raise LeapValidationError('x_range must be a tuple of length 2')
+            validate_type(type(self.x_range[0]), [float, int] , 'x_range must be a tuple of floats or integers')
+            validate_type(type(self.x_range[1]), [float, int], 'x_range must be a tuple of floats or integers')
 
 
 @dataclass
