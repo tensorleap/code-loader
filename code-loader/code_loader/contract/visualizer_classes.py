@@ -172,12 +172,18 @@ class LeapHorizontalBar:
     body: npt.NDArray[np.float32]
     labels: List[str]
     type: LeapDataType = LeapDataType.HorizontalBar
+    gt: Optional[npt.NDArray[np.float32]] = None
+
 
     def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.HorizontalBar)
         validate_type(type(self.body), np.ndarray)
         validate_type(self.body.dtype, np.float32)
         validate_type(len(self.body.shape), 1, 'HorizontalBar body must be of shape 1')
+        validate_type(type(self.gt), [np.ndarray, type(None)],
+                      'Provided HorizontalBar GT data should be a numpy array')
+        if self.gt is not None:
+            validate_type(len(self.gt.shape), 1, 'HorizontalBar GT must be of shape 1')
 
         validate_type(type(self.labels), list)
         for label in self.labels:
