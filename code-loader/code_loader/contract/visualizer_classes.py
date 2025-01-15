@@ -34,6 +34,7 @@ class LeapImage:
     Attributes:
     data (npt.NDArray[np.float32] | npt.NDArray[np.uint8]): The image data.
     type (LeapDataType): The data type, default is LeapDataType.Image.
+    compress: Optional[bool]: Whether to compress the image (.jpg) or not (.png)
 
     Example:
         image_data = np.random.rand(100, 100, 3).astype(np.float32)
@@ -41,6 +42,7 @@ class LeapImage:
     """
     data: Union[npt.NDArray[np.float32], npt.NDArray[np.uint8]]
     type: LeapDataType = LeapDataType.Image
+    compress: Optional[bool] = True
 
     def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.Image)
@@ -48,6 +50,7 @@ class LeapImage:
         validate_type(self.data.dtype, [np.uint8, np.float32])
         validate_type(len(self.data.shape), 3, 'Image must be of shape 3')
         validate_type(self.data.shape[2], [1, 3], 'Image channel must be either 3(rgb) or 1(gray)')
+        validate_type(self.compress, bool, 'compress flag must be a boolean')
 
 
 @dataclass
