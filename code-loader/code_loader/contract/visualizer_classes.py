@@ -50,7 +50,7 @@ class LeapImage:
         validate_type(self.data.dtype, [np.uint8, np.float32])
         validate_type(len(self.data.shape), 3, 'Image must be of shape 3')
         validate_type(self.data.shape[2], [1, 3], 'Image channel must be either 3(rgb) or 1(gray)')
-        validate_type(self.compress, bool, 'compress flag must be a boolean')
+        validate_type(type(self.compress), bool, 'compress flag must be a boolean')
 
 
 @dataclass
