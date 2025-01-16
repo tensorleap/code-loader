@@ -208,21 +208,37 @@ def plot_hbar(leap_data: LeapData, title: str) -> None:
 
         Example:
             body_data = np.random.rand(5).astype(np.float32)
+            gt_data = np.random.rand(5).astype(np.float32)
             labels = ['Class A', 'Class B', 'Class C', 'Class D', 'Class E']
-            leap_horizontal_bar = LeapHorizontalBar(body=body_data, labels=labels)
+            leap_horizontal_bar = LeapHorizontalBar(body=body_data, gt=gt_data, labels=labels)
             title = "Horizontal Bar"
             visualize(leap_horizontal_bar, title)
-        """
+    """
     body_data = leap_data.body
     labels = leap_data.labels
+
+    # Check if 'gt' attribute exists and is not None
+    gt_data = getattr(leap_data, 'gt', None)
 
     fig, ax = plt.subplots()
 
     fig.patch.set_facecolor('black')
     ax.set_facecolor('black')
 
+    # Adjust positions for side-by-side bars
+    y_positions = range(len(labels))
+    bar_width = 0.4
+
     # Plot horizontal bar chart
-    ax.barh(labels, body_data, color='green')
+    if gt_data is not None:
+        ax.barh([y - bar_width / 2 for y in y_positions], body_data, color='green', height=bar_width, label='Prediction')
+        ax.barh([y + bar_width / 2 for y in y_positions], gt_data, color='orange', height=bar_width, label='GT')
+    else:
+        ax.barh(y_positions, body_data, color='green', label='Body Data')
+
+    # Set the y-ticks to align with the center of the bars
+    ax.set_yticks(y_positions)
+    ax.set_yticklabels(labels, color='white')
 
     # Set the color of the labels and title to white
     ax.set_xlabel('Scores', color='white')
@@ -231,6 +247,10 @@ def plot_hbar(leap_data: LeapData, title: str) -> None:
     # Set the color of the ticks to white
     ax.tick_params(axis='x', colors='white')
     ax.tick_params(axis='y', colors='white')
+
+    # Add legend if gt is present
+    if gt_data is not None:
+        ax.legend(loc='best', facecolor='black', edgecolor='white', labelcolor='white')
 
     plt.show()
 

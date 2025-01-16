@@ -34,6 +34,7 @@ class LeapImage:
     Attributes:
     data (npt.NDArray[np.float32] | npt.NDArray[np.uint8]): The image data.
     type (LeapDataType): The data type, default is LeapDataType.Image.
+    compress: Optional[bool]: Whether to compress the image (.jpg) or not (.png)
 
     Example:
         image_data = np.random.rand(100, 100, 3).astype(np.float32)
@@ -41,6 +42,7 @@ class LeapImage:
     """
     data: Union[npt.NDArray[np.float32], npt.NDArray[np.uint8]]
     type: LeapDataType = LeapDataType.Image
+    compress: Optional[bool] = True
 
     def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.Image)
@@ -48,6 +50,7 @@ class LeapImage:
         validate_type(self.data.dtype, [np.uint8, np.float32])
         validate_type(len(self.data.shape), 3, 'Image must be of shape 3')
         validate_type(self.data.shape[2], [1, 3], 'Image channel must be either 3(rgb) or 1(gray)')
+        validate_type(type(self.compress), bool, 'compress flag must be a boolean')
 
 
 @dataclass
@@ -172,12 +175,18 @@ class LeapHorizontalBar:
     body: npt.NDArray[np.float32]
     labels: List[str]
     type: LeapDataType = LeapDataType.HorizontalBar
+    gt: Optional[npt.NDArray[np.float32]] = None
+
 
     def __post_init__(self) -> None:
         validate_type(self.type, LeapDataType.HorizontalBar)
         validate_type(type(self.body), np.ndarray)
         validate_type(self.body.dtype, np.float32)
         validate_type(len(self.body.shape), 1, 'HorizontalBar body must be of shape 1')
+        validate_type(type(self.gt), [np.ndarray, type(None)],
+                      'Provided HorizontalBar GT data should be a numpy array')
+        if self.gt is not None:
+            validate_type(len(self.gt.shape), 1, 'HorizontalBar GT must be of shape 1')
 
         validate_type(type(self.labels), list)
         for label in self.labels:

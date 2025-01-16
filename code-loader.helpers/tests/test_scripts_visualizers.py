@@ -30,8 +30,9 @@ class TestPlotLeapVisualizer(unittest.TestCase):
 
     def test_plot_leap_horizontal_bar(self):
         data = np.random.rand(5).astype(np.float32)
+        gt = np.random.rand(5).astype(np.float32)
         labels = ["Class1", "Class2", "Class3", "Class4", "Class5"]
-        visualizer = LeapHorizontalBar(body=data, labels=labels)
+        visualizer = LeapHorizontalBar(body=data, gt=gt, labels=labels)
         visualize(visualizer)
 
     def test_plot_leap_graph(self):
