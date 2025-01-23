@@ -170,12 +170,13 @@ class LeapHorizontalBar:
     Example:
         body_data = np.random.rand(5).astype(np.float32)
         labels = ['Class A', 'Class B', 'Class C', 'Class D', 'Class E']
-        leap_horizontal_bar = LeapHorizontalBar(body=body_data, labels=labels)
+        gt_data = np.array([0.1, 0.2, 0.3, 0.4, 0.5]).astype(np.float32)
+        leap_horizontal_bar = LeapHorizontalBar(body=body_data, labels=labels, gt=gt_data)
     """
     body: npt.NDArray[np.float32]
     labels: List[str]
-    type: LeapDataType = LeapDataType.HorizontalBar
     gt: Optional[npt.NDArray[np.float32]] = None
+    type: LeapDataType = LeapDataType.HorizontalBar
 
 
     def __post_init__(self) -> None:
