@@ -291,7 +291,7 @@ def plot_image_mask(leap_data: LeapData, title: str) -> None:
 
         # fill the instance mask with a translucent color
         overlayed_image[instance_mask] = (
-                overlayed_image[instance_mask] * (1 - 0.5) + np.array(colors[i][:3], dtype=np.uint8) * 0.5)
+                overlayed_image[instance_mask] * (1 - 0.5) + np.array(colors[i][:image.shape[-1]], dtype=np.uint8) * 0.5)
 
     # Display the result using matplotlib
     fig, ax = plt.subplots(1)
