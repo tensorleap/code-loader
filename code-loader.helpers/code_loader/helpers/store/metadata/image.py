@@ -208,7 +208,7 @@ def total_variation(image: NDArray[np.float64]) -> NDArray[np.float64]:
     grad = np.array(np.gradient(image))
     return np.asarray(np.sum(np.sqrt(np.sum(grad**2, axis=0)))).astype(np.float64)
 
-def quantify_frequency_content(image: NDArray[np.float64], pixel_size: np.float64, f_min: np.float64, f_max: np.float64) -> NDArray[np.float64]:
+def quantify_frequency_content(image: NDArray[np.float64], pixel_size: np.float64=1, f_min: np.float64=0.15, f_max: np.float64=0.45) -> NDArray[np.float64]:
     """
     Quantify the energy in a specific frequency band of an image.
 
