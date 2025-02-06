@@ -2,10 +2,10 @@ import numpy as np
 import cv2
 from typing import Dict, Any, Optional, Union
 from numpy.typing import NDArray
-import scipy.ndimage # type: ignore
 import skimage # type: ignore
 import inspect
 from code_loader.helpers.store.utils import compute_magnitude_spectrum, radial_profile 
+from skimage.filters import gaussian, laplace
 
 def validate_image(image: NDArray[np.float64], expected_channels: Optional[int] = None) -> None:
     """
@@ -142,7 +142,8 @@ def get_mean_abs_log_metadata(image: NDArray[np.float64], sigma: int=1) -> NDArr
         The mean absolute value of the LOG in shape [H,W,C]
     """
     validate_image(image)
-    log = scipy.ndimage.gaussian_laplace(image, sigma)
+    smoothed = gaussian(image, sigma=sigma, mode='reflect')
+    log =  laplace(smoothed, ksize=3)  # ksize=3 is a common choice
     return np.asarray(np.mean(np.abs(log))).astype(np.float64)
 
 def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
@@ -166,7 +167,7 @@ def estimate_noise_laplacian(image: NDArray[np.float64]) -> NDArray[np.float64]:
     Returns:
         float: Estimated noise level in the input image.
     """
-    filtered_image = scipy.ndimage.laplace(image)
+    filtered_image = laplace(image, ksize=3)
     sigma = np.mean(np.abs(filtered_image))
     return np.asarray(sigma).astype(np.float64)
 
