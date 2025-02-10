@@ -145,7 +145,7 @@ def get_mean_abs_log_metadata(image: NDArray[np.float32], sigma: int=1) -> NDArr
     log =  laplace(smoothed, ksize=3)  # ksize=3 is a common choice
     return np.asarray(np.mean(np.abs(log))).astype(np.float64)
 
-def estimate_noise_sigma(image: NDArray[np.float32]) -> NDArray[np.float64]:
+def _estimate_noise_sigma(image: NDArray[np.float32]) -> NDArray[np.float64]:
     """
     Estimate the noise in an image using the sigma method
     Args: 
@@ -158,7 +158,7 @@ def estimate_noise_sigma(image: NDArray[np.float32]) -> NDArray[np.float64]:
     
     return np.asarray(sigma).astype(np.float64)
 
-def estimate_noise_laplacian(image: NDArray[np.float32]) -> NDArray[np.float64]:
+def _estimate_noise_laplacian(image: NDArray[np.float32]) -> NDArray[np.float64]:
     """
     Estimate the noise in an image using the Laplacian method.
     Args:
@@ -181,9 +181,9 @@ def estimate_noise(image: NDArray[np.float32], method: str = 'sigma') -> NDArray
     """
     validate_image(image)
     if method == 'sigma':
-        return estimate_noise_sigma(image)
+        return _estimate_noise_sigma(image)
     elif method == 'laplacian':
-        return estimate_noise_laplacian(image)
+        return _estimate_noise_laplacian(image)
     else:
         raise ValueError(f"Unsupported noise estimation method: {method}")
 
