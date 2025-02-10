@@ -4,7 +4,7 @@ from typing import Dict, Any, Optional, Union
 from numpy.typing import NDArray
 import skimage # type: ignore
 import inspect
-from skimage.filters import gaussian, laplace
+from skimage.filters import gaussian, laplace # type: ignore
 
 def validate_image(image: NDArray[np.float64], expected_channels: Optional[int] = None) -> None:
     """
