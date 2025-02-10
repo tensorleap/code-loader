@@ -102,7 +102,7 @@ def lab_channel_stats(image: NDArray[np.float32]) -> Dict[str, Any]:
     return res
 
 
-def detect_sharpness(image: NDArray[np.float32]) -> Dict[str, np.float64]:
+def detect_sharpness(image: NDArray[np.float32]) -> float:
     """
     Get an image in shape (H,W,C) and return a sharpness metric based on the gradient magnitude.
 
@@ -124,12 +124,10 @@ def detect_sharpness(image: NDArray[np.float32]) -> Dict[str, np.float64]:
     grad_y = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=3)
 
     gradient_magnitude = np.sqrt(grad_x ** 2 + grad_y ** 2)
-    res = {'sharpness': np.round(np.mean(gradient_magnitude), 2)}
-
-    return res
+    return float(np.round(np.mean(gradient_magnitude), 2))
 
 
-def get_mean_abs_log_metadata(image: NDArray[np.float32], sigma: int=1) -> NDArray[np.float64]:
+def get_mean_abs_log_metadata(image: NDArray[np.float32], sigma: int=1) -> float:
     """
     Gets an image returns the  mean absolute value of a LOG (Laplacian of Gaussians).
     Can be used to detect non-flat areas
@@ -143,9 +141,9 @@ def get_mean_abs_log_metadata(image: NDArray[np.float32], sigma: int=1) -> NDArr
     validate_image(image)
     smoothed = gaussian(image, sigma=sigma, mode='reflect')
     log =  laplace(smoothed, ksize=3)  # ksize=3 is a common choice
-    return np.asarray(np.mean(np.abs(log))).astype(np.float64)
+    return float(np.mean(np.abs(log)))
 
-def _estimate_noise_sigma(image: NDArray[np.float32]) -> NDArray[np.float64]:
+def _estimate_noise_sigma(image: NDArray[np.float32]) -> float:
     """
     Estimate the noise in an image using the sigma method
     Args: 
@@ -156,9 +154,9 @@ def _estimate_noise_sigma(image: NDArray[np.float32]) -> NDArray[np.float64]:
     """
     sigma = skimage.restoration.estimate_sigma(image, average_sigmas=True, channel_axis=-1)
     
-    return np.asarray(sigma).astype(np.float64)
+    return float(sigma)
 
-def _estimate_noise_laplacian(image: NDArray[np.float32]) -> NDArray[np.float64]:
+def _estimate_noise_laplacian(image: NDArray[np.float32]) -> float:
     """
     Estimate the noise in an image using the Laplacian method.
     Args:
@@ -168,9 +166,9 @@ def _estimate_noise_laplacian(image: NDArray[np.float32]) -> NDArray[np.float64]
     """
     filtered_image = laplace(image, ksize=3)
     sigma = np.mean(np.abs(filtered_image))
-    return np.asarray(sigma).astype(np.float64)
+    return float(sigma)
 
-def estimate_noise(image: NDArray[np.float32], method: str = 'sigma') -> NDArray[np.float64]:
+def estimate_noise(image: NDArray[np.float32], method: str = 'sigma') -> float:
     """
     Estimate the noise in an image using a specified method.
     Args:
@@ -188,7 +186,7 @@ def estimate_noise(image: NDArray[np.float32], method: str = 'sigma') -> NDArray
         raise ValueError(f"Unsupported noise estimation method: {method}")
 
 
-def total_variation(image: NDArray[np.float32]) -> NDArray[np.float64]:
+def total_variation(image: NDArray[np.float32]) -> float:
     """
     Calculate the total variation (TV) of an image.
 
@@ -204,6 +202,10 @@ def total_variation(image: NDArray[np.float32]) -> NDArray[np.float64]:
                of the gradients across all pixels.
     """
     validate_image(image)
-    grad = np.array(np.gradient(image))
-    return np.asarray(np.sum(np.sqrt(np.sum(grad**2, axis=0)))).astype(np.float64)
+    if image.shape[-1] == 1: #grayscale:
+        n_image = image[...,0]
+    else:
+        n_image = image
+    grad = np.array(np.gradient(n_image))
+    return float(np.sum(np.sqrt(np.sum(grad**2, axis=0))))
 
