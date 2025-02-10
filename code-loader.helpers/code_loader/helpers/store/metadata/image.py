@@ -6,7 +6,7 @@ import skimage # type: ignore
 import inspect
 from skimage.filters import gaussian, laplace # type: ignore
 
-def validate_image(image: NDArray[np.float64], expected_channels: Optional[int] = None) -> None:
+def validate_image(image: NDArray[np.float32], expected_channels: Optional[int] = None) -> None:
     """
         Validate the input image by checking its type, dimensions, and data type.
 
@@ -27,9 +27,9 @@ def validate_image(image: NDArray[np.float64], expected_channels: Optional[int] 
         raise NotImplementedError(
             f"Wrong input type sent to metadata {caller_name}: Expected numpy array Got {type(image)}.")
 
-    if image.dtype.name != 'float64':
+    if image.dtype.name != 'float32':
         raise Exception(
-            f"Wrong input type sent to metadata {caller_name}: Expected dtype float64 Got {image.dtype.name}.")
+            f"Wrong input type sent to metadata {caller_name}: Expected dtype float32 Got {image.dtype.name}.")
     
     if image.ndim != 3:
         raise ValueError(f"Wrong input dimension sent to metadata {caller_name}: Expected 3D but Got {image.ndim}D.")
@@ -39,14 +39,14 @@ def validate_image(image: NDArray[np.float64], expected_channels: Optional[int] 
         raise ValueError(f"Wrong input dimension sent to metadata {caller_name}: Expected {expected_channels} channels, "
                          f"but Got {image.shape[-1]} channels.")
     
-def rgb_channel_stats(image: NDArray[np.float64]) -> Dict[str, np.float64]:
+def rgb_channel_stats(image: NDArray[np.float32]) -> Dict[str, np.float64]:
     """
     Get an RGB image in shape (H,W,3) and return the mean and standard deviation for each of its color channels.
 
-    Args: image (NDArray[np.float64]): An RGB image in shape (H,W,3) represented as a NumPy array.
+    Args: image (NDArray[np.float32]): An RGB image in shape (H,W,3) represented as a NumPy array.
 
     Returns:
-        Dict[str, np.float64]: A dictionary containing:
+        Dict[str, np.float32]: A dictionary containing:
             - 'mean_red': Mean brightness of the red channel.
             - 'mean_green': Mean brightness of the green channel.
             - 'mean_blue': Mean brightness of the blue channel.
@@ -73,11 +73,11 @@ def rgb_channel_stats(image: NDArray[np.float64]) -> Dict[str, np.float64]:
     return res
 
 
-def lab_channel_stats(image: NDArray[np.float64]) -> Dict[str, Any]:
+def lab_channel_stats(image: NDArray[np.float32]) -> Dict[str, Any]:
     """
     Get an RGB image in shape (H,W,3) and return the mean of the 'a' and 'b' channels in the LAB color space.
 
-    Args: image (NDArray[np.float64]): A RGB image in shape (H,W,3) represented as a NumPy array.
+    Args: image (NDArray[np.float32]): A RGB image in shape (H,W,3) represented as a NumPy array.
 
     Returns:
         Dict[str, Any]: A dictionary containing:
@@ -102,14 +102,14 @@ def lab_channel_stats(image: NDArray[np.float64]) -> Dict[str, Any]:
     return res
 
 
-def detect_sharpness(image: NDArray[np.float64]) -> Dict[str, np.float64]:
+def detect_sharpness(image: NDArray[np.float32]) -> Dict[str, np.float64]:
     """
     Get an image in shape (H,W,C) and return a sharpness metric based on the gradient magnitude.
 
-    Args: image (NDArray[np.float64]): A gray scale image represented as a NumPy array.
+    Args: image (NDArray[np.float32]): A gray scale image represented as a NumPy array.
 
     Returns:
-        Dict[str, np.float64]: A dictionary containing:
+        Dict[str, np.float32]: A dictionary containing:
             - 'sharpness': The average gradient magnitude, representing the sharpness of the image.
 
     Description:
@@ -129,7 +129,7 @@ def detect_sharpness(image: NDArray[np.float64]) -> Dict[str, np.float64]:
     return res
 
 
-def get_mean_abs_log_metadata(image: NDArray[np.float64], sigma: int=1) -> NDArray[np.float64]:
+def get_mean_abs_log_metadata(image: NDArray[np.float32], sigma: int=1) -> NDArray[np.float64]:
     """
     Gets an image returns the  mean absolute value of a LOG (Laplacian of Gaussians).
     Can be used to detect non-flat areas
@@ -145,7 +145,7 @@ def get_mean_abs_log_metadata(image: NDArray[np.float64], sigma: int=1) -> NDArr
     log =  laplace(smoothed, ksize=3)  # ksize=3 is a common choice
     return np.asarray(np.mean(np.abs(log))).astype(np.float64)
 
-def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
+def estimate_noise_sigma(image: NDArray[np.float32]) -> NDArray[np.float64]:
     """
     Estimate the noise in an image using the sigma method
     Args: 
@@ -158,7 +158,7 @@ def estimate_noise_sigma(image: NDArray[np.float64]) -> NDArray[np.float64]:
     
     return np.asarray(sigma).astype(np.float64)
 
-def estimate_noise_laplacian(image: NDArray[np.float64]) -> NDArray[np.float64]:
+def estimate_noise_laplacian(image: NDArray[np.float32]) -> NDArray[np.float64]:
     """
     Estimate the noise in an image using the Laplacian method.
     Args:
@@ -170,7 +170,7 @@ def estimate_noise_laplacian(image: NDArray[np.float64]) -> NDArray[np.float64]:
     sigma = np.mean(np.abs(filtered_image))
     return np.asarray(sigma).astype(np.float64)
 
-def estimate_noise(image: NDArray[np.float64], method: str = 'sigma') -> NDArray[np.float64]:
+def estimate_noise(image: NDArray[np.float32], method: str = 'sigma') -> NDArray[np.float64]:
     """
     Estimate the noise in an image using a specified method.
     Args:
@@ -188,7 +188,7 @@ def estimate_noise(image: NDArray[np.float64], method: str = 'sigma') -> NDArray
         raise ValueError(f"Unsupported noise estimation method: {method}")
 
 
-def total_variation(image: NDArray[np.float64]) -> NDArray[np.float64]:
+def total_variation(image: NDArray[np.float32]) -> NDArray[np.float64]:
     """
     Calculate the total variation (TV) of an image.
 
