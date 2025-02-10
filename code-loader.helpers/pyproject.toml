@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "code-loader.helpers"
-version = "1.0.17"
+version = "1.0.20"
 description = ""
 authors = ["dorhar <doron.harnoy@tensorleap.ai>"]
 readme = "README.md"
@@ -13,7 +13,8 @@ tensorflow-macos = {version = "^2.5", markers = "platform_machine  == 'arm64'"}
 torch = ">= 1.4.0, <= 2.1.0"
 code-loader = "^1.0"
 matplotlib = ">= 3.3.4"
-opencv-python = ">= 4.5.0, <5.0.0"
+opencv-python = "^4.5.5"
+scikit-image = "^0.19.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.5.1"
