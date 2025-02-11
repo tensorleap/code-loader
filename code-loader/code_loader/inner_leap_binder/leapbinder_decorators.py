@@ -1,6 +1,6 @@
 # mypy: ignore-errors
 
-from typing import Optional, Union, Callable, List
+from typing import Optional, Union, Callable, List, Dict
 
 import numpy as np
 import numpy.typing as npt
@@ -15,12 +15,11 @@ from code_loader.contract.visualizer_classes import LeapImage, LeapImageMask, Le
     LeapHorizontalBar, LeapImageWithBBox, LeapImageWithHeatmap
 
 
-def tensorleap_custom_metric(name: str, direction: Optional[MetricDirection] = MetricDirection.Downward):
-    def decorating_function(
-            user_function: Union[CustomCallableInterfaceMultiArgs,
-            CustomMultipleReturnCallableInterfaceMultiArgs,
-            ConfusionMatrixCallableInterfaceMultiArgs]
-    ):
+def tensorleap_custom_metric(name: str,
+                             direction: Union[MetricDirection, Dict[str, MetricDirection]] = MetricDirection.Downward):
+    def decorating_function(user_function: Union[CustomCallableInterfaceMultiArgs,
+    CustomMultipleReturnCallableInterfaceMultiArgs,
+    ConfusionMatrixCallableInterfaceMultiArgs]):
         for metric_handler in leap_binder.setup_container.metrics:
             if metric_handler.metric_handler_data.name == name:
                 raise Exception(f'Metric with name {name} already exists. '
@@ -356,15 +355,15 @@ def tensorleap_custom_loss(name: str):
                                                                f'Element #{y} of list should be a numpy array. Got {type(elem)}.')
                 else:
                     assert isinstance(arg, valid_types), (f'tensorleap_custom_loss validation failed: '
-                                                        f'Argument #{i} should be a numpy array. Got {type(arg)}.')
+                                                          f'Argument #{i} should be a numpy array. Got {type(arg)}.')
             for _arg_name, arg in kwargs.items():
                 if isinstance(arg, list):
                     for y, elem in enumerate(arg):
-                        assert isinstance(elem,valid_types), (f'tensorleap_custom_loss validation failed: '
-                                                             f'Element #{y} of list should be a numpy array. Got {type(elem)}.')
+                        assert isinstance(elem, valid_types), (f'tensorleap_custom_loss validation failed: '
+                                                               f'Element #{y} of list should be a numpy array. Got {type(elem)}.')
                 else:
                     assert isinstance(arg, valid_types), (f'tensorleap_custom_loss validation failed: '
-                                                        f'Argument #{_arg_name} should be a numpy array. Got {type(arg)}.')
+                                                          f'Argument #{_arg_name} should be a numpy array. Got {type(arg)}.')
 
         def _validate_result(result):
             assert isinstance(result, valid_types), \
