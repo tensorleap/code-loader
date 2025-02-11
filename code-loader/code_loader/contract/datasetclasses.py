@@ -132,7 +132,7 @@ class CustomLossHandler:
 class MetricHandlerData:
     name: str
     arg_names: List[str]
-    direction: Optional[MetricDirection] = MetricDirection.Downward
+    direction: Union[MetricDirection, Dict[str, MetricDirection]] = MetricDirection.Downward
 
 
 @dataclass
@@ -170,6 +170,7 @@ class DatasetBaseHandler:
 class InputHandler(DatasetBaseHandler):
     shape: Optional[List[int]] = None
     channel_dim: Optional[int] = -1
+
 
 @dataclass
 class GroundTruthHandler(DatasetBaseHandler):

@@ -33,6 +33,7 @@ class LeapBinder:
     setup_container (DatasetIntegrationSetup): Container to hold setup configurations.
     cache_container (Dict[str, Any]): Cache container to store intermediate data.
     """
+
     def __init__(self) -> None:
         self.setup_container = DatasetIntegrationSetup()
         self.cache_container: Dict[str, Any] = {"word_to_index": {}}
@@ -239,23 +240,28 @@ class LeapBinder:
             leap_binder.add_custom_loss(custom_loss_function, name='custom_loss')
         """
         arg_names = inspect.getfullargspec(function)[0]
-        self.setup_container.custom_loss_handlers.append(CustomLossHandler(CustomLossHandlerData(name, arg_names), function))
+        self.setup_container.custom_loss_handlers.append(
+            CustomLossHandler(CustomLossHandlerData(name, arg_names), function))
 
     def add_custom_metric(self,
                           function: Union[CustomCallableInterfaceMultiArgs,
                           CustomMultipleReturnCallableInterfaceMultiArgs,
                           ConfusionMatrixCallableInterfaceMultiArgs],
                           name: str,
-                          direction: Optional[MetricDirection] = MetricDirection.Downward) -> None:
+                          direction: Optional[
+                              Union[MetricDirection, Dict[str, MetricDirection]]] = MetricDirection.Downward) -> None:
         """
         Add a custom metric to the setup.
 
         Args:
         function (Union[CustomCallableInterfaceMultiArgs, CustomMultipleReturnCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs]): The custom metric function.
         name (str): The name of the custom metric.
-        direction (Optional[MetricDirection]): The direction of the metric, either MetricDirection.Upward or MetricDirection.Downward.
+        direction (Optional[Union[MetricDirection, Dict[str, MetricDirection]]]): The direction of the metric, either
+        MetricDirection.Upward or MetricDirection.Downward, in case custom metric return a dictionary of metrics we can
+        supply a dictionary of directions correspondingly
             - MetricDirection.Upward: Indicates that higher values of the metric are better and should be maximized.
             - MetricDirection.Downward: Indicates that lower values of the metric are better and should be minimized.
+
 
 
         Example:
@@ -377,7 +383,8 @@ class LeapBinder:
             custom_layer.kernel_index = kernel_index
 
         if use_custom_latent_space and not hasattr(custom_layer, custom_latent_space_attribute):
-            raise Exception(f"{custom_latent_space_attribute} function has not been set for custom layer: {custom_layer.__name__}")
+            raise Exception(
+                f"{custom_latent_space_attribute} function has not been set for custom layer: {custom_layer.__name__}")
 
         init_args = inspect.getfullargspec(custom_layer.__init__)[0][1:]
         call_args = inspect.getfullargspec(custom_layer.call)[0][1:]
@@ -490,7 +497,3 @@ class LeapBinder:
 
     def set_batch_size_to_validate(self, batch_size: int) -> None:
         self.batch_size_to_validate = batch_size
-
-
-
-
