@@ -132,7 +132,7 @@ class CustomLossHandler:
 class MetricHandlerData:
     name: str
     arg_names: List[str]
-    direction: Union[MetricDirection, Dict[str, MetricDirection]] = MetricDirection.Downward
+    direction: Union[None, MetricDirection, Dict[str, MetricDirection]] = MetricDirection.Downward
 
 
 @dataclass
