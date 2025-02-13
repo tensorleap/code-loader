@@ -249,7 +249,8 @@ class LeapBinder:
                           ConfusionMatrixCallableInterfaceMultiArgs],
                           name: str,
                           direction: Optional[
-                              Union[MetricDirection, Dict[str, MetricDirection]]] = MetricDirection.Downward) -> None:
+                              Union[MetricDirection, Dict[str, MetricDirection]]] = MetricDirection.Downward,
+                          compute_insights: Union[bool, Dict[str, bool]] = True) -> None:
         """
         Add a custom metric to the setup.
 
@@ -258,9 +259,11 @@ class LeapBinder:
         name (str): The name of the custom metric.
         direction (Optional[Union[MetricDirection, Dict[str, MetricDirection]]]): The direction of the metric, either
         MetricDirection.Upward or MetricDirection.Downward, in case custom metric return a dictionary of metrics we can
-        supply a dictionary of directions correspondingly
+        supply a dictionary of directions correspondingly.
             - MetricDirection.Upward: Indicates that higher values of the metric are better and should be maximized.
             - MetricDirection.Downward: Indicates that lower values of the metric are better and should be minimized.
+        compute_insights (Union[bool, Dict[str, bool]]): Whether to compute insights or not. in case custom metric
+        return a dictionary of metrics we can supply a dictionary of values correspondingly
 
 
 
@@ -271,7 +274,8 @@ class LeapBinder:
             leap_binder.add_custom_metric(custom_metric_function, name='custom_metric', direction=MetricDirection.Downward)
         """
         arg_names = inspect.getfullargspec(function)[0]
-        self.setup_container.metrics.append(MetricHandler(MetricHandlerData(name, arg_names, direction), function))
+        metric_handler_data = MetricHandlerData(name, arg_names, direction, compute_insights)
+        self.setup_container.metrics.append(MetricHandler(metric_handler_data, function))
 
     def add_prediction(self, name: str, labels: List[str], channel_dim: int = -1) -> None:
         """
