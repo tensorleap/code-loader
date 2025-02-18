@@ -16,7 +16,8 @@ from code_loader.contract.visualizer_classes import LeapImage, LeapImageMask, Le
 
 
 def tensorleap_custom_metric(name: str,
-                             direction: Union[MetricDirection, Dict[str, MetricDirection]] = MetricDirection.Downward):
+                             direction: Union[MetricDirection, Dict[str, MetricDirection]] = MetricDirection.Downward,
+                             compute_insights: Union[bool, Dict[str, bool]] = True):
     def decorating_function(user_function: Union[CustomCallableInterfaceMultiArgs,
     CustomMultipleReturnCallableInterfaceMultiArgs,
     ConfusionMatrixCallableInterfaceMultiArgs]):
@@ -25,7 +26,7 @@ def tensorleap_custom_metric(name: str,
                 raise Exception(f'Metric with name {name} already exists. '
                                 f'Please choose another')
 
-        leap_binder.add_custom_metric(user_function, name, direction)
+        leap_binder.add_custom_metric(user_function, name, direction, compute_insights)
 
         def _validate_input_args(*args, **kwargs) -> None:
             for i, arg in enumerate(args):
@@ -80,7 +81,14 @@ def tensorleap_custom_metric(name: str,
                     for direction_key in direction:
                         assert direction_key in result, \
                             (f'tensorleap_custom_metric validation failed: '
-                             f'Keys in the direction mapping should be part of result keys. Key {direction_key}.')
+                             f'Keys in the direction mapping should be part of result keys. Got key {direction_key}.')
+
+                if isinstance(compute_insights, dict):
+                    for ci_key in compute_insights:
+                        assert ci_key in result, \
+                            (f'tensorleap_custom_metric validation failed: '
+                             f'Keys in the compute_insights mapping should be part of result keys. Got key {ci_key}.')
+
             else:
                 _validate_single_metric(result)
 

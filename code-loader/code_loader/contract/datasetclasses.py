@@ -133,7 +133,7 @@ class MetricHandlerData:
     name: str
     arg_names: List[str]
     direction: Union[None, MetricDirection, Dict[str, MetricDirection]] = MetricDirection.Downward
-    compute_insights: Union[bool, Dict[str, bool]] = False
+    compute_insights: Union[bool, Dict[str, bool]] = True
 
 
 @dataclass
