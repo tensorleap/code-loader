@@ -75,6 +75,12 @@ def tensorleap_custom_metric(name: str,
                         (f'tensorleap_custom_metric validation failed: '
                          f'Keys in the return dict should be of type str. Got {type(key)}.')
                     _validate_single_metric(value)
+
+                if isinstance(direction, dict):
+                    for direction_key in direction:
+                        assert direction_key in result, \
+                            (f'tensorleap_custom_metric validation failed: '
+                             f'Keys in the direction mapping should be part of result keys. Key {direction_key}.')
             else:
                 _validate_single_metric(result)
 
