@@ -148,6 +148,12 @@ class RawInputsForHeatmap:
 
 
 @dataclass
+class SamplePreprocessResponse:
+    sample_ids: np.array
+    preprocess_response: PreprocessResponse
+
+
+@dataclass
 class VisualizerHandlerData:
     name: str
     type: LeapDataType

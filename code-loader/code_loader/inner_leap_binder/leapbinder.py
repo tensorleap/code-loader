@@ -10,7 +10,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     MetadataSectionCallableInterface, UnlabeledDataPreprocessHandler, CustomLayerHandler, MetricHandler, \
     CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, LeapData, \
     CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute, \
-    RawInputsForHeatmap, VisualizerHandlerData, MetricHandlerData, CustomLossHandlerData
+    RawInputsForHeatmap, VisualizerHandlerData, MetricHandlerData, CustomLossHandlerData, SamplePreprocessResponse
 from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType, MetricDirection
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
 from code_loader.contract.visualizer_classes import map_leap_data_type_to_visualizer_class
@@ -239,9 +239,18 @@ class LeapBinder:
 
             leap_binder.add_custom_loss(custom_loss_function, name='custom_loss')
         """
-        arg_names = inspect.getfullargspec(function)[0]
+
+        regular_arg_names = inspect.getfullargspec(function)[0]
+        preprocess_response_arg_name = None
+        for arg_name, arg_type in inspect.getfullargspec(function).annotations.items():
+            if arg_type == SamplePreprocessResponse:
+                if preprocess_response_arg_name is not None:
+                    raise Exception("only one argument can be of type SamplePreprocessResponse")
+                preprocess_response_arg_name = arg_name
+                regular_arg_names.remove(arg_name)
+
         self.setup_container.custom_loss_handlers.append(
-            CustomLossHandler(CustomLossHandlerData(name, arg_names), function))
+            CustomLossHandler(CustomLossHandlerData(name, regular_arg_names), function))
 
     def add_custom_metric(self,
                           function: Union[CustomCallableInterfaceMultiArgs,

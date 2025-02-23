@@ -10,7 +10,7 @@ import numpy.typing as npt
 from code_loader.contract.datasetclasses import DatasetSample, LeapData, \
     PredictionTypeHandler, CustomLayerHandler, VisualizerHandlerData, MetricHandlerData, MetricCallableReturnType, \
     CustomLossHandlerData
-from code_loader.contract.enums import DataStateEnum
+from code_loader.contract.enums import DataStateEnum, DataStateType
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
     DatasetSetup, ModelSetup
 
@@ -19,6 +19,26 @@ class LeapLoaderBase:
     def __init__(self, code_path: str, code_entry_name: str):
         self.code_entry_name = code_entry_name
         self.code_path = code_path
+
+        self.current_working_sample_ids: Optional[np.array] = None
+        self.current_working_state: Optional[DataStateEnum] = None
+
+    def set_current_working_sample_ids(self, sample_ids: np.array):
+        if type(sample_ids[0]) is bytes:
+            sample_ids = np.array([sample_id.decode('utf-8') for sample_id in sample_ids])
+        self.current_working_sample_ids = sample_ids
+
+    def set_current_working_state(self, state: Union[DataStateEnum, DataStateType, str, int, bytes]):
+        if type(state) is bytes:
+            state = DataStateEnum[state.decode('utf-8')]
+        elif type(state) is str:
+            state = DataStateEnum[state]
+        elif type(state) is int:
+            state = DataStateEnum(state)
+        elif type(state) is DataStateType:
+            state = DataStateEnum[state.name]
+
+        self.current_working_state = state
 
     @abstractmethod
     def metric_by_name(self) -> Dict[str, MetricHandlerData]:
@@ -49,21 +69,23 @@ class LeapLoaderBase:
         pass
 
     @abstractmethod
-    def run_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]) -> LeapData:
+    def run_visualizer(self, visualizer_name: str, sample_ids: np.array, state: DataStateEnum,
+                       input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]) -> LeapData:
         pass
 
     @abstractmethod
-    def run_metric(self, metric_name: str,
+    def run_metric(self, metric_name: str, sample_ids: np.array, state: DataStateEnum,
                    input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]) -> MetricCallableReturnType:
         pass
 
     @abstractmethod
-    def run_custom_loss(self, custom_loss_name: str,
+    def run_custom_loss(self, custom_loss_name: str, sample_ids: np.array, state: DataStateEnum,
                         input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]):
         pass
 
     @abstractmethod
-    def run_heatmap_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]
+    def run_heatmap_visualizer(self, visualizer_name: str, sample_ids: np.array, state: DataStateEnum,
+                               input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]
                                ) -> Optional[npt.NDArray[np.float32]]:
         pass
 
