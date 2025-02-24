@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "code-loader"
-version = "1.0.72"
+version = "1.0.73"
 description = ""
 authors = ["dorhar <doron.harnoy@tensorleap.ai>"]
 license = "MIT"
