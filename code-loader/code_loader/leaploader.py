@@ -278,8 +278,8 @@ class LeapLoader(LeapLoaderBase):
 
         return vis_handler.function(**input_tensors_by_arg_name)
 
-    def run_heatmap_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]],
-                               sample_ids: np.array, state: DataStateEnum,
+    def run_heatmap_visualizer(self, visualizer_name: str, sample_ids: np.array, state: DataStateEnum,
+                               input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]
                                ) -> Optional[npt.NDArray[np.float32]]:
         heatmap_function = self._visualizer_handler_by_name()[visualizer_name].heatmap_function
         if heatmap_function is None:
