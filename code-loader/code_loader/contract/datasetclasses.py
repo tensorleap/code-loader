@@ -149,7 +149,7 @@ class RawInputsForHeatmap:
 
 @dataclass
 class SamplePreprocessResponse:
-    sample_ids: np.array
+    sample_ids: Union[npt.NDArray[np.float32], npt.NDArray[np.str_]]
     preprocess_response: PreprocessResponse
 
 
