@@ -8,7 +8,7 @@ import numpy.typing as npt
 from code_loader.contract.datasetclasses import CustomCallableInterfaceMultiArgs, \
     CustomMultipleReturnCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, CustomCallableInterface, \
     VisualizerCallableInterface, MetadataSectionCallableInterface, PreprocessResponse, SectionCallableInterface, \
-    ConfusionMatrixElement
+    ConfusionMatrixElement, SamplePreprocessResponse
 from code_loader.contract.enums import MetricDirection, LeapDataType
 from code_loader import leap_binder
 from code_loader.contract.visualizer_classes import LeapImage, LeapImageMask, LeapTextMask, LeapText, LeapGraph, \
@@ -30,18 +30,18 @@ def tensorleap_custom_metric(name: str,
 
         def _validate_input_args(*args, **kwargs) -> None:
             for i, arg in enumerate(args):
-                assert isinstance(arg, np.ndarray), (f'tensorleap_custom_metric validation failed: '
+                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (f'tensorleap_custom_metric validation failed: '
                                                      f'Argument #{i} should be a numpy array. Got {type(arg)}.')
-                if leap_binder.batch_size_to_validate:
+                if leap_binder.batch_size_to_validate and isinstance(arg, np.ndarray):
                     assert arg.shape[0] == leap_binder.batch_size_to_validate, \
                         (f'tensorleap_custom_metric validation failed: Argument #{i} '
                          f'first dim should be as the batch size. Got {arg.shape[0]} '
                          f'instead of {leap_binder.batch_size_to_validate}')
 
             for _arg_name, arg in kwargs.items():
-                assert isinstance(arg, np.ndarray), (f'tensorleap_custom_metric validation failed: '
+                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (f'tensorleap_custom_metric validation failed: '
                                                      f'Argument {_arg_name} should be a numpy array. Got {type(arg)}.')
-                if leap_binder.batch_size_to_validate:
+                if leap_binder.batch_size_to_validate and isinstance(arg, np.ndarray):
                     assert arg.shape[0] == leap_binder.batch_size_to_validate, \
                         (f'tensorleap_custom_metric validation failed: Argument {_arg_name} '
                          f'first dim should be as the batch size. Got {arg.shape[0]} '
@@ -115,17 +115,17 @@ def tensorleap_custom_visualizer(name: str, visualizer_type: LeapDataType,
 
         def _validate_input_args(*args, **kwargs):
             for i, arg in enumerate(args):
-                assert isinstance(arg, np.ndarray), (f'tensorleap_custom_visualizer validation failed: '
+                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (f'tensorleap_custom_visualizer validation failed: '
                                                      f'Argument #{i} should be a numpy array. Got {type(arg)}.')
-                if leap_binder.batch_size_to_validate:
+                if leap_binder.batch_size_to_validate and isinstance(arg, np.ndarray):
                     assert arg.shape[0] != leap_binder.batch_size_to_validate, \
                         (f'tensorleap_custom_visualizer validation failed: '
                          f'Argument #{i} should be without batch dimension. ')
 
             for _arg_name, arg in kwargs.items():
-                assert isinstance(arg, np.ndarray), (f'tensorleap_custom_visualizer validation failed: '
+                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (f'tensorleap_custom_visualizer validation failed: '
                                                      f'Argument {_arg_name} should be a numpy array. Got {type(arg)}.')
-                if leap_binder.batch_size_to_validate:
+                if leap_binder.batch_size_to_validate and isinstance(arg, np.ndarray):
                     assert arg.shape[0] != leap_binder.batch_size_to_validate, \
                         (f'tensorleap_custom_visualizer validation failed: Argument {_arg_name} '
                          f'should be without batch dimension. ')
@@ -353,10 +353,10 @@ def tensorleap_custom_loss(name: str):
 
         leap_binder.add_custom_loss(user_function, name)
 
-        valid_types = np.ndarray
+        valid_types = (np.ndarray, SamplePreprocessResponse)
         try:
             import tensorflow as tf
-            valid_types = (np.ndarray, tf.Tensor)
+            valid_types = (np.ndarray, SamplePreprocessResponse, tf.Tensor)
         except ImportError:
             pass
 
