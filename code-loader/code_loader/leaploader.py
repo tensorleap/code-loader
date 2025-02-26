@@ -6,7 +6,7 @@ import sys
 from contextlib import redirect_stdout
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Iterable, Union, Any, Type, Optional
+from typing import Dict, List, Iterable, Union, Any, Type, Optional, Callable
 
 import numpy as np
 import numpy.typing as npt
@@ -14,7 +14,7 @@ import numpy.typing as npt
 from code_loader.contract.datasetclasses import DatasetSample, DatasetBaseHandler, GroundTruthHandler, \
     PreprocessResponse, VisualizerHandler, LeapData, \
     PredictionTypeHandler, MetadataHandler, CustomLayerHandler, MetricHandler, VisualizerHandlerData, MetricHandlerData, \
-    MetricCallableReturnType, CustomLossHandlerData, CustomLossHandler, RawInputsForHeatmap
+    MetricCallableReturnType, CustomLossHandlerData, CustomLossHandler, RawInputsForHeatmap, SamplePreprocessResponse
 from code_loader.contract.enums import DataStateEnum, TestingSectionEnum, DataStateType, DatasetMetadataType
 from code_loader.contract.exceptions import DatasetScriptException
 from code_loader.contract.responsedataclasses import DatasetIntegParseResult, DatasetTestResultPayload, \
@@ -213,7 +213,8 @@ class LeapLoader(LeapLoaderBase):
                         preprocess_response, test_result, dataset_base_handler)
                 except Exception as e:
                     line_number, file_name, stacktrace = get_root_exception_file_and_line_number()
-                    test_result[0].display[state_name] = f"{repr(e)} in file {file_name}, line_number:  {line_number}\nStacktrace:\n{stacktrace}"
+                    test_result[0].display[
+                        state_name] = f"{repr(e)} in file {file_name}, line_number:  {line_number}\nStacktrace:\n{stacktrace}"
                     test_result[0].is_passed = False
 
             result_payloads.extend(test_result)
@@ -228,28 +229,68 @@ class LeapLoader(LeapLoaderBase):
         all_dataset_base_handlers.extend(global_leap_binder.setup_container.metadata)
         return all_dataset_base_handlers
 
-    def run_metric(self, metric_name: str,
+    def run_metric(self, metric_name: str, sample_ids: np.array, state: DataStateEnum,
                    input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]) -> MetricCallableReturnType:
         self._preprocess_result()
-        return self._metric_handler_by_name()[metric_name].function(**input_tensors_by_arg_name)
 
-    def run_custom_loss(self, custom_loss_name: str,
+        metric_handler = self._metric_handler_by_name()[metric_name]
+        preprocess_response_arg_name = self._get_preprocess_response_arg_name(metric_handler.function)
+
+        if preprocess_response_arg_name is not None:
+            input_tensors_by_arg_name[preprocess_response_arg_name] = SamplePreprocessResponse(
+                sample_ids, self._preprocess_result()[state])
+
+        return metric_handler.function(**input_tensors_by_arg_name)
+
+    @staticmethod
+    def _get_preprocess_response_arg_name(
+            func: Callable) -> Optional[str]:
+        for arg_name, arg_type in inspect.getfullargspec(func).annotations.items():
+            if arg_type == SamplePreprocessResponse:
+                return arg_name
+        return None
+
+    def run_custom_loss(self, custom_loss_name: str, sample_ids: np.array, state: DataStateEnum,
                         input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]):
-        return self._custom_loss_handler_by_name()[custom_loss_name].function(**input_tensors_by_arg_name)
 
-    def run_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]) -> LeapData:
+        custom_loss_handler = self._custom_loss_handler_by_name()[custom_loss_name]
+        preprocess_response_arg_name = self._get_preprocess_response_arg_name(custom_loss_handler.function)
+
+        if preprocess_response_arg_name is not None:
+            input_tensors_by_arg_name[preprocess_response_arg_name] = SamplePreprocessResponse(sample_ids,
+                                                                                               self._preprocess_result()[
+                                                                                                   state])
+        return custom_loss_handler.function(**input_tensors_by_arg_name)
+
+    def run_visualizer(self, visualizer_name: str, sample_ids: np.array, state: DataStateEnum,
+                       input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]) -> LeapData:
         # running preprocessing to sync preprocessing in main thread (can be valuable when preprocess is filling a
         # global param that visualizer is using)
         self._preprocess_result()
 
-        return self._visualizer_handler_by_name()[visualizer_name].function(**input_tensors_by_arg_name)
+        vis_handler = self._visualizer_handler_by_name()[visualizer_name]
+        preprocess_response_arg_name = self._get_preprocess_response_arg_name(vis_handler.function)
 
-    def run_heatmap_visualizer(self, visualizer_name: str, input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]
+        if preprocess_response_arg_name is not None:
+            input_tensors_by_arg_name[preprocess_response_arg_name] = SamplePreprocessResponse(sample_ids,
+                                                                                               self._preprocess_result()[
+                                                                                                   state])
+
+        return vis_handler.function(**input_tensors_by_arg_name)
+
+    def run_heatmap_visualizer(self, visualizer_name: str, sample_ids: np.array, state: DataStateEnum,
+                               input_tensors_by_arg_name: Dict[str, npt.NDArray[np.float32]]
                                ) -> Optional[npt.NDArray[np.float32]]:
         heatmap_function = self._visualizer_handler_by_name()[visualizer_name].heatmap_function
         if heatmap_function is None:
             assert len(input_tensors_by_arg_name) == 1
             return None
+
+        preprocess_response_arg_name = self._get_preprocess_response_arg_name(heatmap_function)
+        if preprocess_response_arg_name is not None:
+            input_tensors_by_arg_name[preprocess_response_arg_name] = SamplePreprocessResponse(sample_ids,
+                                                                                               self._preprocess_result()[
+                                                                                                   state])
 
         return heatmap_function(**input_tensors_by_arg_name)
 
@@ -299,7 +340,8 @@ class LeapLoader(LeapLoaderBase):
             if hasattr(handler_test_payload.raw_result, 'tolist'):
                 handler_test_payload.raw_result = handler_test_payload.raw_result.tolist()
             metadata_type = type(handler_test_payload.raw_result)
-            if metadata_type == int or isinstance(handler_test_payload.raw_result, (np.unsignedinteger, np.signedinteger)):
+            if metadata_type == int or isinstance(handler_test_payload.raw_result,
+                                                  (np.unsignedinteger, np.signedinteger)):
                 metadata_type = float
             if isinstance(handler_test_payload.raw_result, str):
                 dataset_metadata_type = DatasetMetadataType.string
@@ -359,7 +401,8 @@ class LeapLoader(LeapLoaderBase):
 
         return self._preprocess_result_cached
 
-    def get_preprocess_sample_ids(self, update_unlabeled_preprocess=False) -> Dict[DataStateEnum, Union[List[int], List[str]]]:
+    def get_preprocess_sample_ids(self, update_unlabeled_preprocess=False) -> Dict[
+        DataStateEnum, Union[List[int], List[str]]]:
         preprocess_result = self._preprocess_result(update_unlabeled_preprocess)
         sample_ids = {}
         for state, preprocess_response in preprocess_result.items():
@@ -417,7 +460,8 @@ class LeapLoader(LeapLoaderBase):
 
         return converted_value
 
-    def _get_metadata(self, state: DataStateEnum, sample_id: Union[int, str]) -> Dict[str, Union[str, int, bool, float]]:
+    def _get_metadata(self, state: DataStateEnum, sample_id: Union[int, str]) -> Dict[
+        str, Union[str, int, bool, float]]:
         result_agg = {}
         preprocess_result = self._preprocess_result()
         preprocess_state = preprocess_result[state]
@@ -426,7 +470,8 @@ class LeapLoader(LeapLoaderBase):
             if isinstance(handler_result, dict):
                 for single_metadata_name, single_metadata_result in handler_result.items():
                     handler_name = f'{handler.name}_{single_metadata_name}'
-                    result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name, single_metadata_result)
+                    result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name,
+                                                                                      single_metadata_result)
             else:
                 handler_name = handler.name
                 result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name, handler_result)
@@ -442,5 +487,3 @@ class LeapLoader(LeapLoaderBase):
                 raise Exception("Different id types in preprocess results")
 
         return id_type
-
-
