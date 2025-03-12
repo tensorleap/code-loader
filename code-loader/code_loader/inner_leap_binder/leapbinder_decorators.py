@@ -30,8 +30,9 @@ def tensorleap_custom_metric(name: str,
 
         def _validate_input_args(*args, **kwargs) -> None:
             for i, arg in enumerate(args):
-                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (f'tensorleap_custom_metric validation failed: '
-                                                     f'Argument #{i} should be a numpy array. Got {type(arg)}.')
+                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (
+                    f'tensorleap_custom_metric validation failed: '
+                    f'Argument #{i} should be a numpy array. Got {type(arg)}.')
                 if leap_binder.batch_size_to_validate and isinstance(arg, np.ndarray):
                     assert arg.shape[0] == leap_binder.batch_size_to_validate, \
                         (f'tensorleap_custom_metric validation failed: Argument #{i} '
@@ -39,8 +40,9 @@ def tensorleap_custom_metric(name: str,
                          f'instead of {leap_binder.batch_size_to_validate}')
 
             for _arg_name, arg in kwargs.items():
-                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (f'tensorleap_custom_metric validation failed: '
-                                                     f'Argument {_arg_name} should be a numpy array. Got {type(arg)}.')
+                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (
+                    f'tensorleap_custom_metric validation failed: '
+                    f'Argument {_arg_name} should be a numpy array. Got {type(arg)}.')
                 if leap_binder.batch_size_to_validate and isinstance(arg, np.ndarray):
                     assert arg.shape[0] == leap_binder.batch_size_to_validate, \
                         (f'tensorleap_custom_metric validation failed: Argument {_arg_name} '
@@ -58,8 +60,8 @@ def tensorleap_custom_metric(name: str,
                         assert isinstance(single_metric_result[0][0], ConfusionMatrixElement), \
                             f'{supported_types_message}Got List[List[{type(single_metric_result[0][0])}]].'
                     else:
-                        assert isinstance(single_metric_result[0],
-                                          float), f'{supported_types_message}Got List[{type(single_metric_result[0])}].'
+                        assert isinstance(single_metric_result[0], (
+                            float, int, type(None))), f'{supported_types_message}Got List[{type(single_metric_result[0])}].'
                 else:
                     assert isinstance(single_metric_result,
                                       np.ndarray), f'{supported_types_message}Got {type(single_metric_result)}.'
@@ -115,16 +117,18 @@ def tensorleap_custom_visualizer(name: str, visualizer_type: LeapDataType,
 
         def _validate_input_args(*args, **kwargs):
             for i, arg in enumerate(args):
-                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (f'tensorleap_custom_visualizer validation failed: '
-                                                     f'Argument #{i} should be a numpy array. Got {type(arg)}.')
+                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (
+                    f'tensorleap_custom_visualizer validation failed: '
+                    f'Argument #{i} should be a numpy array. Got {type(arg)}.')
                 if leap_binder.batch_size_to_validate and isinstance(arg, np.ndarray):
                     assert arg.shape[0] != leap_binder.batch_size_to_validate, \
                         (f'tensorleap_custom_visualizer validation failed: '
                          f'Argument #{i} should be without batch dimension. ')
 
             for _arg_name, arg in kwargs.items():
-                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (f'tensorleap_custom_visualizer validation failed: '
-                                                     f'Argument {_arg_name} should be a numpy array. Got {type(arg)}.')
+                assert isinstance(arg, (np.ndarray, SamplePreprocessResponse)), (
+                    f'tensorleap_custom_visualizer validation failed: '
+                    f'Argument {_arg_name} should be a numpy array. Got {type(arg)}.')
                 if leap_binder.batch_size_to_validate and isinstance(arg, np.ndarray):
                     assert arg.shape[0] != leap_binder.batch_size_to_validate, \
                         (f'tensorleap_custom_visualizer validation failed: Argument {_arg_name} '
