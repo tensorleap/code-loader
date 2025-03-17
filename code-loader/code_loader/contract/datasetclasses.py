@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Any, Callable, List, Optional, Dict, Union, Type
-
+import re
 import numpy as np
 import numpy.typing as npt
 
@@ -39,6 +39,9 @@ class PreprocessResponse:
     sample_id_type: Optional[Union[Type[str], Type[int]]] = None
 
     def __post_init__(self) -> None:
+        def is_valid_string(s: str) -> bool:
+            return bool(re.match(r'^[A-Za-z0-9_]+$', s))
+
         if self.length is not None and self.sample_ids is None:
             self.sample_ids = [i for i in range(self.length)]
             self.sample_id_type = int
@@ -46,6 +49,11 @@ class PreprocessResponse:
             self.length = len(self.sample_ids)
             if self.sample_id_type is None:
                 self.sample_id_type = str
+            if self.sample_id_type == str:
+                for sample_id in self.sample_ids:
+                    assert isinstance(sample_id, str), f"Sample id should be of type str. Got: {type(sample_id)}"
+                    if not is_valid_string(sample_id):
+                        raise Exception(f"Sample id should contain only letters (A-Z, a-z), numbers or '_'. Got: {sample_id}")
         else:
             raise Exception("length is deprecated.")
 
