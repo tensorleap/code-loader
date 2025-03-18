@@ -46,7 +46,7 @@ class LeapLoader(LeapLoaderBase):
 
     def evaluate_module(self) -> None:
         def append_path_recursively(full_path: str) -> None:
-            if '/' not in full_path or full_path == '/':
+            if self.code_path not in full_path or full_path == '/':
                 return
 
             parent_path = str(Path(full_path).parent)
