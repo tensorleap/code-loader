@@ -9,7 +9,7 @@ from code_loader.contract.datasetclasses import CustomCallableInterfaceMultiArgs
     CustomMultipleReturnCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, CustomCallableInterface, \
     VisualizerCallableInterface, MetadataSectionCallableInterface, PreprocessResponse, SectionCallableInterface, \
     ConfusionMatrixElement, SamplePreprocessResponse
-from code_loader.contract.enums import MetricDirection, LeapDataType
+from code_loader.contract.enums import MetricDirection, LeapDataType, DatasetMetadataType
 from code_loader import leap_binder
 from code_loader.contract.visualizer_classes import LeapImage, LeapImageMask, LeapTextMask, LeapText, LeapGraph, \
     LeapHorizontalBar, LeapImageWithBBox, LeapImageWithHeatmap
@@ -160,14 +160,15 @@ def tensorleap_custom_visualizer(name: str, visualizer_type: LeapDataType,
     return decorating_function
 
 
-def tensorleap_metadata(name: str):
+def tensorleap_metadata(
+        name: str, metadata_type: Optional[Union[DatasetMetadataType, Dict[str, DatasetMetadataType]]] = None):
     def decorating_function(user_function: MetadataSectionCallableInterface):
         for metadata_handler in leap_binder.setup_container.metadata:
             if metadata_handler.name == name:
                 raise Exception(f'Metadata with name {name} already exists. '
                                 f'Please choose another')
 
-        leap_binder.set_metadata(user_function, name)
+        leap_binder.set_metadata(user_function, name, metadata_type)
 
         def _validate_input_args(sample_id: Union[int, str], preprocess_response: PreprocessResponse):
             assert isinstance(sample_id, (int, str)), \
@@ -182,7 +183,7 @@ def tensorleap_metadata(name: str):
                  f'{preprocess_response.sample_id_type}. Got {type(sample_id)}.')
 
         def _validate_result(result):
-            supported_result_types = (int, str, bool, float, dict, np.floating,
+            supported_result_types = (type(None), int, str, bool, float, dict, np.floating,
                                       np.bool_, np.unsignedinteger, np.signedinteger, np.integer)
             assert isinstance(result, supported_result_types), \
                 (f'tensorleap_metadata validation failed: '

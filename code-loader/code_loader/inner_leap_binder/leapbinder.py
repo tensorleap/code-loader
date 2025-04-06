@@ -11,7 +11,7 @@ from code_loader.contract.datasetclasses import SectionCallableInterface, InputH
     CustomCallableInterfaceMultiArgs, ConfusionMatrixCallableInterfaceMultiArgs, LeapData, \
     CustomMultipleReturnCallableInterfaceMultiArgs, DatasetBaseHandler, custom_latent_space_attribute, \
     RawInputsForHeatmap, VisualizerHandlerData, MetricHandlerData, CustomLossHandlerData, SamplePreprocessResponse
-from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType, MetricDirection
+from code_loader.contract.enums import LeapDataType, DataStateEnum, DataStateType, MetricDirection, DatasetMetadataType
 from code_loader.contract.responsedataclasses import DatasetTestResultPayload
 from code_loader.contract.visualizer_classes import map_leap_data_type_to_visualizer_class
 from code_loader.default_losses import loss_name_to_function
@@ -333,7 +333,8 @@ class LeapBinder:
 
         self._encoder_names.append(name)
 
-    def set_metadata(self, function: MetadataSectionCallableInterface, name: str) -> None:
+    def set_metadata(self, function: MetadataSectionCallableInterface, name: str,
+                     metadata_type: Optional[Union[DatasetMetadataType, Dict[str, DatasetMetadataType]]] = None) -> None:
         """
         Set the metadata handler function. This function is used for measuring and analyzing external variable values per sample, which is recommended for analysis within the Tensorleap platform.
 
@@ -368,7 +369,7 @@ class LeapBinder:
             leap_binder.set_metadata(metadata_handler_index, name='metadata_index')
             leap_binder.set_metadata(metadata_handler_image_mean, name='metadata_image_mean')
         """
-        self.setup_container.metadata.append(MetadataHandler(name, function))
+        self.setup_container.metadata.append(MetadataHandler(name, function, metadata_type))
 
     def set_custom_layer(self, custom_layer: Type[Any], name: str, inspect_layer: bool = False,
                          kernel_index: Optional[int] = None, use_custom_latent_space: bool = False) -> None:
@@ -465,23 +466,55 @@ class LeapBinder:
     @staticmethod
     def check_handler(
             preprocess_response: PreprocessResponse, test_result: List[DatasetTestResultPayload],
-            dataset_base_handler: Union[DatasetBaseHandler, MetadataHandler]) -> List[DatasetTestResultPayload]:
+            dataset_base_handler: Union[DatasetBaseHandler, MetadataHandler], state: DataStateEnum) -> List[DatasetTestResultPayload]:
         assert preprocess_response.sample_ids is not None
         raw_result = dataset_base_handler.function(preprocess_response.sample_ids[0], preprocess_response)
         handler_type = 'metadata' if isinstance(dataset_base_handler, MetadataHandler) else None
-        if isinstance(dataset_base_handler, MetadataHandler) and isinstance(raw_result, dict):
-            metadata_test_result_payloads = [
-                DatasetTestResultPayload(f'{dataset_base_handler.name}_{single_metadata_name}')
-                for single_metadata_name, single_metadata_result in raw_result.items()
-            ]
-            for i, (single_metadata_name, single_metadata_result) in enumerate(raw_result.items()):
-                metadata_test_result = metadata_test_result_payloads[i]
+        if isinstance(dataset_base_handler, MetadataHandler):
+            if isinstance(raw_result, dict):
+                metadata_test_result_payloads = [
+                    DatasetTestResultPayload(f'{dataset_base_handler.name}_{single_metadata_name}')
+                    for single_metadata_name, single_metadata_result in raw_result.items()
+                ]
+                for i, (single_metadata_name, single_metadata_result) in enumerate(raw_result.items()):
+                    metadata_test_result = metadata_test_result_payloads[i]
 
-                result_shape = get_shape(single_metadata_result)
-                metadata_test_result.shape = result_shape
-                metadata_test_result.raw_result = single_metadata_result
-                metadata_test_result.handler_type = handler_type
-            test_result = metadata_test_result_payloads
+                    metadata_type = None
+                    if single_metadata_result is None:
+                        if state != DataStateEnum.training and test_result[i].name == f'{dataset_base_handler.name}_{single_metadata_name}':
+                            metadata_test_result_payloads[i] = test_result[i]
+                            continue
+
+                        if dataset_base_handler.metadata_type is None:
+                            raise Exception(f"Metadata {single_metadata_name} is None and no metadata type is provided")
+                        elif isinstance(dataset_base_handler.metadata_type, dict):
+                            if single_metadata_name not in dataset_base_handler.metadata_type:
+                                raise Exception(f"Metadata {single_metadata_name} is None and no metadata type is provided")
+                            metadata_type = dataset_base_handler.metadata_type[single_metadata_name]
+                        else:
+                            raise Exception(f"Metadata {single_metadata_name} is None and no metadata type is provided")
+
+                    result_shape = get_shape(single_metadata_result)
+                    metadata_test_result.shape = result_shape
+                    metadata_test_result.raw_result = (
+                        single_metadata_result) if single_metadata_result is not None else metadata_type
+                    metadata_test_result.handler_type = handler_type
+                test_result = metadata_test_result_payloads
+            else:
+                if raw_result is None:
+                    if state != DataStateEnum.training:
+                        return test_result
+
+                    if dataset_base_handler.metadata_type is None:
+                        raise Exception(f"Metadata {dataset_base_handler.name} is None and no metadata type is provided")
+                    elif isinstance(dataset_base_handler.metadata_type, dict):
+                        raise Exception(f"Metadata {dataset_base_handler.name} is None and no metadata type is provided")
+                    metadata_type = dataset_base_handler.metadata_type
+
+                result_shape = get_shape(raw_result)
+                test_result[0].shape = result_shape
+                test_result[0].raw_result = raw_result if raw_result is not None else metadata_type
+                test_result[0].handler_type = handler_type
         else:
             result_shape = get_shape(raw_result)
             test_result[0].shape = result_shape
