@@ -1,4 +1,4 @@
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, Optional
 
 import numpy as np  # type: ignore
 
@@ -23,7 +23,7 @@ def assert_encoder_is_valid(encoder_result: Dict[str, np.ndarray]) -> None:
         type(encoder_data) | should.be.type(type(np.ndarray))
 
 
-def assert_metadata_encoder_is_valid(encoder_result: Dict[str, Union[str, int, bool, float]]) -> None:
+def assert_metadata_encoder_is_valid(encoder_result: Dict[str, Union[Optional[str], int, bool, Optional[float]]]) -> None:
     for encoder_name, encoder_data in encoder_result.items():
         encoder_name | should.be.type(str)
         type(encoder_data) | should.be.type(type(np.ndarray))
@@ -32,7 +32,7 @@ def assert_metadata_encoder_is_valid(encoder_result: Dict[str, Union[str, int, b
 def assert_sample_is_valid(sample: DatasetSample) -> None:
     sample | should.be.type(DatasetSample)
     assert_encoder_is_valid(sample.inputs)
-    assert  sample.gt is not None
+    assert sample.gt is not None
     assert_encoder_is_valid(sample.gt)
     assert_metadata_encoder_is_valid(sample.metadata)
 

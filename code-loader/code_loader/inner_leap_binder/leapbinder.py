@@ -533,7 +533,7 @@ class LeapBinder:
             for state, preprocess_response in preprocess_result.items():
                 if state == DataStateEnum.unlabeled and isinstance(dataset_base_handler, GroundTruthHandler):
                     continue
-                self.check_handler(preprocess_response, test_result, dataset_base_handler)
+                self.check_handler(preprocess_response, test_result, dataset_base_handler, state)
 
     def check(self) -> None:
         preprocess_result = self.get_preprocess_result()
