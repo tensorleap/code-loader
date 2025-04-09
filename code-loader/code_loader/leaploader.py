@@ -6,7 +6,7 @@ import sys
 from contextlib import redirect_stdout
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Iterable, Union, Any, Type, Optional, Callable
+from typing import Dict, List, Iterable, Union, Any, Type, Optional, Callable, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -140,9 +140,11 @@ class LeapLoader(LeapLoaderBase):
         if state == DataStateEnum.unlabeled and sample_id not in preprocess_result[state].sample_ids:
             self._preprocess_result(update_unlabeled_preprocess=True)
 
+        metadata, metadata_is_none = self._get_metadata(state, sample_id)
         sample = DatasetSample(inputs=self._get_inputs(state, sample_id),
                                gt=None if state == DataStateEnum.unlabeled else self._get_gt(state, sample_id),
-                               metadata=self._get_metadata(state, sample_id),
+                               metadata=metadata,
+                               metadata_is_none=metadata_is_none,
                                index=sample_id,
                                state=state)
         return sample
@@ -210,7 +212,7 @@ class LeapLoader(LeapLoaderBase):
                 state_name = state.name
                 try:
                     test_result = global_leap_binder.check_handler(
-                        preprocess_response, test_result, dataset_base_handler)
+                        preprocess_response, test_result, dataset_base_handler, state)
                 except Exception as e:
                     line_number, file_name, stacktrace = get_root_exception_file_and_line_number()
                     test_result[0].display[
@@ -339,6 +341,11 @@ class LeapLoader(LeapLoaderBase):
                 continue
             if hasattr(handler_test_payload.raw_result, 'tolist'):
                 handler_test_payload.raw_result = handler_test_payload.raw_result.tolist()
+            if isinstance(handler_test_payload.raw_result, DatasetMetadataType):
+                dataset_metadata_type = handler_test_payload.raw_result
+                metadata_instances.append(DatasetMetadataInstance(name=handler_test_payload.name,
+                                                                  type=dataset_metadata_type))
+                continue
             metadata_type = type(handler_test_payload.raw_result)
             if metadata_type == int or isinstance(handler_test_payload.raw_result,
                                                   (np.unsignedinteger, np.signedinteger)):
@@ -438,7 +445,7 @@ class LeapLoader(LeapLoaderBase):
         }
         return metadata_name_to_type
 
-    def _convert_metadata_to_correct_type(self, metadata_name: str, value: Any) -> Any:
+    def _convert_metadata_to_correct_type(self, metadata_name: str, value: Any) -> Tuple[Any, bool]:
         metadata_name_to_type = self._metadata_name_to_type()
         metadata_type_to_python_type = {
             DatasetMetadataType.float: float,
@@ -447,22 +454,26 @@ class LeapLoader(LeapLoaderBase):
             DatasetMetadataType.int: int
         }
         metadata_type_to_default_value = {
-            DatasetMetadataType.float: -1,
-            DatasetMetadataType.string: "",
+            DatasetMetadataType.float: -1.0,
+            DatasetMetadataType.string: 'None',
             DatasetMetadataType.boolean: False,
             DatasetMetadataType.int: -1
         }
 
         try:
+            is_none = False
+            if value is None:
+                raise ValueError()
             converted_value = metadata_type_to_python_type[metadata_name_to_type[metadata_name]](value)
         except ValueError:
+            is_none = True
             converted_value = metadata_type_to_default_value[metadata_name_to_type[metadata_name]]
 
-        return converted_value
+        return converted_value, is_none
 
-    def _get_metadata(self, state: DataStateEnum, sample_id: Union[int, str]) -> Dict[
-        str, Union[str, int, bool, float]]:
+    def _get_metadata(self, state: DataStateEnum, sample_id: Union[int, str]) -> Tuple[Dict[str, Union[str, int, bool, float]], Dict[str, bool]]:
         result_agg = {}
+        is_none = {}
         preprocess_result = self._preprocess_result()
         preprocess_state = preprocess_result[state]
         for handler in global_leap_binder.setup_container.metadata:
@@ -470,13 +481,14 @@ class LeapLoader(LeapLoaderBase):
             if isinstance(handler_result, dict):
                 for single_metadata_name, single_metadata_result in handler_result.items():
                     handler_name = f'{handler.name}_{single_metadata_name}'
-                    result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name,
-                                                                                      single_metadata_result)
+                    result_agg[handler_name], is_none[handler_name] = self._convert_metadata_to_correct_type(
+                        handler_name, single_metadata_result)
             else:
                 handler_name = handler.name
-                result_agg[handler_name] = self._convert_metadata_to_correct_type(handler_name, handler_result)
+                result_agg[handler_name], is_none[handler_name] = self._convert_metadata_to_correct_type(
+                    handler_name, handler_result)
 
-        return result_agg
+        return result_agg, is_none
 
     @lru_cache()
     def get_sample_id_type(self) -> Type:

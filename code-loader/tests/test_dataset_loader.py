@@ -58,7 +58,7 @@ def test_get_gt_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simpl
 def test_get_metadata_no_cloud(no_cloud_dataset_loader, refresh_setup_container, simple_sample_params):
     # act
     no_cloud_dataset_loader.exec_script()
-    metadata = no_cloud_dataset_loader._get_metadata(**simple_sample_params)
+    metadata, _ = no_cloud_dataset_loader._get_metadata(**simple_sample_params)
 
     # assert
     assert_leap_binder_is_valid()
@@ -75,8 +75,6 @@ def test_get_sample_dataset_loader_no_cloud(no_cloud_dataset_loader, refresh_set
     # assert
     assert_leap_binder_is_valid()
     assert_sample_is_valid(sample)
-
-
 
 
 @use_fixture(word_idx_dataset_loader)

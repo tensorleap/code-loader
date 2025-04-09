@@ -4,7 +4,8 @@ import re
 import numpy as np
 import numpy.typing as npt
 
-from code_loader.contract.enums import DataStateType, DataStateEnum, LeapDataType, ConfusionMatrixValue, MetricDirection
+from code_loader.contract.enums import DataStateType, DataStateEnum, LeapDataType, ConfusionMatrixValue, \
+    MetricDirection, DatasetMetadataType
 from code_loader.contract.visualizer_classes import LeapImage, LeapText, LeapGraph, LeapHorizontalBar, \
     LeapTextMask, LeapImageMask, LeapImageWithBBox, LeapImageWithHeatmap
 
@@ -196,6 +197,7 @@ class GroundTruthHandler(DatasetBaseHandler):
 class MetadataHandler:
     name: str
     function: MetadataSectionCallableInterface
+    metadata_type: Optional[Union[DatasetMetadataType, Dict[str, DatasetMetadataType]]] = None
 
 
 @dataclass
@@ -232,6 +234,7 @@ class DatasetIntegrationSetup:
 class DatasetSample:
     inputs: Dict[str, npt.NDArray[np.float32]]
     gt: Optional[Dict[str, npt.NDArray[np.float32]]]
-    metadata: Dict[str, Union[str, int, bool, float]]
+    metadata: Dict[str, Union[Optional[str], int, bool, Optional[float]]]
+    metadata_is_none: Dict[str, bool]
     index: Union[int, str]
     state: DataStateEnum
