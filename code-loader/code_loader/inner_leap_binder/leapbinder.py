@@ -103,7 +103,17 @@ class LeapBinder:
             heatmap_visualizer=image_resize_heatmap_visualizer
         )
         """
-        arg_names = inspect.getfullargspec(function)[0]
+
+        regular_arg_names = inspect.getfullargspec(function)[0]
+        preprocess_response_arg_name = None
+        for arg_name, arg_type in inspect.getfullargspec(function).annotations.items():
+            if arg_type == SamplePreprocessResponse:
+                if preprocess_response_arg_name is not None:
+                    raise Exception("only one argument can be of type SamplePreprocessResponse")
+                preprocess_response_arg_name = arg_name
+                regular_arg_names.remove(arg_name)
+
+        arg_names = regular_arg_names
         if heatmap_visualizer:
             visualizer_arg_names_set = set(arg_names)
             heatmap_visualizer_inspection = inspect.getfullargspec(heatmap_visualizer)
@@ -282,8 +292,17 @@ class LeapBinder:
 
             leap_binder.add_custom_metric(custom_metric_function, name='custom_metric', direction=MetricDirection.Downward)
         """
-        arg_names = inspect.getfullargspec(function)[0]
-        metric_handler_data = MetricHandlerData(name, arg_names, direction, compute_insights)
+
+        regular_arg_names = inspect.getfullargspec(function)[0]
+        preprocess_response_arg_name = None
+        for arg_name, arg_type in inspect.getfullargspec(function).annotations.items():
+            if arg_type == SamplePreprocessResponse:
+                if preprocess_response_arg_name is not None:
+                    raise Exception("only one argument can be of type SamplePreprocessResponse")
+                preprocess_response_arg_name = arg_name
+                regular_arg_names.remove(arg_name)
+
+        metric_handler_data = MetricHandlerData(name, regular_arg_names, direction, compute_insights)
         self.setup_container.metrics.append(MetricHandler(metric_handler_data, function))
 
     def add_prediction(self, name: str, labels: List[str], channel_dim: int = -1) -> None:
