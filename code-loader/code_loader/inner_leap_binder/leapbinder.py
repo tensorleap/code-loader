@@ -467,7 +467,12 @@ class LeapBinder:
         if DataStateEnum.validation not in preprocess_result_dict:
             raise Exception("Validation data is required")
 
-        return preprocess_result_dict
+        preprocess_result_dict_in_correct_order = {}
+        for state_enum in DataStateEnum:
+            if state_enum in preprocess_result_dict:
+                preprocess_result_dict_in_correct_order[state_enum] = preprocess_result_dict[state_enum]
+
+        return preprocess_result_dict_in_correct_order
 
     def get_preprocess_unlabeled_result(self) -> Optional[PreprocessResponse]:
         unlabeled_preprocess = self.setup_container.unlabeled_data_preprocess
