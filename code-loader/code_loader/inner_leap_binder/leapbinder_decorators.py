@@ -17,7 +17,7 @@ from code_loader.contract.visualizer_classes import LeapImage, LeapImageMask, Le
 
 def tensorleap_custom_metric(name: str,
                              direction: Union[MetricDirection, Dict[str, MetricDirection]] = MetricDirection.Downward,
-                             compute_insights: Union[bool, Dict[str, bool]] = True):
+                             compute_insights: Optional[Union[bool, Dict[str, bool]]] = None):
     def decorating_function(user_function: Union[CustomCallableInterfaceMultiArgs,
     CustomMultipleReturnCallableInterfaceMultiArgs,
     ConfusionMatrixCallableInterfaceMultiArgs]):
@@ -85,7 +85,11 @@ def tensorleap_custom_metric(name: str,
                             (f'tensorleap_custom_metric validation failed: '
                              f'Keys in the direction mapping should be part of result keys. Got key {direction_key}.')
 
-                if isinstance(compute_insights, dict):
+                if compute_insights is not None:
+                    assert isinstance(compute_insights, dict), \
+                        (f'tensorleap_custom_metric validation failed: '
+                         f'compute_insights should be dict if using the dict results. Got {type(compute_insights)}.')
+
                     for ci_key in compute_insights:
                         assert ci_key in result, \
                             (f'tensorleap_custom_metric validation failed: '
@@ -93,6 +97,12 @@ def tensorleap_custom_metric(name: str,
 
             else:
                 _validate_single_metric(result)
+
+                if compute_insights is not None:
+                    assert isinstance(compute_insights, bool), \
+                        (f'tensorleap_custom_metric validation failed: '
+                         f'compute_insights should be boolean. Got {type(compute_insights)}.')
+
 
         def inner(*args, **kwargs):
             _validate_input_args(*args, **kwargs)
