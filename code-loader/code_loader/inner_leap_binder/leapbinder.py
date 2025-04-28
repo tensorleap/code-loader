@@ -269,7 +269,7 @@ class LeapBinder:
                           name: str,
                           direction: Optional[
                               Union[MetricDirection, Dict[str, MetricDirection]]] = MetricDirection.Downward,
-                          compute_insights: Union[bool, Dict[str, bool]] = True) -> None:
+                          compute_insights: Optional[Union[bool, Dict[str, bool]]] = None) -> None:
         """
         Add a custom metric to the setup.
 
