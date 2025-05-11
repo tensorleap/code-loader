@@ -54,6 +54,30 @@ class LeapImage:
 
 
 @dataclass
+class LeapVideo:
+    """
+    Visualizer representing a video for Tensorleap.
+
+    Attributes:
+    data (npt.NDArray[np.float32] | npt.NDArray[np.uint8]): The video data, shaped [T, H, W, C], where T is the number of frames.
+    type (LeapDataType): The data type, default is LeapDataType.Video.
+
+    Example:
+        video_data = np.random.rand(10, 100, 100, 3).astype(np.float32)
+        leap_video = LeapVideo(data=video_data)
+    """
+    data: Union[npt.NDArray[np.float32], npt.NDArray[np.uint8]]
+    type: LeapDataType = LeapDataType.Video
+
+    def __post_init__(self) -> None:
+        validate_type(self.type, LeapDataType.Video)
+        validate_type(type(self.data), np.ndarray)
+        validate_type(self.data.dtype, [np.uint8, np.float32])
+        validate_type(len(self.data.shape), 4, 'Video must be of shape 4')
+        validate_type(self.data.shape[3], [1, 3], 'Video channel must be either 3(rgb) or 1(gray)')
+
+
+@dataclass
 class LeapImageWithBBox:
     """
     Visualizer representing an image with bounding boxes for Tensorleap, used for object detection tasks.
@@ -308,6 +332,7 @@ class LeapImageWithHeatmap:
 map_leap_data_type_to_visualizer_class = {
     LeapDataType.Image.value: LeapImage,
     LeapDataType.Graph.value: LeapGraph,
+    LeapDataType.Video.value: LeapVideo,
     LeapDataType.Text.value: LeapText,
     LeapDataType.HorizontalBar.value: LeapHorizontalBar,
     LeapDataType.ImageMask.value: LeapImageMask,
