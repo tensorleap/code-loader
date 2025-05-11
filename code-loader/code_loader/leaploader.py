@@ -462,7 +462,7 @@ class LeapLoader(LeapLoaderBase):
 
         try:
             is_none = False
-            if value is None:
+            if value is None or (isinstance(value, (int, float, np.integer, np.floating)) and not np.isfinite(value)):
                 raise ValueError()
             converted_value = metadata_type_to_python_type[metadata_name_to_type[metadata_name]](value)
         except ValueError:
