@@ -516,7 +516,7 @@ class LeapBinder:
                                 raise Exception(f"Metadata {single_metadata_name} is None and no metadata type is provided")
                             metadata_type = dataset_base_handler.metadata_type[single_metadata_name]
                         else:
-                            raise Exception(f"Metadata {single_metadata_name} is None and no metadata type is provided")
+                            raise Exception(f"Metadata {single_metadata_name} is None and metadata type is not a dict")
 
                     result_shape = get_shape(single_metadata_result)
                     metadata_test_result.shape = result_shape
